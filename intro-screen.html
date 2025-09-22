@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Spicy+Rice&display=swap" rel="stylesheet">
+  <title>DO!NK</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Luckiest Guy', cursive;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url('resources/splash-image-portrait.png') no-repeat center center/cover;
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .overlay {
+      /* background: rgba(0,0,0,0.35); */
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+
+
+    .container {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #FFD700;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 8px;
+      margin: 0.5rem 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+    }
+
+    .play {
+      background: #32CD32;
+      color: #fff;
+    }
+
+    .login {
+      background: #1E90FF;
+      color: #fff;
+    }
+
+    .subtext {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #fff;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+    }
+
+    .subtext a {
+      color: #FFD700;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2.8rem;
+      }
+      .btn {
+        font-size: 1.2rem;
+        padding: 0.8rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="container">
+    <h1>DO!NK</h1>
+    
+    <a href="#play" class="btn play">PLAY NOW!</a>
+    <div class="subtext">Unlimited FREE play!</div>
+    
+    <a href="#login" class="btn login">LOGIN</a>
+    <div class="subtext">
+      Not a member? <a href="#register">REGISTER FOR FREE</a> to track your high scores and compete for Winner Status!
+    </div>
+  </div>
+</body>
+</html>

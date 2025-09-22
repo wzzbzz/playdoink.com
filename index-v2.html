@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DO!NK — Arcade Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Acme&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b1020;
+      --panel: rgba(255,255,255,.07);
+      --glass: rgba(255,255,255,.12);
+      --ink: #e9f0ff;
+      --muted: #b9c4e0;
+      --green1:#7efb7f; --green2:#16871a;
+      --red1:#fb9fa1;  --red2:#af1620;
+      --blue1:#a1c9ff; --blue2:#2b8bf6;
+      --ring:#b7c3ff;
+      --win: #34d399; --lose: #ef4444;
+      --focus: #fde68a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:"Outfit", system-ui, -apple-system, Segoe UI, Roboto, "Acme", sans-serif;
+      color:var(--ink); background: radial-gradient(1200px 800px at 50% -10%, #162141 0%, #0b1020 60%, #090e1b 100%) fixed;
+      display:grid; place-items:center;
+    }
+    .shell{width:min(980px, 92vw);}
+    header{display:flex; flex-direction:column; align-items:center; gap:.25rem;}
+    h1{font:700 clamp(40px, 9vw, 96px)/.9 "Acme", sans-serif; letter-spacing:.02em; margin:.25rem 0 .5rem; text-shadow:0 6px 24px rgba(0,0,0,.45)}
+    .sub{color:var(--muted); font-weight:500; letter-spacing:.08em; text-transform:uppercase}
+
+    .hud{display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin:1rem 0 1.25rem}
+    .card{
+      background: linear-gradient(180deg, var(--panel), transparent), var(--panel);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:20px; padding:.9rem 1.1rem; min-width:180px; text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .card h3{margin:0; font-size:.9rem; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+    .digits{font-weight:700; font-size:2rem; letter-spacing:.04em}
+
+    .arena{display:grid; grid-template-columns:1fr 1fr; gap:min(5vw,28px); align-items:center; margin:1.4rem auto;}
+
+    .pick{
+      position:relative; aspect-ratio:1/1; width:min(320px, 42vw); border-radius:24px;
+      background:linear-gradient(180deg, var(--glass), transparent), rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12); display:grid; place-items:center; cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      box-shadow:0 18px 40px rgba(0,0,0,.28);
+    }
+    .pick:hover{ transform: translateY(-3px); box-shadow:0 24px 50px rgba(0,0,0,.36) }
+    .pick:active{ transform: translateY(0) scale(.98) }
+    .pick[disabled]{ pointer-events:none; filter:saturate(.5) opacity(.6) }
+
+    .circle{ width:74%; aspect-ratio:1/1; }
+    .label{ position:absolute; bottom:12px; left:0; right:0; text-align:center; font-weight:700; letter-spacing:.12em; color:var(--muted); }
+
+    .controls{display:flex; justify-content:center; gap:.75rem; margin:1rem 0 0}
+    .btn{
+      font:600 1rem/1.2 "Outfit"; letter-spacing:.06em; text-transform:uppercase;
+      padding:.8rem 1.1rem; border-radius:14px; border:1px solid rgba(255,255,255,.18);
+      background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)); color:var(--ink);
+      cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    }
+    .btn:hover{ transform:translateY(-2px) }
+    .btn:active{ transform:translateY(0) }
+    .btn.primary{ border-color: rgba(54, 131, 255, .5); box-shadow: 0 0 0 2px rgba(43,139,246,.18) inset }
+
+    .toast{ position:fixed; inset:auto 0 20px 0; display:grid; place-items:center; pointer-events:none }
+    .toast > div{ background:rgba(0,0,0,.55); color:#fff; padding:.55rem .8rem; border-radius:12px; font-weight:600; letter-spacing:.06em; opacity:0; transform:translateY(6px);
+      transition:opacity .25s ease, transform .25s ease }
+    .toast.show > div{ opacity:1; transform:translateY(0) }
+
+    /* End overlay */
+    .overlay{
+      position:fixed; inset:0; display:grid; place-items:center;
+      background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      opacity:0; pointer-events:none; transition:opacity .22s ease;
+    }
+    .overlay.show{ opacity:1; pointer-events:auto }
+    .panel{
+      width:min(520px, 92vw); border-radius:22px; padding:1.4rem 1.25rem; text-align:center;
+      background: radial-gradient(200% 100% at 0 0, rgba(43,139,246,.18), transparent 40%), var(--panel);
+      border:1px solid rgba(255,255,255,.14); box-shadow: 0 28px 60px rgba(0,0,0,.4);
+    }
+    .panel h2{margin:.2rem 0 .8rem; font-size:clamp(28px, 5vw, 42px)}
+    .panel .row{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin:.4rem 0 1rem }
+    .panel .stat{ background:rgba(255,255,255,.07); padding:.7rem 1rem; border-radius:14px; min-width:160px }
+    .panel .stat b{ font-size:1.6rem }
+
+    footer{margin:1.4rem 0 0; text-align:center; color:var(--muted); font-size:.96rem}
+    kbd{font:600 .92rem/1.1 "Outfit"; background:#0c1430; border:1px solid #2e3f7a; border-bottom-width:2px; padding:.14rem .36rem; border-radius:6px}
+
+    /* SVG defs bucket hidden */
+    svg#defs{ position:absolute; width:0; height:0; }
+
+    /* Visual win/lose flash */
+    .flash-win{ box-shadow: 0 0 0 3px rgba(52,211,153,.55), 0 24px 60px rgba(52,211,153,.25) !important }
+    .flash-lose{ box-shadow: 0 0 0 3px rgba(239,68,68,.45), 0 24px 60px rgba(239,68,68,.25) !important }
+  </style>
+</head>
+<body>
+  <!-- Shared SVG gradients (used by both buttons) -->
+  <svg id="defs" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="grey" x1="0" y1="0%" x2="0" y2="100%">
+        <stop offset="0%" stop-color="#ffffff" />
+        <stop offset="100%" stop-color="#bbb" />
+      </linearGradient>
+      <linearGradient id="red" x1="0" y1="0%" x2="0" y2="100%">
+        <stop offset="0%" stop-color="var(--red1)" />
+        <stop offset="100%" stop-color="var(--red2)" />
+      </linearGradient>
+      <linearGradient id="green" x1="0" y1="0%" x2="0" y2="100%">
+        <stop offset="0%" stop-color="var(--green1)" />
+        <stop offset="100%" stop-color="var(--green2)" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="shell">
+    <header>
+      <h1>DO!NK</h1>
+      <div class="sub">Pick left or right. Keep your run alive.</div>
+    </header>
+
+    <section class="hud" aria-label="Scoreboard">
+      <div class="card" role="status" aria-live="polite">
+        <h3>Current Streak</h3>
+        <div class="digits" id="streak">0</div>
+      </div>
+      <div class="card">
+        <h3>Best Run</h3>
+        <div class="digits" id="best">0</div>
+      </div>
+      <div class="card" style="min-width:auto">
+        <h3>Sound</h3>
+        <div class="controls">
+          <button class="btn" id="muteBtn" aria-pressed="false" title="Toggle sound (M)">🔊 On</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="arena" aria-label="Play area">
+      <button class="pick" id="pick-1" data-id="1" aria-label="Pick left" autofocus>
+        <svg class="circle" viewBox="0 0 200 200" aria-hidden="true">
+          <g fill="url(#grey)">
+            <circle cx="100" cy="100" r="80" stroke="var(--ring)" stroke-width="6" />
+          </g>
+        </svg>
+        <div class="label">LEFT <small>(1 / ←)</small></div>
+      </button>
+
+      <button class="pick" id="pick-2" data-id="2" aria-label="Pick right">
+        <svg class="circle" viewBox="0 0 200 200" aria-hidden="true">
+          <g fill="url(#grey)">
+            <circle cx="100" cy="100" r="80" stroke="var(--ring)" stroke-width="6" />
+          </g>
+        </svg>
+        <div class="label">RIGHT <small>(2 / →)</small></div>
+      </button>
+    </section>
+
+    <div class="controls">
+      <button class="btn primary" id="playAgain" title="Restart (R)">Play Again</button>
+    </div>
+
+    <footer>
+      Pro tip: use <kbd>1</kbd>/<kbd>2</kbd> or <kbd>←</kbd>/<kbd>→</kbd> to pick. Press <kbd>R</kbd> to restart, <kbd>M</kbd> to mute.
+    </footer>
+  </div>
+
+  <!-- End-of-run overlay -->
+  <div class="overlay" id="overlay" aria-hidden="true" aria-label="Results">
+    <div class="panel">
+      <h2>Run Over</h2>
+      <div class="row">
+        <div class="stat">You got<br><b id="finalScore">0</b></div>
+        <div class="stat">Best run<br><b id="finalBest">0</b></div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="overlayPlay">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" aria-live="polite"><div id="toastMsg"></div></div>
+
+  <script>
+    // ===== Game State =====
+    let streak = 0;
+    let best = Number(localStorage.getItem('doinkHighScore')||0);
+    let winner; // "1" | "2" | true (free win)
+    let muted = false;
+
+    // Tunable odds: 0.4 left, 0.4 right, 0.2 free win (matches your original logic)
+    const coinToss = () => {
+      const n = Math.random();
+      if(n < .4)       winner = "1";
+      else if(n < .8)  winner = "2";
+      else             winner = true;
+    };
+
+    // ===== Audio =====
+    const snd = {
+      doink: new Audio('resources/doink.mp3'),
+      sproing: new Audio('resources/sproing2.mp3'),
+      high: new Audio('resources/highscore.mp3')
+    };
+    Object.values(snd).forEach(a=>{ a.preload = 'auto'; a.volume = .85; });
+
+    function play(sound){ if(!muted){ try{ sound.currentTime = 0; sound.play(); }catch(e){} } }
+
+    // ===== UI Helpers =====
+    const $streak = document.getElementById('streak');
+    const $best   = document.getElementById('best');
+    const $overlay= document.getElementById('overlay');
+    const $final  = document.getElementById('finalScore');
+    const $finalB = document.getElementById('finalBest');
+    const $mute   = document.getElementById('muteBtn');
+    const $toast  = document.getElementById('toast');
+    const $toastMsg = document.getElementById('toastMsg');
+
+    const picks = [document.getElementById('pick-1'), document.getElementById('pick-2')];
+
+    function setButtonsEnabled(on){ picks.forEach(b=> b.toggleAttribute('disabled', !on)); }
+    function resetCircles(){ document.querySelectorAll('.circle g').forEach(g=> g.setAttribute('fill','url(#grey)')); }
+
+    function flash(btn, ok){
+      btn.classList.add(ok? 'flash-win' : 'flash-lose');
+      setTimeout(()=> btn.classList.remove(ok? 'flash-win' : 'flash-lose'), 260);
+    }
+
+    function toast(msg){
+      $toastMsg.textContent = msg; $toast.classList.add('show');
+      setTimeout(()=> $toast.classList.remove('show'), 900);
+    }
+
+    function updateScores(){ $streak.textContent = streak; $best.textContent = best; }
+
+    function showEnd(){
+      $final.textContent = streak; $finalB.textContent = best;
+      $overlay.classList.add('show'); $overlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideEnd(){
+      $overlay.classList.remove('show'); $overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    // ===== Core Game Flow =====
+    function start(){
+      hideEnd();
+      streak = 0; updateScores(); resetCircles(); setButtonsEnabled(true); coinToss();
+    }
+
+    function onPick(whichBtn){
+      setButtonsEnabled(false);
+      const id = whichBtn.dataset.id;
+      const ok = (winner === true || id === String(winner));
+      const g = whichBtn.querySelector('g');
+      g.setAttribute('fill', ok ? 'url(#green)' : 'url(#red)');
+      flash(whichBtn, ok);
+
+      if(ok){
+        streak++; updateScores();
+        if(streak > best){ best = streak; localStorage.setItem('doinkHighScore', String(best)); updateScores(); /* play(snd.high); */ }
+        play(snd.doink);
+        // Next turn after sound completes or small delay fallback
+        const after = () => { setButtonsEnabled(true); coinToss(); resetCircles(); };
+        snd.doink.onended = after; setTimeout(after, 1200);
+      } else {
+        if(streak > best){ best = streak; localStorage.setItem('doinkHighScore', String(best)); }
+        play(snd.sproing);
+        setTimeout(showEnd, 260);
+      }
+    }
+
+    // ===== Wire up =====
+    picks.forEach(btn => btn.addEventListener('click', () => onPick(btn)));
+    document.getElementById('playAgain').addEventListener('click', start);
+    document.getElementById('overlayPlay').addEventListener('click', start);
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='1' || e.key==='ArrowLeft'){ e.preventDefault(); if(!picks[0].disabled) picks[0].click(); }
+      else if(e.key==='2' || e.key==='ArrowRight'){ e.preventDefault(); if(!picks[1].disabled) picks[1].click(); }
+      else if(e.key.toLowerCase()==='r'){ e.preventDefault(); start(); }
+      else if(e.key.toLowerCase()==='m'){ e.preventDefault(); toggleMute(); }
+    });
+
+    function toggleMute(){
+      muted = !muted; $mute.setAttribute('aria-pressed', String(muted));
+      $mute.textContent = muted ? '🔈 Off' : '🔊 On'; toast(muted ? 'Sound off' : 'Sound on');
+    }
+    $mute.addEventListener('click', toggleMute);
+
+    // Init
+    updateScores(); start();
+  </script>
+</body>
+</html>

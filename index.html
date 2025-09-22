@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+
+<head>
+    <title>DO!NK</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:title" content="DO!NK">
+    <meta property="og:description" content="Join the battle!">
+    <meta property="og:image" content="https://playdoink.com/resources/doink-image.png">
+    <meta property="og:url" content="https://playdoink.com">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Spicy+Rice&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            /* 🚫 no scroll ever */
+        }
+
+        body {
+            font-family: 'Luckiest Guy', cursive;
+            box-sizing: content-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 6rem;
+            font-weight: normal;
+            margin-bottom: 0;
+            margin-top: .1em;
+
+        }
+
+        #endwrap {
+            width: 188px;
+            margin: auto;
+            position: relative;
+            z-index: 100;
+        }
+
+        #end {
+            display: none;
+            border: 8px solid #2b8bf6;
+            position: absolute;
+            top: 75px;
+            left: -24px;
+            width: 100%;
+            padding: .7em;
+            font-size: 2rem;
+            background: #fff;
+        }
+
+        #end div {
+            margin: auto;
+            text-align: center;
+        }
+
+        #wrap {
+            display: none;
+            /* hidden until game starts */
+            position: relative;
+            z-index: 2;
+        }
+
+        #intro-overlay {
+            display: flex;
+            /* active by default */
+            align-items: center;
+            justify-content: center;
+            /* background: rgba(0, 0, 0, 0.35); */
+            /* optional dark tint */
+        }
+
+        .container {
+            position: relative;
+        }
+
+        .buttonwrap {
+            width: 200px;
+            margin: auto;
+        }
+
+        #playagain {
+            border: 3px solid #62bf5e;
+            background-color: #fff;
+            color: #62bf5e;
+            font-family: 'Luckiest Guy', sans-serif;
+            font-size: 2rem;
+            width: fit-content;
+            margin: auto;
+            padding-top: 10px;
+        }
+
+        /* ==== SHARE MODULE ==== */
+        #share-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .share-btn,
+        #copy-link,
+        #native-share {
+            flex: 1 1 45%;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            transition: transform 0.1s ease, opacity 0.2s ease;
+        }
+
+        .share-btn:hover,
+        #copy-link:hover,
+        #native-share:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .share-btn:active,
+        #copy-link:active,
+        #native-share:active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .twitter {
+            background-color: #1da1f2;
+        }
+
+        .facebook {
+            background-color: #1877f2;
+        }
+
+        .whatsapp {
+            background-color: #25d366;
+        }
+
+        .reddit {
+            background-color: #ff4500;
+        }
+
+        #copy-link {
+            background-color: #555;
+        }
+
+        #native-share {
+            background-color: #4caf50;
+            width: 186px;
+        }
+
+
+        /* ==== INTRO SCREEN ==== */
+
+
+        #intro-overlay {
+            font-family: 'Luckiest Guy', cursive;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: url('resources/splash-image-portrait.png') no-repeat center center/cover;
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #intro-overlay h1 {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        #intro-overlay .overlay {
+            /* background: rgba(0,0,0,0.35); */
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+
+
+        #intro-overlay.container {
+            position: relative;
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 1rem;
+        }
+
+
+
+        #intro-overlay .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #intro-overlay .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+        }
+
+        #intro-overlay .play {
+            background: #32CD32;
+            color: #fff;
+        }
+
+        #intro-overlay .login {
+            background: #1E90FF;
+            color: #fff;
+        }
+
+        #intro-overlay .subtext {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #fff;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        #intro-overlay .subtext a {
+            color: #FFD700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            #intro-overlay h1 {
+                font-size: 2.8rem;
+            }
+
+            #intro-overlay .btn {
+                font-size: 1.2rem;
+                padding: 0.8rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="intro-overlay" class="overlay">
+        <div class="container intro-container">
+            <h1>DO!NK</h1>
+
+            <a href="#" id="play-now" class="btn play">PLAY NOW!</a>
+            <div class="subtext">Unlimited FREE play!</div>
+
+            <a href="#login" class="btn login">LOGIN</a>
+            <div class="subtext">
+                Not a member? <a href="#register">REGISTER FOR FREE</a> to track your high scores and compete for Winner
+                Status!
+            </div>
+        </div>
+    </div>
+
+    <div id="wrap">
+        <h1>DO!NK</h1>
+        <div id="endwrap">
+            <div id="end">
+                <div>YOU GOT: <span id="yourscore"></span></div>
+                <div>BEST RUN: <span id="bestrun"></span></div>
+                <div class="">
+                    <button id="playagain">PLAY AGAIN</button>
+                </div>
+                <div id="share-buttons-container" style="margin-top:1em;"></div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="buttonwrap">
+                <svg class="svgbutton" id="1" width="200" height="200">
+                    <defs>
+                        <linearGradient id="grey" x1="0" y1="20%" x2="0" y2="100%">
+                            <stop offset="0" stop-color="#fff" />
+                            <stop offset="1" stop-color="#bbb" />
+                        </linearGradient>
+                        <linearGradient id="grad2" x1="0" y1="20%" x2="0" y2="100%">
+                            <stop offset="0" stop-color="#bbb" />
+                            <stop offset="1" stop-color="#fff" />
+                        </linearGradient>
+                        <linearGradient id="red" x1="0" y1="20%" x2="0" y2="100%">
+                            <stop offset="0" stop-color="#fb9fa1" />
+                            <stop offset="1" stop-color="#af1620" />
+                        </linearGradient>
+                        <linearGradient id="green" x1="0" y1="20%" x2="0" y2="1">
+                            <stop offset="0" stop-color="#7efb7f" />
+                            <stop offset="1" stop-color="#16871a" />
+                        </linearGradient>
+                    </defs>
+                    <g fill="url(#grad1)">
+                        <circle cx="100" cy="100" r="75" stroke="#bbb" stroke-width="5" />
+                    </g>
+                </svg>
+            </div>
+            <div class="buttonwrap">
+                <svg class="svgbutton" id="2" width="200" height="200">
+                    <g fill="url(#grad1)">
+                        <circle cx="100" cy="100" r="75" stroke="#bbb" stroke-width="5" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="scoreCanvas" width="600" height="315" style="display:none"></canvas>
+
+    <script>
+
+        var winner;
+        var streak;
+        var bestScore;
+
+        var doink = new Audio('resources/doink.mp3');
+        doink.addEventListener('ended', () => newTurn());
+        var sproing = new Audio('resources/sproing2.mp3');
+        var highscore = new Audio('resources/highscore.mp3');
+
+        $(document).ready(function () {
+            $("#playagain").click(() => startGame());
+            bestScore = (typeof $.cookie('doinkhighscore') === "undefined") ? 0 : $.cookie('doinkhighscore');
+
+            // Intro play button
+            $("#play-now").click(function (e) {
+                e.preventDefault();
+                $("#intro-overlay").fadeOut(500, function () {
+                    $("#wrap").fadeIn(300);
+                    startGame();
+                });
+            });
+
+            //startGame();
+        });
+
+        function track(eventType, metadata = {}) {
+            fetch('https://app.playdoink.com/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventType, metadata }),
+                credentials: 'include'   // 👈 ensures cookies (like your tracking_session) get sent
+            })
+                .then(response => response.json())
+                .then(data => console.log('Tracked:', data))
+                .catch(err => console.error('Error tracking event:', err));
+        }
+
+        function startGame() {
+
+            track('game_start');
+
+            enableButtons();
+            $('.svgbutton g').attr('fill', 'url(#grey');
+            $('.svgbutton g circle').attr('stroke', '#bbb');
+            $("#end").hide();
+            streak = 0;
+            coinToss();
+        }
+
+        function enableButtons() {
+            $(".svgbutton").click(function () {
+                checkPick($(this));
+            });
+        }
+
+        function disableButtons() {
+            $(".svgbutton").unbind("click");
+        }
+
+        function endGame() {
+            console.log("Game Over");
+            track('game_end', { "streak": streak });
+            setTimeout(() => {
+                disableButtons();
+                showEndScreen();
+            }, 250);
+        }
+
+        function coinToss() {
+            let num = Math.random();
+            if (num < .4) { winner = "1"; }
+            else if (num < .8) { winner = "2"; }
+            else { winner = true; }
+        }
+
+        function checkPick(pick) {
+            if (winner === true || pick.attr('id') == winner) {
+                goodPick(pick);
+            } else {
+                badPick(pick);
+            }
+        }
+
+        function newTurn() {
+            enableButtons();
+            coinToss();
+            $('.svgbutton g').attr('fill', 'url(#grey');
+            $('.svgbutton g circle').attr('stroke', '#bbb');
+        }
+
+        function goodPick(pick) {
+            disableButtons();
+            streak++;
+            pick.find('g').attr('fill', 'url(#green');
+            pick.find('g circle').attr('stroke', '#16871a');
+            $("#current-streak-value").text(streak);
+            if (streak > bestScore) {
+                bestScore = streak;
+                $.cookie('doinkhighscore', bestScore);
+                $("#best-score-value").text(bestScore);
+            }
+            doink.play();
+        }
+
+        function badPick(pick) {
+            disableButtons();
+            pick.find('g').attr('fill', 'url(#red');
+            pick.find('g circle').attr('stroke', '#af1620');
+            if (streak > bestScore) {
+                bestScore = streak;
+                $.cookie('doinkhighscore', bestScore);
+            }
+            sproing.play();
+            endGame();
+        }
+
+        function makeScoreImage(score, best) {
+            const canvas = document.getElementById("scoreCanvas");
+            const ctx = canvas.getContext("2d");
+
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#000";
+            ctx.font = "50px 'Luckiest Guy', Arial, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("can you beat my", canvas.width / 2, 80);
+
+            ctx.fillStyle = "#4CAF50";
+            ctx.font = "140px 'Luckiest Guy', Arial, sans-serif";
+            ctx.fillText(best, canvas.width / 2, 200);
+
+            ctx.font = "50px 'Luckiest Guy', Arial, sans-serif";
+            const center = canvas.width / 2;
+            const y = 280;
+
+            const beginning = "on ";
+            const middle = "DO!NK";
+            const end = "?";
+
+            beginningMetrics = ctx.measureText(beginning);
+            middleMetrics = ctx.measureText(middle);
+            endMetrics = ctx.measureText(end);
+
+            const boxpadding = 10;
+            const middleWidth = middleMetrics.width + boxpadding * 2;
+            const totalWidth = beginningMetrics.width + middleWidth + endMetrics.width;
+
+            let xstart = (center - totalWidth / 2);
+
+            ctx.textAlign = "left";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillStyle = "#000";
+            ctx.fillText(beginning, xstart, y);
+
+            xstart += beginningMetrics.width + 10;
+
+            const paddingX = 10;
+            const paddingY = 10;
+            const boxWidth = middleMetrics.width + paddingX * 2;
+            const boxHeight =
+                middleMetrics.actualBoundingBoxAscent +
+                middleMetrics.actualBoundingBoxDescent +
+                paddingY * 2;
+
+            const boxX = xstart - paddingX;
+            const boxY = y - middleMetrics.actualBoundingBoxAscent - paddingY;
+
+            ctx.strokeStyle = "#2b8bf6";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+            ctx.fillStyle = "#2b8bf6";
+            ctx.fillText(middle, xstart, y);
+
+            xstart = xstart + boxWidth;
+            ctx.fillStyle = "#000";
+            ctx.fillText(end, xstart, y);
+
+            return canvas.toDataURL("image/png");
+        }
+
+        function showEndScreen() {
+            $("#yourscore").text(streak);
+            $("#bestrun").text(bestScore);
+            $("#end").show();
+
+            const imgData = makeScoreImage(streak, bestScore);
+
+            $.post("save_score_image.php", { image: imgData, score: bestScore })
+                .done(function (response) {
+                    const data = response;
+                    const sharePage = `https://playdoink.com/share.php?score=${bestScore}`;
+                    renderShareButtons(sharePage);
+                })
+                .fail(function (err) {
+                    console.error("Error saving image:", err);
+                });
+        }
+
+        function renderShareButtons(url) {
+            const container = document.getElementById("share-buttons-container");
+            const shareData = {
+                title: "DO!NK Score",
+                url: url
+            };
+
+            // simple mobile detection
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (isMobile && navigator.share) {
+                container.innerHTML = `<button id="native-share" class="share-btn">Share</button>`;
+                document.getElementById("native-share").addEventListener("click", async () => {
+                    track('share_attempt');
+                    try { await navigator.share(shareData); }
+                    catch (err) { console.log("Share cancelled or failed:", err); }
+                });
+            } else {
+                // always desktop fallback
+                container.innerHTML = `
+          <div id="share-buttons">
+            <button class="share-btn twitter">Twitter</button>
+            <button class="share-btn facebook">Facebook</button>
+            <button class="share-btn whatsapp">WhatsApp</button>
+            <button class="share-btn reddit">Reddit</button>
+            <button id="copy-link">Copy Link</button>
+          </div>`;
+
+                document.querySelector(".twitter").onclick = () =>
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`);
+                document.querySelector(".facebook").onclick = () =>
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`);
+                document.querySelector(".whatsapp").onclick = () =>
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`);
+                document.querySelector(".reddit").onclick = () =>
+                    window.open(`https://www.reddit.com/submit?url=${encodeURIComponent(shareData.url)}&title=${encodeURIComponent(shareData.title)}`);
+                document.getElementById("copy-link").onclick = () => {
+                    navigator.clipboard.writeText(shareData.url);
+                    alert("Link copied to clipboard!");
+                };
+            }
+        }
+
+    </script>
+</body>
