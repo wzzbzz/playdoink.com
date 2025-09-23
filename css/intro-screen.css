@@ -1,0 +1,109 @@
+
+#intro-overlay {
+    font-family: 'Luckiest Guy', cursive;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('resources/doink-splash.jpeg') no-repeat center center/cover;
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@media (min-width: 901px) {
+    #intro-overlay {
+        background-position: center calc(0% - 300px);
+    }
+}
+
+@media (min-width: 601px) {
+    #intro-overlay {
+        background-position: center calc(0% - 200px);
+    }
+}
+
+#intro-overlay h1 {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+    margin-bottom: 2rem;
+}
+
+#intro-overlay .overlay {
+    /* background: rgba(0,0,0,0.35); */
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+
+
+#intro-overlay.container {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem;
+}
+
+
+
+#intro-overlay .btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    margin: 0.5rem 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#intro-overlay .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+#intro-overlay .play {
+    background: #32CD32;
+    color: #fff;
+}
+
+#intro-overlay .login {
+    background: #1E90FF;
+    color: #fff;
+}
+
+#intro-overlay .subtext {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #fff;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+#intro-overlay .subtext a {
+    color: #FFD700;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    #intro-overlay h1 {
+        font-size: 2.8rem;
+    }
+
+    #intro-overlay .btn {
+        font-size: 1.2rem;
+        padding: 0.8rem 1.5rem;
+    }
+}

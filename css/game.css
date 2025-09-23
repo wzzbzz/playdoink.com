@@ -1,0 +1,46 @@
+#endwrap {
+    width: 188px;
+    margin: auto;
+    position: relative;
+    z-index: 100;
+}
+
+#end {
+    display: none;
+    border: 8px solid #2b8bf6;
+    position: absolute;
+    top: 75px;
+    left: -24px;
+    width: 100%;
+    padding: .7em;
+    font-size: 2rem;
+    background: #fff;
+}
+
+#end div {
+    margin: auto;
+    text-align: center;
+}
+
+#wrap {
+    display: none;
+    /* hidden until game starts */
+    position: relative;
+    z-index: 2;
+}
+
+.buttonwrap {
+    width: 200px;
+    margin: auto;
+}
+
+#playagain {
+    border: 3px solid #62bf5e;
+    background-color: #fff;
+    color: #62bf5e;
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 2rem;
+    width: fit-content;
+    margin: auto;
+    padding-top: 10px;
+}

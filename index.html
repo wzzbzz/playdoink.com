@@ -183,6 +183,18 @@
             box-sizing: border-box;
         }
 
+        @media (min-width: 901px) {
+            #intro-overlay {
+                background-position: center calc(0% - 300px);
+            }
+        }
+
+        @media (min-width: 601px) {
+            #intro-overlay {
+                background-position: center calc(0% - 200px);
+            }
+        }
+
         #intro-overlay h1 {
             font-size: 4rem;
             font-weight: bold;
@@ -268,6 +280,19 @@
 
 <body>
     <div id="intro-overlay" class="overlay">
+        <div class="container auth-container">
+            <div class="auth-card">
+                <h2 id="form-title">Login</h2>
+                <form id="auth-form">
+                    <input type="text" id="username" placeholder="Username" required />
+                    <input type="password" id="password" placeholder="Password" required />
+                    <button type="submit">Login</button>
+                </form>
+                <p class="toggle-text">
+                    Don’t have an account? <a href="#" id="toggle-link">Register here</a>
+                </p>
+            </div>
+        </div>
         <div class="container intro-container">
             <h1>DO!NK</h1>
 
