@@ -11,6 +11,11 @@ body {
     box-sizing: content-box;
     margin: 0;
     padding: 0;
+        
+    user-select: none;           /* Standard */
+    -webkit-user-select: none;   /* Chrome/Safari */
+    -ms-user-select: none;       /* IE/Edge (old) */
+
 }
 
 h1 {
@@ -19,7 +24,6 @@ h1 {
     font-weight: normal;
     margin-bottom: 0;
     margin-top: .1em;
-
 }
 
 .container {
