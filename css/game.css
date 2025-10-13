@@ -32,6 +32,7 @@
 .buttonwrap {
     width: 200px;
     margin: auto;
+    -webkit-tap-highlight-color: transparent; /* removes grey/transparent tap square */
 }
 
 #playagain {
@@ -43,4 +44,14 @@
     width: fit-content;
     margin: auto;
     padding-top: 10px;
+}
+
+.svgbutton {
+  outline: none;        /* removes the transparent square */
+  -webkit-tap-highlight-color: transparent; /* removes grey/transparent tap square */
+}
+
+.svgbutton:focus {
+  outline: none;        /* double-ensures it’s off when focused */
+  -webkit-tap-highlight-color: transparent; /* removes grey/transparent tap square */
 }

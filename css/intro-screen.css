@@ -5,7 +5,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: url('resources/doink-splash.jpeg') no-repeat center center/cover;
+    background: url('/resources/doink-splash.jpeg') no-repeat center center/cover;
     color: #fff;
     text-align: center;
     overflow: hidden;
@@ -76,6 +76,11 @@
 
 #intro-overlay .play {
     background: #32CD32;
+    color: #fff;
+}
+
+#intro-overlay .challenge{
+    background: #b244d1;
     color: #fff;
 }
 

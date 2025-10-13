@@ -1,0 +1,58 @@
+.game-container {
+    position: relative;
+    width: 100%;
+    max-width: 375px;
+    /* iPhone size for testing */
+    margin: 0 auto;
+}
+
+.flash-message {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+    /* ignore clicks */
+    z-index: 2000;
+}
+
+#arena {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #000;
+}
+
+.sprite-hitbox {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0);
+    /* invisible */
+}
+
+.sprite-menu {
+    display: none;
+    position: absolute;
+    background: #fff;
+    border: 1px solid #333;
+    padding: 5px;
+    z-index: 1000;
+}
+
+.menu-item {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background: #eee;
+}
