@@ -50,7 +50,7 @@ $(document).ready(function () {
     messageEl.removeClass('success error').hide();
     
     try {
-      const response = await fetch('https://127.0.0.1:8000/api/auth/request-login', {
+      const response = await fetch('${CONFIG.API_URL}/api/auth/request-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

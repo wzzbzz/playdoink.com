@@ -90,7 +90,7 @@ $doink = new Doink\Doink();
 
         async function verifyToken(token) {
             try {
-                const response = await fetch(`${CONFIG.API_URL}/api/auth/verify-token`, {
+                const response = await `${CONFIG.API_URL}/api/auth/verify-token`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

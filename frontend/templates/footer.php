@@ -4,7 +4,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 
     <!-- Configuration -->
-    <script src="js/config.js"></script>
+    <script src="js/config.js?v=<?= time() ?>"></script>
 
     <!-- Your shared sounds, utils -->
     <script src="js/utils.js"></script>
