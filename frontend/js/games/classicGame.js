@@ -264,6 +264,22 @@ const classicGame = {
   showEndScreen(streak, bestScore) {
     $("#yourscore").text(streak);
     $("#bestrun").text(bestScore);
+    
+    // Show "NEW HIGH SCORE!" notification if this is a new personal best
+    if (streak > 0 && streak === bestScore) {
+      const notification = $('<div class="high-score-notification">🎉 NEW HIGH SCORE! 🎉</div>');
+      $('body').append(notification);
+      
+      // Animate in
+      setTimeout(() => notification.addClass('show'), 10);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.removeClass('show');
+        setTimeout(() => notification.remove(), 500);
+      }, 3000);
+    }
+    
     $("#results").show();
 
     // Generate and save score image for sharing
