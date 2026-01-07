@@ -282,6 +282,8 @@ const classicGame = {
     
     $("#results").show();
 
+    // TODO: Re-enable share buttons when renderShareButtons function is implemented
+    /*
     // Generate and save score image for sharing
     const imgData = this.makeScoreImage(streak, bestScore);
 
@@ -293,6 +295,7 @@ const classicGame = {
       .fail(function (err) {
         console.error("Error saving image:", err);
       });
+    */
   }
 };
 
