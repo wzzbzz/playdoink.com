@@ -1,0 +1,93 @@
+#endgame_modal {
+    width: 188px;
+    margin: auto;
+    position: relative;
+    z-index: 100;
+}
+
+#results {
+    border: 8px solid #2b8bf6;
+    position: absolute;
+    top: 75px;
+    left: -24px;
+    width: 100%;
+    padding: .7em;
+    font-size: 2rem;
+    background: #fff;
+}
+
+#results div {
+    margin: auto;
+    text-align: center;
+}
+
+#game-console {
+    display: none;
+    /* hidden until game starts */
+    position: relative;
+    z-index: 2;
+}
+
+.single_button_wrap {
+    width: 200px;
+    margin: auto;
+    -webkit-tap-highlight-color: transparent;
+    /* removes grey/transparent tap square */
+}
+
+#playagain {
+    border: 3px solid #62bf5e;
+    background-color: #fff;
+    color: #62bf5e;
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 2rem;
+    width: fit-content;
+    margin: auto;
+    padding-top: 10px;
+}
+
+.svgbutton {
+    outline: none;
+    /* removes the transparent square */
+    -webkit-tap-highlight-color: transparent;
+    /* removes grey/transparent tap square */
+}
+
+.svgbutton:focus {
+    outline: none;
+    /* double-ensures it’s off when focused */
+    -webkit-tap-highlight-color: transparent;
+    /* removes grey/transparent tap square */
+}
+
+#marquee_message {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 0rem;
+    color: #FFD700;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    height: 0;
+    position: relative;
+    z-index: 1000;
+}
+
+#marquee_message.show {
+    height: 2rem;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    transition: font-size 0.5s ease;
+    /* Smooth transition for showing message */
+}
+
+
+#marquee_message button {
+    color: #af1620;
+    font-size: 1.2rem;
+    margin-left: 1rem;
+    border: 2px solid #af1620;
+    background: transparent;
+    font-family: 'Luckiest Guy', cursive;
+    padding-top: 6px;
+    -webkit-tap-highlight-color: transparent;
+    /* removes grey/transparent tap square */
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Grid</title>
+    <style>
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            gap: 10px; /* Adjust spacing as needed */
+            grid-auto-rows: 200px; /* Set a fixed height for the rows */
+            width:375px;
+            height:100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="buttons" class="button-grid container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

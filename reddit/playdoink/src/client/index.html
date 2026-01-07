@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Spicy+Rice&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height, user-scalable=0" />
+  <title>Devvit Experimental</title>
+
+</head>
+
+<body class="app">
+  <div class="content">
+    <h1 class="title" id="title">DO!NK</h1>
+  </div>
+  <!-- Shared gradients (hidden but global) -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="grey" x1="0" y1="20%" x2="0" y2="100%">
+        <stop offset="0%" stop-color="#fff" />
+        <stop offset="100%" stop-color="#bbb" />
+      </linearGradient>
+
+      <linearGradient id="red" x1="0" y1="20%" x2="0" y2="100%">
+        <stop offset="0%" stop-color="#fb9fa1" />
+        <stop offset="100%" stop-color="#af1620" />
+      </linearGradient>
+
+      <linearGradient id="green" x1="0" y1="20%" x2="0" y2="100%">
+        <stop offset="0%" stop-color="#7efb7f" />
+        <stop offset="100%" stop-color="#16871a" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Your buttons -->
+  <div id="the_machine" class="doink_machine container">
+    <div class="single_button_wrap">
+      <svg class="svgbutton" id="1" width="200" height="200">
+        <g fill="url(#grey)">
+          <circle cx="100" cy="100" r="75" stroke="#bbb" stroke-width="5" />
+        </g>
+      </svg>
+    </div>
+
+    <div class="single_button_wrap">
+      <svg class="svgbutton" id="2" width="200" height="200">
+        <g fill="url(#grey)">
+          <circle cx="100" cy="100" r="75" stroke="#bbb" stroke-width="5" />
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div id="resultswrap" class="modal" style="display:none;">
+    <div id="results">
+      <div>YOU GOT: <span id="yourscore"></span></div>
+      <div>BEST RUN: <span id="bestrun"></span></div>
+      <div class="">
+        <button id="playagain">PLAY AGAIN</button>
+      </div>
+      <div id="share-buttons-container" style="margin-top:1em;"></div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+    <div class="docs-link" tabindex="0" id="docs-link">Docs</div>
+    <span class="divider">|</span>
+    <div class="docs-link" tabindex="0" id="playtest-link">r/Devvit</div>
+    <span class="divider">|</span>
+    <div class="docs-link" tabindex="0" id="discord-link">Discord</div>
+  </footer>
+  <script type="module" src="main.ts" defer></script>
+</body>
+
+</html>
