@@ -4,6 +4,7 @@ const classicGame = {
 
   // Initialize the game state and UI
   async init() {
+    
     this.state.streak = 0;
     
     // Load best score from server if logged in, otherwise from cookie
@@ -16,7 +17,8 @@ const classicGame = {
 
     this.newTurn();
     this.renderUI();
-    $("#results").hide();
+    $("#endgame_modal").hide();
+
   },
 
   // Load best score from server or cookie
@@ -293,8 +295,10 @@ const classicGame = {
 
   // Display end game screen with scores and sharing options
   showEndScreen(streak, bestScore) {
+
     $("#yourscore").text(streak);
     $("#bestrun").text(bestScore);
+    $("#endgame_modal").show();
     
     // Show "NEW HIGH SCORE!" notification if this is a new personal best
     if (streak > 0 && streak === bestScore) {
