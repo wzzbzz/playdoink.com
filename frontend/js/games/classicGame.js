@@ -39,15 +39,21 @@ const classicGame = {
         } else {
           // Fallback to cookie
           this.state.bestScore = $.cookie('doinkhighscore') || 0;
+          // temporarily disable cookie 
+          this.state.bestScore = 0;
         }
       } catch (error) {
         console.error('Failed to load best score from server:', error);
         // Fallback to cookie
         this.state.bestScore = $.cookie('doinkhighscore') || 0;
+        // temporarily disable cookie 
+          this.state.bestScore = 0;
       }
     } else {
       // Not logged in - use cookie
       this.state.bestScore = $.cookie('doinkhighscore') || 0;
+      // temporarily disable cookie 
+      this.state.bestScore = 0;
     }
   },
 
@@ -174,13 +180,8 @@ const classicGame = {
   // End the current game and show results
   endGame() {
     // Play special sound if new high score achieved
-    if (this.state.streak > this.state.bestScore) {
-      sounds.highscore.play();
-    }
-    
     // Submit score to leaderboard
     this.submitScore(this.state.streak);
-    
     this.showEndScreen(this.state.streak, this.state.bestScore);
   },
 
@@ -304,7 +305,7 @@ const classicGame = {
     if (streak > 0 && streak === bestScore) {
       const notification = $('<div class="high-score-notification">🎉 NEW HIGH SCORE! 🎉</div>');
       $('#results').append(notification);
-      
+      sounds.highscore.play();
       // Animate in
       setTimeout(() => notification.addClass('show'), 10);
       
