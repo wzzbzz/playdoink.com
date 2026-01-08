@@ -3,10 +3,11 @@ const classicGame = {
   state: { streak: 0, bestScore: 0, winner: null },
 
   // Initialize the game state and UI
-  init() {
+  async init() {
     this.state.streak = 0;
-    // Load best score from cookie or default to 0
-    this.state.bestScore = (typeof $.cookie('doinkhighscore') === "undefined") ? 0 : $.cookie('doinkhighscore');
+    
+    // Load best score from server if logged in, otherwise from cookie
+    await this.loadBestScore();
 
     // Set up sound callback to start new turn when doink sound ends
     sounds.doink.onended = () => {
@@ -16,6 +17,36 @@ const classicGame = {
     this.newTurn();
     this.renderUI();
     $("#results").hide();
+  },
+
+  // Load best score from server or cookie
+  async loadBestScore() {
+    const userData = localStorage.getItem('doink_user');
+    
+    if (userData) {
+      // User is logged in - get best score from server
+      try {
+        const user = JSON.parse(userData);
+        const response = await fetch(`${CONFIG.API_URL}/api/leaderboard/my-stats/${user.id}`);
+        const data = await response.json();
+        
+        if (response.ok && data.bestScore) {
+          this.state.bestScore = data.bestScore;
+          // Update cookie to match server
+          $.cookie('doinkhighscore', this.state.bestScore, { expires: 365 });
+        } else {
+          // Fallback to cookie
+          this.state.bestScore = $.cookie('doinkhighscore') || 0;
+        }
+      } catch (error) {
+        console.error('Failed to load best score from server:', error);
+        // Fallback to cookie
+        this.state.bestScore = $.cookie('doinkhighscore') || 0;
+      }
+    } else {
+      // Not logged in - use cookie
+      this.state.bestScore = $.cookie('doinkhighscore') || 0;
+    }
   },
 
   // Start a new turn by enabling buttons and randomly selecting winner
