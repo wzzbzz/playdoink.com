@@ -115,7 +115,7 @@ const classicGame = {
     // Update best score if current streak exceeds it
     if (this.state.streak > this.state.bestScore) {
       this.state.bestScore = this.state.streak;
-      $.cookie('doinkhighscore', this.state.bestScore);
+      $.cookie('doinkhighscore', this.state.bestScore, { expires: 365 }); // Save for 1 year
     }
 
     // Update UI with new scores
