@@ -299,7 +299,7 @@ const classicGame = {
     // Show "NEW HIGH SCORE!" notification if this is a new personal best
     if (streak > 0 && streak === bestScore) {
       const notification = $('<div class="high-score-notification">🎉 NEW HIGH SCORE! 🎉</div>');
-      $('body').append(notification);
+      $('#results').append(notification);
       
       // Animate in
       setTimeout(() => notification.addClass('show'), 10);
@@ -308,7 +308,7 @@ const classicGame = {
       setTimeout(() => {
         notification.removeClass('show');
         setTimeout(() => notification.remove(), 500);
-      }, 3000);
+      }, 1500);
     }
     
     $("#results").show();
