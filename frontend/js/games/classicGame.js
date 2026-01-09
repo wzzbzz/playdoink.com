@@ -46,13 +46,10 @@ const classicGame = {
         console.error('Failed to load best score from server:', error);
         // Fallback to cookie
         this.state.bestScore = $.cookie('doinkhighscore') || 0;
-        // temporarily disable cookie 
-          this.state.bestScore = 0;
       }
     } else {
       // Not logged in - use cookie
       this.state.bestScore = $.cookie('doinkhighscore') || 0;
-
     }
   },
 
