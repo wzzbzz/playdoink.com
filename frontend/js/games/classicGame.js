@@ -52,8 +52,7 @@ const classicGame = {
     } else {
       // Not logged in - use cookie
       this.state.bestScore = $.cookie('doinkhighscore') || 0;
-      // temporarily disable cookie 
-      this.state.bestScore = 0;
+
     }
   },
 
