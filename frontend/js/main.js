@@ -103,12 +103,21 @@ $(document).ready(function () {
     loadPersonalStats();
   });
 
+  $("#view-faq").click(function() {
+    $("#game-menu-overlay").fadeOut(300);
+    $("#faq-overlay").fadeIn(300);
+  });
+
   $("#close-stats").click(function() {
     $("#stats-overlay").fadeOut(300);
   });
 
   $("#close-leaderboard").click(function() {
     $("#leaderboard-overlay").fadeOut(300);
+  });
+
+  $("#close-faq").click(function() {
+    $("#faq-overlay").fadeOut(300);
   });
 
   $("#tab-daily").click(function() {
@@ -249,6 +258,14 @@ async function loadLeaderboard(type) {
               <th>Rank</th>
               <th>Player</th>
               <th>Score</th>
+      `;
+      
+      // Add date column only for all-time leaderboard
+      if (type === 'all-time') {
+        html += '<th>Date</th>';
+      }
+      
+      html += `
             </tr>
           </thead>
           <tbody>
@@ -264,8 +281,20 @@ async function loadLeaderboard(type) {
             <td class="rank ${rankClass}">${rank}</td>
             <td class="player-name">${displayName}</td>
             <td class="player-score">${entry.score}</td>
-          </tr>
         `;
+        
+        // Add date only for all-time leaderboard
+        if (type === 'all-time' && entry.createdAt) {
+          const date = new Date(entry.createdAt.date || entry.createdAt);
+          const formattedDate = date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            year: 'numeric'
+          });
+          html += `<td class="score-date">${formattedDate}</td>`;
+        }
+        
+        html += '</tr>';
       });
       
       html += '</tbody></table>';
@@ -296,7 +325,8 @@ async function loadPersonalStats() {
   content.html('<div class="loading">Loading...</div>');
   
   const userData = localStorage.getItem('doink_user');
-  if (!userData) {
+
+  if (!userData || !JSON.parse(userData).name || JSON.parse(userData).name === '') {
     content.html('<div class="no-stats"><div class="no-stats-icon">🔒</div><p>Please log in to view stats</p></div>');
     return;
   }

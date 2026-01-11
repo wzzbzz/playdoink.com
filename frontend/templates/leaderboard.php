@@ -136,6 +136,13 @@
         border-bottom: 1px solid #f5f5f5;
     }
 
+    .score-date {
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        color: #999;
+        text-align: right;
+    }
+
     .leaderboard-table tr:hover {
         background: #f9f9f9;
     }

@@ -5,6 +5,11 @@
             <h2>Menu</h2>
             
             <div class="menu-options">
+                <button id="view-faq" class="menu-option-btn">
+                    <span class="menu-icon">❓</span>
+                    <span class="menu-text">DO?NK</span>
+                </button>
+                
                 <button id="view-leaderboard" class="menu-option-btn">
                     <span class="menu-icon">🏆</span>
                     <span class="menu-text">Leaderboard</span>
@@ -14,6 +19,7 @@
                     <span class="menu-icon">📊</span>
                     <span class="menu-text">My Stats</span>
                 </button>
+                
                 
                 <button id="back-to-home" class="menu-option-btn">
                     <span class="menu-icon">🏠</span>

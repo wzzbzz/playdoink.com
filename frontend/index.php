@@ -15,6 +15,7 @@ include 'templates/game-console.php';
 include 'templates/game-menu.php';
 include 'templates/leaderboard.php';
 include 'templates/stats.php';
+include 'templates/faq.php';
 include 'templates/chat-app.php';
 include 'templates/room.php';
 include 'templates/footer.php';

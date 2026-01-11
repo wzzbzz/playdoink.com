@@ -22,6 +22,7 @@ class ScoreRepository extends ServiceEntityRepository
             ->select('s.score', 'u.username', 'u.email', 's.createdAt')
             ->join('s.user', 'u')
             ->orderBy('s.score', 'DESC')
+            ->addOrderBy('s.createdAt', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
