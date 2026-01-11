@@ -326,7 +326,7 @@ async function loadPersonalStats() {
   
   const userData = localStorage.getItem('doink_user');
 
-  if (!userData || !JSON.parse(userData).name || JSON.parse(userData).name === '') {
+  if (!userData || !userData.name || userData.name === '') {
     content.html('<div class="no-stats"><div class="no-stats-icon">🔒</div><p>Please log in to view stats</p></div>');
     return;
   }
