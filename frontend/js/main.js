@@ -324,14 +324,13 @@ async function loadPersonalStats() {
   const content = $("#stats-content");
   content.html('<div class="loading">Loading...</div>');
   
-  const userData = localStorage.getItem('doink_user');
+  const user = JSON.parse(localStorage.getItem('doink_user'));
 
-  if (!userData || !userData.name || userData.name === '') {
+  if (!user || !user.name || user.name === '') {
     content.html('<div class="no-stats"><div class="no-stats-icon">🔒</div><p>Please log in to view stats</p></div>');
     return;
   }
-  
-  const user = JSON.parse(userData);
+    
   if (!user.id) {
     content.html('<div class="no-stats"><div class="no-stats-icon">⚠️</div><p>User ID not found</p></div>');
     return;

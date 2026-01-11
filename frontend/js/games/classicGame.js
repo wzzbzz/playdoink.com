@@ -23,12 +23,12 @@ const classicGame = {
 
   // Load best score from server or cookie
   async loadBestScore() {
-    const userData = JSON.parse(localStorage.getItem('doink_user'));
+    const user = JSON.parse(localStorage.getItem('doink_user'));
     
-    if (userData && userData.name && userData.name !== '') {
+    if (user && user.name && user.name !== '') {
       // User is logged in - get best score from server
       try {
-        const user = JSON.parse(userData);
+      
         const response = await fetch(`${CONFIG.API_URL}/api/leaderboard/my-stats/${user.id}`);
         const data = await response.json();
         
