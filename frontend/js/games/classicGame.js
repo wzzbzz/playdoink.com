@@ -23,7 +23,7 @@ const classicGame = {
 
   // Load best score from server or cookie
   async loadBestScore() {
-    const userData = localStorage.getItem('doink_user');
+    const userData = JSON.parse(localStorage.getItem('doink_user'));
     
     if (userData && userData.name && userData.name !== '') {
       // User is logged in - get best score from server
