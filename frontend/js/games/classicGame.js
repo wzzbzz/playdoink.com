@@ -4,9 +4,9 @@ const classicGame = {
 
   // Initialize the game state and UI
   async init() {
-    
+
     this.state.streak = 0;
-    
+
     // Load best score from server if logged in, otherwise from cookie
     await this.loadBestScore();
 
@@ -23,15 +23,30 @@ const classicGame = {
 
   // Load best score from server or cookie
   async loadBestScore() {
-    const user = JSON.parse(localStorage.getItem('doink_user'));
-    
-    if (user && user.name && user.name !== '') {
+    let user = null;
+
+    try {
+      const raw = localStorage.getItem('doink_user');
+      user = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.warn('Invalid doink_user in localStorage', e);
+      user = null;
+    }
+
+    const valid_user =
+      typeof user === 'object' &&
+      user !== null &&
+      typeof user.username === 'string' &&
+      user.username.trim().length > 0;
+
+
+    if (!valid_user) {
       // User is logged in - get best score from server
       try {
-      
+
         const response = await fetch(`${CONFIG.API_URL}/api/leaderboard/my-stats/${user.id}`);
         const data = await response.json();
-        
+
         if (response.ok && data.bestScore) {
           this.state.bestScore = data.bestScore;
           // Update cookie to match server
@@ -106,10 +121,10 @@ const classicGame = {
 
   handlePick(button_selected) {
     const correct = (this.state.winner === true || button_selected.attr('id') == this.state.winner);
-    
+
     // Save selection to database
     this.saveSelection(button_selected.attr('id'), correct);
-    
+
     if (correct) {
       this.handleCorrect(button_selected);
     } else {
@@ -121,12 +136,12 @@ const classicGame = {
   async saveSelection(buttonId, success) {
     const userData = localStorage.getItem('doink_user');
     if (!userData) return; // Not logged in
-    
+
     const user = JSON.parse(userData);
     if (!user.id) return; // No user ID
-    
+
     const selection = buttonId === '1' ? 'bottom' : 'top';
-    
+
     try {
       await fetch(`${CONFIG.API_URL}/api/auth/save-selection`, {
         method: 'POST',
@@ -185,13 +200,13 @@ const classicGame = {
   async submitScore(scoreValue) {
     // Don't submit zero scores
     if (scoreValue === 0) return;
-    
+
     const userData = localStorage.getItem('doink_user');
     if (!userData) return; // Not logged in
-    
+
     const user = JSON.parse(userData);
     if (!user.id) return; // No user ID
-    
+
     try {
       await fetch(`${CONFIG.API_URL}/api/leaderboard/submit-score`, {
         method: 'POST',
@@ -296,7 +311,7 @@ const classicGame = {
     $("#yourscore").text(streak);
     $("#bestrun").text(bestScore);
     $("#endgame_modal").show();
-    
+
     // Show "NEW HIGH SCORE!" notification if this is a new personal best
     if (streak > 0 && streak === bestScore) {
       const notification = $('<div class="high-score-notification">🎉 NEW HIGH SCORE! 🎉</div>');
@@ -304,14 +319,14 @@ const classicGame = {
       sounds.highscore.play();
       // Animate in
       setTimeout(() => notification.addClass('show'), 10);
-      
+
       // Remove after 3 seconds
       setTimeout(() => {
         notification.removeClass('show');
         setTimeout(() => notification.remove(), 500);
       }, 1500);
     }
-    
+
     $("#results").show();
 
     // Generate and save score image for sharing
