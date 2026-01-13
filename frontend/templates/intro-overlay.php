@@ -48,8 +48,10 @@
 
         <a href="#" id="login-register" class="btn login-register" data-mode="page">LOGIN/REGISTER</a>
         <div class="subtext">
-            Enter the world of competitive DO!NKing! Compete against other players for Daily Prizes!
-            <br>
+            Press a button.<br>
+            Hope it's green.<br>
+            If it's red, the game ends.<br>
+
         </div>
 
         <!-- <a href="#login" class="btn login">LOGIN</a>
