@@ -6,7 +6,7 @@ namespace Doink;
 class Doink
 {
 
-    private $cache_bust = "v=20240610.3"; // Change this to bust cache on new deploys
+    private $cache_bust = "v=20260113.0"; // Change this to bust cache on new deploys
     private $title;
     private $description;
 
