@@ -20,15 +20,21 @@ $doink->setDescription('Terms of Use for Doink game');
     <link rel="stylesheet" href="css/main.css?v=<?= $doink->cacheBust() ?>">
     <link rel="stylesheet" href="css/legal.css?v=<?= $doink->cacheBust() ?>">
     <style>
+        html, body {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            height: auto !important;
+        }
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 2rem 0;
+            padding-bottom: 5rem;
         }
     </style>
 </head>
 <body>
-    <div style="max-width: 800px; margin: 0 auto;">
+    <div style="max-width: 800px; margin: 0 auto; padding: 0 1rem;">
         <a href="/" style="color: white; text-decoration: none; display: inline-block; margin-bottom: 1rem; padding: 0.5rem 1rem; background: rgba(0,0,0,0.3); border-radius: 4px;">← Back to Game</a>
     </div>
     

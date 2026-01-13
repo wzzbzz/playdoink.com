@@ -1,10 +1,41 @@
 /* Legal Pages Styling */
+
+/* Ensure scrolling works on mobile */
+html, body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    height: auto !important;
+    min-height: 100vh;
+}
+
 .legal-content {
     background: rgba(255, 255, 255, 0.95);
     padding: 2rem;
     border-radius: 8px;
     color: #333;
     line-height: 1.6;
+    margin-bottom: 5rem; /* Space for fixed footer */
+    overflow-y: visible;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .legal-content {
+        padding: 1rem;
+        margin: 0 1rem 5rem 1rem;
+    }
+    
+    .legal-content h1 {
+        font-size: 1.5rem;
+    }
+    
+    .legal-content h2 {
+        font-size: 1.25rem;
+    }
+    
+    .legal-content h3 {
+        font-size: 1.1rem;
+    }
 }
 
 .legal-content h1 {
