@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="css/game.css?v=<?= $doink->cacheBust() ?>">
     <link rel="stylesheet" href="css/share.css?v=<?= $doink->cacheBust() ?>">
     <link rel="stylesheet" href="css/colosseum.css?v=<?= $doink->cacheBust() ?>">
+    <link rel="stylesheet" href="css/legal.css?v=<?= $doink->cacheBust() ?>">
 
 </head>
 

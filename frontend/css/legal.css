@@ -1,0 +1,71 @@
+/* Legal Pages Styling */
+.legal-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 8px;
+    color: #333;
+    line-height: 1.6;
+}
+
+.legal-content h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #000;
+}
+
+.legal-content h2 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+.legal-content h3 {
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #444;
+}
+
+.legal-content p {
+    margin-bottom: 1rem;
+}
+
+.legal-content ul {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.legal-content em {
+    color: #666;
+}
+
+/* Footer Links */
+.legal-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    z-index: 1000;
+}
+
+.legal-footer a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 1rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.legal-footer a:hover {
+    opacity: 1;
+    text-decoration: underline;
+}

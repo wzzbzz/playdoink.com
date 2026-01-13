@@ -7,10 +7,12 @@ class Doink
 {
 
     private $cache_bust = "v=20240610.3"; // Change this to bust cache on new deploys
+    private $title;
+    private $description;
 
     public function getLocation(){
 
-    }
+    }  
     public function getVersion(): string
     {
         return '1.0.1';
@@ -23,12 +25,22 @@ class Doink
 
     public function title(): string
     {
-        return "DO!NK";
+        return $this->title ?? "Doink";
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
     }
 
     public function description(): string
     {
-        return "Join the battle!";
+        return $this->description ?? "Doink Description.";
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
     }
 
     public function ogImageUrl(): string
