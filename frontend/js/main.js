@@ -3,6 +3,33 @@ $(document).ready(function () {
 
   loadCurrentUser();
 
+  // Handle browser back button
+  let isInGame = false;
+
+  window.addEventListener('popstate', function(event) {
+    if (isInGame) {
+      // User pressed back while in game - return to intro
+      $("#game-console").fadeOut(300);
+      $("#intro-overlay").fadeIn(500);
+      isInGame = false;
+    }
+  });
+
+  // Push state when entering game
+  function enterGame() {
+    history.pushState({ inGame: true }, '', window.location.href);
+    isInGame = true;
+  }
+
+  // Push state when returning to intro
+  function returnToIntro() {
+    isInGame = false;
+    // Go back if we pushed a state
+    if (history.state && history.state.inGame) {
+      history.back();
+    }
+  }
+
   // Check if we should show nickname prompt
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('show-nickname') === '1') {
@@ -18,6 +45,7 @@ $(document).ready(function () {
     $("#intro-overlay").fadeOut(500, function () {
       $("#game-console").fadeIn(300);
       loadGame('classic');   // instead of startGame()
+      enterGame(); // Push history state
     });
   });
 
@@ -89,6 +117,7 @@ $(document).ready(function () {
     $("#game-menu-overlay").fadeOut(300);
     $("#game-console").fadeOut(300);
     $("#intro-overlay").fadeIn(500);
+    returnToIntro(); // Handle history state
   });
 
   $("#view-leaderboard").click(function () {
