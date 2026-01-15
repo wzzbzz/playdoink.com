@@ -1,29 +1,31 @@
-<?php global $doink; ?>
+<?php 
+global $doink; 
+use Doink\Copy;
+?>
 <div id="intro-overlay" class="overlay">
 
     <div id="auth-container" class="container auth-container" style="display:none;">
         <div class="auth-card">
-            <h2>DO!NK</h2>
-            <p class="auth-subtitle">Join the battle!</p>
+            <h2><?= Copy::get('auth.heading') ?></h2>
+            <p class="auth-subtitle"><?= Copy::get('auth.subtitle') ?></p>
             
             <form id="auth-form" class="auth-form">
                 <input 
                     type="email" 
                     id="email-input" 
-                    placeholder="Enter your email" 
+                    placeholder="<?= Copy::get('auth.email_placeholder') ?>" 
                     required
                     autocomplete="email"
                 />
                 <button type="submit" id="auth-submit-btn" class="btn">
-                    Send Magic Link
+                    <?= Copy::get('auth.submit_button') ?>
                 </button>
             </form>
             
             <div id="auth-message" class="auth-message"></div>
             
             <p class="auth-footer">
-                We'll send you a link to login instantly.<br>
-                No password needed!
+                <?= Copy::get('auth.footer_text') ?>
             </p>
 
             <div class="auth-legal-links">
@@ -33,7 +35,7 @@
             </div>
             
             <p class="toggle-text">
-                <a href="#" id="back-to-intro">← Back</a>
+                <a href="#" id="back-to-intro"><?= Copy::get('auth.back_link') ?></a>
             </p>
         </div>
     </div>
@@ -42,22 +44,21 @@
 
 
     <div id="intro-container" class="container intro-container">
-        <h1>DO!NK</h1>
+        <h1><?= Copy::get('homepage.heading') ?></h1>
         <div class="version-info">
-            <small>Version: <?php echo htmlspecialchars($doink->getVersion(), ENT_QUOTES, 'UTF-8'); ?></small>
+            <small><?= Copy::get('site.version_prefix') ?> <?php echo htmlspecialchars($doink->getVersion(), ENT_QUOTES, 'UTF-8'); ?></small>
         </div>
 
-        <a href="#" id="play-now" class="btn play">PLAY NOW!</a>
-        <div class="subtext">Unlimited FREE play!</div>
+        <a href="#" id="play-now" class="btn play"><?= Copy::get('homepage.play_button') ?></a>
+        <div class="subtext"><?= Copy::get('homepage.play_subtext') ?></div>
 
         <hr style="margin:1em 0;">
 
-        <a href="#" id="login-register" class="btn login-register" data-mode="page">LOGIN/REGISTER</a>
+        <a href="#" id="login-register" class="btn login-register" data-mode="page"><?= Copy::get('homepage.login_button') ?></a>
         <div class="subtext">
-            Press a button.<br>
-            Hope it's green.<br>
-            If it's red, the game ends.<br>
-
+            <?php foreach (Copy::get('homepage.game_description') as $line): ?>
+                <?= $line ?><br>
+            <?php endforeach; ?>
         </div>
 
         <!-- <a href="#login" class="btn login">LOGIN</a>

@@ -1,18 +1,17 @@
+<?php use Doink\Copy; ?>
     <div id="faq-overlay" class="overlay" style="display:none;">
         <div class="faq-container">
             <button id="close-faq" class="close-btn">×</button>
             
-            <h2>DO?NK</h2>
+            <h2><?= Copy::get('faq.heading') ?></h2>
             
             <div class="faq-content">
                 <div class="faq-item">
-                    <div class="faq-question">What is Do!nk?</div>
+                    <div class="faq-question"><?= Copy::get('faq.what_is_doink.question') ?></div>
                     <div class="faq-answer">
-                        Press a button.<br>
-                        Hope it's green.<br>
-                        If it's red, the game ends.<br>
-                        That's it.<br>
-                        That's Do!nk.
+                        <?php foreach (Copy::get('faq.what_is_doink.answer') as $line): ?>
+                            <?= $line ?><br>
+                        <?php endforeach; ?>
                     </div>
                 </div>
                 

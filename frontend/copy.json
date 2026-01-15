@@ -1,0 +1,43 @@
+{
+    "site": {
+        "name": "DO!NK",
+        "tagline": "Join the battle!",
+        "version_prefix": "Version:"
+    },
+    "homepage": {
+        "heading": "DO!NK",
+        "play_button": "PLAY NOW!",
+        "play_subtext": "Unlimited FREE play!",
+        "game_description": [
+            "No Strategy. No skill.  Nothing will prepare you for Do!Nk:  The World's Hardest Simplest Game"
+        ],
+        "login_button": "LOGIN/REGISTER"
+    },
+    "auth": {
+        "heading": "DO!NK",
+        "subtitle": "Join the battle!",
+        "email_placeholder": "Enter your email",
+        "submit_button": "Send Magic Link",
+        "footer_text": "We'll send you a link to login instantly.<br>No password needed!",
+        "back_link": "\u2190 Back"
+    },
+    "faq": {
+        "heading": "DO?NK",
+        "what_is_doink": {
+            "question": "What is Do!nk?",
+            "answer": [
+                "Press a button.",
+                "Hope it's green.",
+                "If it's red, the game ends.",
+                "That's it.",
+                "That's Do!nk."
+            ]
+        }
+    },
+    "game": {
+        "you_got": "YOU GOT:",
+        "best_run": "BEST RUN:",
+        "play_again": "PLAY AGAIN",
+        "share_message": "can you beat my {score} on DO!NK?"
+    }
+}

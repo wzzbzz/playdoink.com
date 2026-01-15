@@ -234,6 +234,15 @@ const classicGame = {
     const canvas = document.getElementById("scoreCanvas");
     const ctx = canvas.getContext("2d");
 
+    // Get copy from data attributes
+    const shareMessage = canvas.dataset.shareMessage || "can you beat my {score} on DO!NK?";
+    const siteName = canvas.dataset.siteName || "DO!NK";
+    
+    // Split message by {score} placeholder
+    const parts = shareMessage.split("{score}");
+    const topText = parts[0].trim();
+    const bottomText = parts[1] ? parts[1].trim() : "";
+
     // White background
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -242,21 +251,23 @@ const classicGame = {
     ctx.fillStyle = "#000";
     ctx.font = "50px 'Luckiest Guy', Arial, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("can you beat my", canvas.width / 2, 80);
+    ctx.fillText(topText, canvas.width / 2, 80);
 
     // Large score number in green
     ctx.fillStyle = "#4CAF50";
     ctx.font = "140px 'Luckiest Guy', Arial, sans-serif";
     ctx.fillText(best, canvas.width / 2, 200);
 
-    // Bottom text with styled "DO!NK" in a box
+    // Bottom text with styled site name in a box
     ctx.font = "50px 'Luckiest Guy', Arial, sans-serif";
     const center = canvas.width / 2;
     const y = 280;
 
-    const beginning = "on ";
-    const middle = "DO!NK";
-    const end = "?";
+    // Find where site name appears in bottom text
+    const siteNameIndex = bottomText.indexOf(siteName);
+    const beginning = siteNameIndex > 0 ? bottomText.substring(0, siteNameIndex) : "on ";
+    const middle = siteName;
+    const end = siteNameIndex > 0 ? bottomText.substring(siteNameIndex + siteName.length) : "?";
 
     // Measure text widths for proper positioning
     const beginningMetrics = ctx.measureText(beginning);
@@ -269,7 +280,7 @@ const classicGame = {
 
     let xstart = (center - totalWidth / 2);
 
-    // Draw "on " in black
+    // Draw beginning text in black
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = "#000";
@@ -277,7 +288,7 @@ const classicGame = {
 
     xstart += beginningMetrics.width + 10;
 
-    // Draw blue box around "DO!NK"
+    // Draw blue box around site name
     const paddingX = 10;
     const paddingY = 10;
     const boxWidth = middleMetrics.width + paddingX * 2;
@@ -293,11 +304,11 @@ const classicGame = {
     ctx.lineWidth = 2;
     ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
-    // Draw "DO!NK" in blue
+    // Draw site name in blue
     ctx.fillStyle = "#2b8bf6";
     ctx.fillText(middle, xstart, y);
 
-    // Draw "?" in black
+    // Draw end text in black
     xstart = xstart + boxWidth;
     ctx.fillStyle = "#000";
     ctx.fillText(end, xstart, y);
