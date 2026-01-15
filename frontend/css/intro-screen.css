@@ -220,6 +220,31 @@
     line-height: 1.5;
 }
 
+.auth-legal-links {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 0.75rem;
+}
+
+.auth-legal-links a {
+    color: #999;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.auth-legal-links a:hover {
+    color: #2b8bf6;
+    text-decoration: underline;
+}
+
+.auth-legal-links span {
+    color: #ccc;
+    margin: 0 0.5rem;
+}
+
 .toggle-text {
     margin-top: 1rem;
     font-family: Arial, sans-serif;

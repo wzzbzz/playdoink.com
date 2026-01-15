@@ -23,6 +23,12 @@
             We'll send you a link to login instantly.<br>
             No password needed!
         </p>
+
+        <div class="auth-legal-links">
+            <a href="/terms.php" target="_blank">Terms of Use</a>
+            <span>•</span>
+            <a href="/privacy.php" target="_blank">Privacy Policy</a>
+        </div>
     </div>
 </div>
 
@@ -118,6 +124,31 @@
     color: #666;
     margin-top: 2rem;
     line-height: 1.5;
+}
+
+.auth-legal-links {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 0.75rem;
+}
+
+.auth-legal-links a {
+    color: #999;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.auth-legal-links a:hover {
+    color: #2b8bf6;
+    text-decoration: underline;
+}
+
+.auth-legal-links span {
+    color: #ccc;
+    margin: 0 0.5rem;
 }
 </style>
 

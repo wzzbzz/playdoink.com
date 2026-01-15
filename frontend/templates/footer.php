@@ -24,13 +24,6 @@
 
     <!-- Entry point -->
     <script src="js/main.js"></script>
-
-    <!-- Legal Footer -->
-    <div class="legal-footer">
-        <a href="/terms.php">Terms of Use</a>
-        <span style="opacity: 0.5;">|</span>
-        <a href="/privacy.php">Privacy Policy</a>
-    </div>
 </body>
 
 </html>

@@ -25,6 +25,12 @@
                 We'll send you a link to login instantly.<br>
                 No password needed!
             </p>
+
+            <div class="auth-legal-links">
+                <a href="/terms.php" target="_blank">Terms of Use</a>
+                <span>•</span>
+                <a href="/privacy.php" target="_blank">Privacy Policy</a>
+            </div>
             
             <p class="toggle-text">
                 <a href="#" id="back-to-intro">← Back</a>
