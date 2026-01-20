@@ -33,7 +33,10 @@ class ScoreRepository extends ServiceEntityRepository
      */
     public function getDailyLeaderboard(int $limit = 100): array
     {
-        $today = new \DateTimeImmutable('today');
+        
+        $tz = new \DateTimeZone('America/New_York');
+        $today = (new \DateTimeImmutable('now', $tz))->setTime(0, 0, 0);
+        
         $tomorrow = $today->modify('+1 day');
 
         return $this->createQueryBuilder('s')
