@@ -30,7 +30,6 @@ class AuthController extends AbstractController
         }
 
         // Find or create user
-        // Find or create user
         $user = $userRepository->findOneBy(['email' => $email]);
         
         if (!$user) {

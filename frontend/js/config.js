@@ -1,9 +1,9 @@
 // Configuration
 const CONFIG = {
-    // API Base URL - change this for production
+    // API Base URL - Doink's Symfony backend
     API_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'https://127.0.0.1:8000'
-        : 'https://app.playdoink.com',
+        ? 'https://127.0.0.1:8000'  // Symfony backend
+        : 'https://app.playdoink.com',  // Production
     
     // Frontend Base URL - for magic links
     FRONTEND_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
