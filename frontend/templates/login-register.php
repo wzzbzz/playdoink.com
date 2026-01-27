@@ -179,7 +179,7 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
         
         if (response.ok) {
             messageEl.className = 'auth-message success';
-            messageEl.textContent = '✓ Check your email! We sent you a magic link.';
+            messageEl.textContent = '✓ Check your email / spam folder! We sent you a magic link.';
             messageEl.style.display = 'block';
             document.getElementById('email-input').value = '';
         } else {

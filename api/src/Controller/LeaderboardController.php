@@ -121,11 +121,15 @@ class LeaderboardController extends AbstractController
             }
         }
 
+        // Get success rate rank
+        $successRateRank = $userRepository->getSuccessRateRank($userId, $successPercentage);
+
         return new JsonResponse([
             'bestScore' => $bestScore,
             'allTimeRank' => $rank,
             'totalSelections' => $totalSelections,
-            'successPercentage' => $successPercentage
+            'successPercentage' => $successPercentage,
+            'successRateRank' => $successRateRank
         ], 200);
     }
 }
