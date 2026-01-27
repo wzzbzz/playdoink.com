@@ -416,7 +416,7 @@ async function loadPersonalStats() {
         html += `
           <div class="stats-grid">
             <div class="mini-stat-card">
-              <div class="mini-stat-label">Success Rate Rank</div>
+              <div class="mini-stat-label">Overall Rank</div>
               <div class="mini-stat-value">#${data.successRateRank || 'N/A'}</div>
             </div>
             <div class="mini-stat-card">
