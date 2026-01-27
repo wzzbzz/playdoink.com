@@ -59,7 +59,7 @@ class UserRepository extends ServiceEntityRepository
     {
         // Get all users with selection counts > 0
         $users = $this->createQueryBuilder('u')
-            ->where('u.selection_count > 0')
+            ->where('u.selectionCount > 0')
             ->getQuery()
             ->getResult();
 
