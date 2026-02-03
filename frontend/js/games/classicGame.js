@@ -39,8 +39,9 @@ const classicGame = {
       typeof user.username === 'string' &&
       user.username.trim().length > 0;
 
+    console.log('Valid user:', valid_user);
 
-    if (!valid_user) {
+    if (valid_user) {
       // User is logged in - get best score from server
       try {
 
@@ -56,6 +57,7 @@ const classicGame = {
           this.state.bestScore = $.cookie('doinkhighscore') || 0;
           // temporarily disable cookie 
           this.state.bestScore = 0;
+
         }
       } catch (error) {
         console.error('Failed to load best score from server:', error);
