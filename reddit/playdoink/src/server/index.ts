@@ -40,16 +40,16 @@ router.get<
   }
 
   try {
-    const [count, username] = await Promise.all([
-      redis.get("count"),
+    const [username, highestStreak] = await Promise.all([
       reddit.getCurrentUsername(),
+      redis.get(`user:${postId}:highest_streak`)
     ]);
 
     res.json({
       type: "init",
       postId: postId,
-      count: count ? parseInt(count) : 0,
       username: username ?? "anonymous",
+      highest_streak: highestStreak ? parseInt(highestStreak) : 0
     });
   } catch (error) {
     console.error(`API Init Error for post ${postId}:`, error);

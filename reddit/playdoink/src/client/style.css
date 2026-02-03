@@ -88,3 +88,74 @@
   text-align: center;
   line-height: 1;
 }
+
+/* Game buttons container */
+.doink_machine {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.single_button_wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.svgbutton {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+/* 
+.svgbutton:hover {
+  transform: scale(1.05);
+}
+
+.svgbutton:active {
+  transform: scale(0.95);
+} */
+
+/* Results modal */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 8px solid #2b8bf6;
+  padding: 2em;
+  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#results {
+  text-align: center;
+  font-size: 2rem;
+}
+
+#results > div {
+  margin: 0.5em 0;
+}
+
+#playagain {
+  border: 3px solid #62bf5e;
+  background-color: #fff;
+  color: #62bf5e;
+  font-family: 'Luckiest Guy', sans-serif;
+  font-size: 2rem;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  margin-top: 1em;
+  transition: all 0.2s ease;
+}
+
+#playagain:hover {
+  background-color: #62bf5e;
+  color: white;
+}
+
+#playagain:active {
+  transform: scale(0.95);
+}

@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [],
   build: {
     outDir: "../../dist/client",
+    sourcemap: true, // Enable source maps
     rollupOptions: {
       output: {
         entryFileNames: "[name].js",

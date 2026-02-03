@@ -1,10 +1,10 @@
 export type InitResponse = {
   type: "init";
   postId: string;
-  total_rounds: number;
-  highest_streak: number;
-  average_streak: number;
   username: string;
+  highest_streak: number;
+  total_rounds?: number;
+  average_streak?: number;
 };
 
 export type IncrementResponse = {
