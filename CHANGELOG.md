@@ -45,4 +45,8 @@
   is replaced by "You're signed up", and the browser remembers it
   (localStorage), so a refresh shows the same. The API now says "You're already
   signed up." for repeat addresses.
+- **Sign-up status check.** New `GET /api/signup/status?email=...` returns
+  `{"signedUp": true|false}`. The home page now saves the signed-up email in the
+  browser (`playdoink_email`) and checks it with the API on load; if the API says
+  it isn't signed up, the form comes back.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.

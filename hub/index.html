@@ -64,12 +64,28 @@
     const msg = document.getElementById('signup-msg');
     const signedUp = document.getElementById('signed-up');
 
-    // Remember a sign-up in this browser, so a refresh shows "signed up" instead of the form
+    // Remember the signed-up email in this browser, so a refresh shows "signed up" instead of the form
     function showSignedUp() {
       form.hidden = true;
       signedUp.hidden = false;
     }
-    try { if (localStorage.getItem('playdoink_signed_up')) showSignedUp(); } catch {}
+    // On load, ask the API whether the email saved in this browser is signed up
+    let savedEmail = null;
+    try { savedEmail = localStorage.getItem('playdoink_email'); } catch {}
+    if (savedEmail) {
+      showSignedUp();
+      fetch(`${API_URL}/api/signup/status?email=${encodeURIComponent(savedEmail)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.signedUp === false) {
+            // Not on the list any more: forget it and show the form again
+            try { localStorage.removeItem('playdoink_email'); } catch {}
+            form.hidden = false;
+            signedUp.hidden = true;
+          }
+        })
+        .catch(() => {}); // API unreachable: keep showing "signed up"
+    }
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const button = form.querySelector('button');
@@ -85,7 +101,7 @@
         const data = await res.json();
         msg.textContent = res.ok ? (data.message || 'Thanks for signing up!') : (data.message || 'Something went wrong. Please try again.');
         if (res.ok) {
-          try { localStorage.setItem('playdoink_signed_up', '1'); } catch {}
+          try { localStorage.setItem('playdoink_email', form.email.value.trim().toLowerCase()); } catch {}
           form.reset();
           form.hidden = true;
         }

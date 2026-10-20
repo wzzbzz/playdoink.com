@@ -63,4 +63,19 @@ class SignupController extends AbstractController
 
         return new JsonResponse(['message' => "Thanks for signing up! Check your email.", 'status' => 'new'], 200);
     }
+
+    // Is this email signed up? Used by the home page to decide whether to show the form.
+    #[Route('/status', methods: ['GET'])]
+    public function status(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        $email = strtolower(trim((string) $request->query->get('email', '')));
+
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['message' => 'Please enter a valid email address.'], 400);
+        }
+
+        $user = $userRepository->findOneBy(['email' => $email]);
+
+        return new JsonResponse(['signedUp' => $user !== null], 200);
+    }
 }
