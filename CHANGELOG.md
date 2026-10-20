@@ -17,7 +17,7 @@
   names are unchanged (they're identifiers, not links). On the box, the API's
   `FRONTEND_URL` env var must be set to https://doink.playdoink.com so login
   emails link to doink.playdoink.com/verify.php.
-- **Doink! line** on the home page now reads "the world's hardest easiest game".
+- **Doink! line** on the home page now reads "the world's hardest simplest game".
 - **Tagline** now reads "Curated and hand-made games by Craig Hillman" (no About
   page for now; Craig's feedback to come).
 - **About page draft** (`hub/about.html`), linked from the tagline. Copy is a
