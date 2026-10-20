@@ -27,5 +27,5 @@
   game menu and a "More games from playdoink" line on the end-of-game screen,
   both linking to playdoink.com (templates/game-menu.php, game-console.php).
   Also a small fixed "More games from playdoink" link at the bottom of every
-  page (templates/footer.php). Not deployed.
+  page (templates/footer.php). Live 2026-10-20 via doink-more-games.sh.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
