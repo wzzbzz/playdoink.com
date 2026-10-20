@@ -33,10 +33,10 @@
       <li><a href="https://doink.playdoink.com">Doink!</a>: the original playdoink game.</li>
     </ul>
 
-    <!-- One shared signup for every game, stored by signup.php. -->
-    <h2>Hear about new games</h2>
-    <p>One email when there's something new to play. No spam.</p>
-    <form id="signup" action="signup.php" method="post">
+    <!-- One shared signup for every game, using Doink!'s login system (magic link by email). -->
+    <h2>Sign up</h2>
+    <p>One playdoink account for every game. We'll email you a login link.</p>
+    <form id="signup">
       <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
       <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit">Sign up</button>
@@ -47,6 +47,9 @@
   </main>
 
   <script>
+    const API_URL = ['localhost', '127.0.0.1'].includes(location.hostname)
+      ? 'https://127.0.0.1:8000'
+      : 'https://app.playdoink.com';
     const form = document.getElementById('signup');
     const msg = document.getElementById('signup-msg');
     form.addEventListener('submit', async (e) => {
@@ -54,11 +57,16 @@
       const button = form.querySelector('button');
       button.disabled = true;
       msg.textContent = '';
+      if (form.website.value) return; // bots fill the hidden field
       try {
-        const res = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+        const res = await fetch(`${API_URL}/api/auth/request-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: form.email.value.trim() }),
+        });
         const data = await res.json();
-        msg.textContent = data.ok ? "Thanks, you're on the list." : (data.error || 'Something went wrong. Please try again.');
-        if (data.ok) form.reset();
+        msg.textContent = res.ok ? 'Check your email for your login link.' : (data.message || 'Something went wrong. Please try again.');
+        if (res.ok) form.reset();
       } catch {
         msg.textContent = 'Something went wrong. Please try again.';
       }
