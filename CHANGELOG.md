@@ -50,3 +50,5 @@
   browser (`playdoink_email`) and checks it with the API on load; if the API says
   it isn't signed up, the form comes back.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
+
+- 2026-10-20: Sign-up now tracked by `app_user.signed_up_at` (new migration) instead of "user exists", so a sign-up can be reset without deleting the account. A Doink! player who signs up keeps their account and gets the welcome email. Existing users are marked signed up by the migration.

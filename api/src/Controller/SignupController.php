@@ -33,14 +33,18 @@ class SignupController extends AbstractController
 
         // Already signed up: no second welcome email
         $user = $userRepository->findOneBy(['email' => $email]);
-        if ($user) {
+        if ($user && $user->getSignedUpAt()) {
             return new JsonResponse(['message' => "You're already signed up.", 'status' => 'already'], 200);
         }
 
-        $user = new User();
-        $user->setEmail($email);
-        $user->setCreatedAt(new \DateTimeImmutable());
-        $em->persist($user);
+        // A Doink! player who hasn't signed up yet keeps their account
+        if (!$user) {
+            $user = new User();
+            $user->setEmail($email);
+            $user->setCreatedAt(new \DateTimeImmutable());
+            $em->persist($user);
+        }
+        $user->setSignedUpAt(new \DateTimeImmutable());
         $em->flush();
 
         $emailMessage = (new Email())
@@ -76,6 +80,6 @@ class SignupController extends AbstractController
 
         $user = $userRepository->findOneBy(['email' => $email]);
 
-        return new JsonResponse(['signedUp' => $user !== null], 200);
+        return new JsonResponse(['signedUp' => $user !== null && $user->getSignedUpAt() !== null], 200);
     }
 }
