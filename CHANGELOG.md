@@ -35,4 +35,10 @@
   (no echo), so the page title and every og: tag were empty. Now echoed. Default
   description is "The world's hardest simplest game." (was "Doink Description."),
   and a twitter:card tag is added.
+- **Welcome email for home-page sign-ups.** New `POST /api/signup`
+  (api/src/Controller/SignupController.php) creates the same user Doink! login
+  uses, but sends a "Thanks for signing up! This is going to be fun." email with
+  links to the games instead of a login link. Already-registered addresses get no
+  second email. The home page form now posts there. Doink!'s own login email is
+  unchanged.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.

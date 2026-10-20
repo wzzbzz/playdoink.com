@@ -42,9 +42,9 @@
       <li><a href="https://doink.playdoink.com">Doink!</a>: the world's hardest simplest game.</li>
     </ul>
 
-    <!-- One shared signup for every game, using Doink!'s login system (magic link by email). -->
+    <!-- One shared signup for every game: creates a Doink! account and sends a welcome email (api/signup). -->
     <h2>Sign up</h2>
-    <p>One playdoink account for every game. We'll email you a login link.</p>
+    <p>One playdoink account for every game. We'll let you know when there's something new to play.</p>
     <form id="signup">
       <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
       <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -68,13 +68,13 @@
       msg.textContent = '';
       if (form.website.value) return; // bots fill the hidden field
       try {
-        const res = await fetch(`${API_URL}/api/auth/request-login`, {
+        const res = await fetch(`${API_URL}/api/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email.value.trim() }),
         });
         const data = await res.json();
-        msg.textContent = res.ok ? 'Check your email for your login link.' : (data.message || 'Something went wrong. Please try again.');
+        msg.textContent = res.ok ? (data.message || 'Thanks for signing up!') : (data.message || 'Something went wrong. Please try again.');
         if (res.ok) form.reset();
       } catch {
         msg.textContent = 'Something went wrong. Please try again.';
