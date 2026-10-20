@@ -49,7 +49,7 @@ if (!file_exists($filePath)) {
 
 // public URL (adjust to your domain)
 $imageUrl = "https://playdoink.com/scores/" . $filename;
-$gameUrl = "https://playdoink.com/";
+$gameUrl = "https://doink.playdoink.com/";
 
 
 echo json_encode(["url" => $imageUrl, "gameUrl" => $gameUrl]);

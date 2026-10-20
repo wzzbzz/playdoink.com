@@ -8,5 +8,5 @@ const CONFIG = {
     // Frontend Base URL - for magic links
     FRONTEND_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:8080'
-        : 'https://playdoink.com'
+        : 'https://doink.playdoink.com'
 };

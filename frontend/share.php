@@ -3,8 +3,8 @@ $score = isset($_GET['score']) ? intval($_GET['score']) : 0;
 
 // build image + page URLs
 $imgUrl  = "https://playdoink.com/scores/score-" . $score . ".png";
-$pageUrl = "https://playdoink.com/share.php?img=" . urlencode($img) . "&score=" . $score;
-$gameUrl = "https://playdoink.com/"; // <-- your actual game link
+$pageUrl = "https://doink.playdoink.com/share.php?img=" . urlencode($img) . "&score=" . $score;
+$gameUrl = "https://doink.playdoink.com/"; // <-- your actual game link
 
 ?>
 <!DOCTYPE html>

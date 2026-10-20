@@ -11,4 +11,10 @@
   earlier `hub/signup.php` that wrote a separate CSV.)
 - **Login email reworded.** Subject, heading and link now say Playdoink.com
   instead of DO!NK (api AuthController). Doink! logins get the same email.
+- **Doink! moved to doink.playdoink.com.** Share links, og tags, the game URL
+  in share images and `FRONTEND_URL` in js/config.js now use
+  doink.playdoink.com. CORS also allows doink.playdoink.com. Mercure topic
+  names are unchanged (they're identifiers, not links). On the box, the API's
+  `FRONTEND_URL` env var must be set to https://doink.playdoink.com so login
+  emails link to doink.playdoink.com/verify.php.
 - Not deployed. The live front page is still Doink!.
