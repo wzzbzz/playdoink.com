@@ -18,4 +18,5 @@
   `FRONTEND_URL` env var must be set to https://doink.playdoink.com so login
   emails link to doink.playdoink.com/verify.php.
 - **Doink! line** on the home page now reads "the world's hardest easiest game".
+- **Quadruplex line** now reads "bust your brain on this word game with a twist".
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
