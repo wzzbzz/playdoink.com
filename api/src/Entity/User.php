@@ -37,10 +37,6 @@ class User
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    // Set when the person signs up on the playdoink.com home page; null = not signed up
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $signedUpAt = null;
-
     /**
      * @var Collection<int, Session>
      */
@@ -182,18 +178,6 @@ class User
     public function setSelectionCount(?int $selectionCount): static
     {
         $this->selectionCount = $selectionCount;
-
-        return $this;
-    }
-
-    public function getSignedUpAt(): ?\DateTimeImmutable
-    {
-        return $this->signedUpAt;
-    }
-
-    public function setSignedUpAt(?\DateTimeImmutable $signedUpAt): static
-    {
-        $this->signedUpAt = $signedUpAt;
 
         return $this;
     }
