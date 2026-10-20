@@ -26,5 +26,6 @@
 - **Doink! links to the hub, inside the game.** A "More games" button in the
   game menu and a "More games from playdoink" line on the end-of-game screen,
   both linking to playdoink.com (templates/game-menu.php, game-console.php).
-  Replaces the page-footer link tried first. Not deployed.
+  Also a small fixed "More games from playdoink" link at the bottom of every
+  page (templates/footer.php). Not deployed.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
