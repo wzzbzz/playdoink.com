@@ -55,11 +55,11 @@ class AuthController extends AbstractController
         $emailMessage = (new Email())
             ->from('doink@playdoink.com')
             ->to($email)
-            ->subject('Your DO!NK Magic Link')
+            ->subject('Your Playdoink.com login link')
             ->html("
-                <h2>Welcome to DO!NK!</h2>
+                <h2>Welcome to Playdoink.com!</h2>
                 <p>Click the link below to login:</p>
-                <p><a href=\"{$magicLink}\">Login to DO!NK</a></p>
+                <p><a href=\"{$magicLink}\">Log in to Playdoink.com</a></p>
                 <p>This link expires in 1 hour.</p>
             ");
 
