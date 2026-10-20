@@ -21,6 +21,11 @@
                 </button>
                 
                 
+                <a href="https://playdoink.com" class="menu-option-btn" style="text-decoration:none;">
+                    <span class="menu-icon">🎲</span>
+                    <span class="menu-text">More games</span>
+                </a>
+
                 <button id="back-to-home" class="menu-option-btn">
                     <span class="menu-icon">🏠</span>
                     <span class="menu-text">Home</span>
