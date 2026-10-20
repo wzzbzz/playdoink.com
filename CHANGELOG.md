@@ -41,4 +41,8 @@
   links to the games instead of a login link. Already-registered addresses get no
   second email. The home page form now posts there. Doink!'s own login email is
   unchanged.
+- **Signed-up state on the home page.** After a sign-up (new or repeat), the form
+  is replaced by "You're signed up", and the browser remembers it
+  (localStorage), so a refresh shows the same. The API now says "You're already
+  signed up." for repeat addresses.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.

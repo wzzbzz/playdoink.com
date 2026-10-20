@@ -34,7 +34,7 @@ class SignupController extends AbstractController
         // Already signed up: no second welcome email
         $user = $userRepository->findOneBy(['email' => $email]);
         if ($user) {
-            return new JsonResponse(['message' => "You're already on the list."], 200);
+            return new JsonResponse(['message' => "You're already signed up.", 'status' => 'already'], 200);
         }
 
         $user = new User();
@@ -61,6 +61,6 @@ class SignupController extends AbstractController
 
         $mailer->send($emailMessage);
 
-        return new JsonResponse(['message' => 'Thanks for signing up!'], 200);
+        return new JsonResponse(['message' => "Thanks for signing up! Check your email.", 'status' => 'new'], 200);
     }
 }

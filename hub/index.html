@@ -51,6 +51,7 @@
       <button type="submit">Sign up</button>
     </form>
     <p id="signup-msg" role="status"></p>
+    <p id="signed-up" hidden>You're signed up. We'll let you know when there's something new to play.</p>
 
     <footer>playdoink.com &middot; <a href="about.html">About</a> &middot; <a href="coming-soon.html">Coming soon</a></footer>
   </main>
@@ -61,6 +62,14 @@
       : 'https://app.playdoink.com';
     const form = document.getElementById('signup');
     const msg = document.getElementById('signup-msg');
+    const signedUp = document.getElementById('signed-up');
+
+    // Remember a sign-up in this browser, so a refresh shows "signed up" instead of the form
+    function showSignedUp() {
+      form.hidden = true;
+      signedUp.hidden = false;
+    }
+    try { if (localStorage.getItem('playdoink_signed_up')) showSignedUp(); } catch {}
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const button = form.querySelector('button');
@@ -75,7 +84,11 @@
         });
         const data = await res.json();
         msg.textContent = res.ok ? (data.message || 'Thanks for signing up!') : (data.message || 'Something went wrong. Please try again.');
-        if (res.ok) form.reset();
+        if (res.ok) {
+          try { localStorage.setItem('playdoink_signed_up', '1'); } catch {}
+          form.reset();
+          form.hidden = true;
+        }
       } catch {
         msg.textContent = 'Something went wrong. Please try again.';
       }
