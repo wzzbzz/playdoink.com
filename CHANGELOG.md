@@ -17,4 +17,5 @@
   names are unchanged (they're identifiers, not links). On the box, the API's
   `FRONTEND_URL` env var must be set to https://doink.playdoink.com so login
   emails link to doink.playdoink.com/verify.php.
-- Not deployed. The live front page is still Doink!.
+- **Doink! line** on the home page now reads "the world's hardest easiest game".
+- Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
