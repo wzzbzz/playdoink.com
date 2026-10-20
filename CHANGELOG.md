@@ -31,4 +31,8 @@
 - **Hub link preview.** `hub/og-image.png` (1200×630: "playdoink / All the best
   games, all in one place" with the three game names, marked DRAFT) and og/twitter tags on
   the home page (title "Do ya doink?", description "Curated games and toys").
+- **Doink! link previews fixed.** templates/header.php used `<?php $doink->title();?>`
+  (no echo), so the page title and every og: tag were empty. Now echoed. Default
+  description is "The world's hardest simplest game." (was "Doink Description."),
+  and a twitter:card tag is added.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.

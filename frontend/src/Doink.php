@@ -35,7 +35,7 @@ class Doink
 
     public function description(): string
     {
-        return $this->description ?? "Doink Description.";
+        return $this->description ?? "The world's hardest simplest game.";
     }
 
     public function setDescription(string $description): void
