@@ -23,4 +23,7 @@
 - **About page draft** (`hub/about.html`), linked from the tagline. Copy is a
   draft for Craig to review; not uploaded.
 - **Quadruplex line** now reads "bust your brain on this word game with a twist".
+- **Doink! footer link.** A small "More games from playdoink" link, fixed at the
+  bottom of every Doink! page, goes back to playdoink.com
+  (frontend/templates/footer.php). Not deployed.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
