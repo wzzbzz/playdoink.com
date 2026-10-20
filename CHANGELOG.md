@@ -30,5 +30,5 @@
   page (templates/footer.php). Live 2026-10-20 via doink-more-games.sh.
 - **Hub link preview.** `hub/og-image.png` (1200×630: "playdoink / All the best
   games, all in one place" with the three game names, marked DRAFT) and og/twitter tags on
-  the home page, so shared links show an image and description.
+  the home page (title "Do ya doink?", description "Curated games and toys").
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
