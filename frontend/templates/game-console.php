@@ -28,7 +28,6 @@
                     <button id="playagain"><?= Copy::get('game.play_again') ?></button>
                 </div>
                 <div id="share-buttons-container" style="margin-top:1em;"></div>
-                <div style="margin-top:1em;"><a href="https://playdoink.com" style="color:inherit;">More games from playdoink</a></div>
             </div>
         </div>
 

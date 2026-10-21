@@ -50,3 +50,5 @@
   browser (`playdoink_email`) and checks it with the API on load; if the API says
   it isn't signed up, the form comes back.
 - Home page is live at playdoink.com (Jim uploaded hub/index.html). Doink! link updates and CORS change not deployed yet.
+
+- 2026-10-21: Removed "More games from playdoink" from the Doink! end-of-game popup (Craig: too big on his phone; the popup should be a quick play-again). Menu button and footer link stay.
