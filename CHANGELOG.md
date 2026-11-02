@@ -54,3 +54,5 @@
 - 2026-10-21: Removed "More games from playdoink" from the Doink! end-of-game popup (Craig: too big on his phone; the popup should be a quick play-again). Menu button and footer link stay.
 
 - 2026-11-02: Craig's Do!nk mascot art (hub/mascots.png) on the home page, in the signed-up thank-you, and at the top of the welcome email.
+
+- 2026-11-02: Quadruplex hidden from the home page games list for now (commented out).
