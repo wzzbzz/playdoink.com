@@ -28,6 +28,7 @@
     button:disabled { opacity: .5; cursor: default; }
     .hp { position: absolute; left: -9999px; }
     #signup-msg { min-height: 1.5em; }
+    .mascots { display: block; width: 100%; max-width: 22rem; height: auto; margin: 1rem 0; }
     footer { margin-top: 3rem; color: #666; font-size: .875rem; }
   </style>
 </head>
@@ -35,6 +36,7 @@
   <main>
     <h1>playdoink</h1>
     <p>Curated and hand-made games by Craig Hillman.</p>
+    <img class="mascots" src="mascots.png" alt="Two ducks with the red and green Do!nk characters">
 
     <ul>
       <li><a href="https://quadruplex.playdoink.com">Quadruplex</a>: bust your brain on this word game with a twist.</li>
@@ -51,7 +53,10 @@
       <button type="submit">Sign up</button>
     </form>
     <p id="signup-msg" role="status"></p>
-    <p id="signed-up" hidden>You're signed up. We'll let you know when there's something new to play.</p>
+    <div id="signed-up" hidden>
+      <p>You're signed up. We'll let you know when there's something new to play.</p>
+      <img class="mascots" src="mascots.png" alt="">
+    </div>
 
     <footer>playdoink.com &middot; <a href="about.html">About</a> &middot; <a href="coming-soon.html">Coming soon</a></footer>
   </main>
@@ -103,7 +108,7 @@
         if (res.ok) {
           try { localStorage.setItem('playdoink_email', form.email.value.trim().toLowerCase()); } catch {}
           form.reset();
-          form.hidden = true;
+          showSignedUp();
         }
       } catch {
         msg.textContent = 'Something went wrong. Please try again.';

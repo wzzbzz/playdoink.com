@@ -48,6 +48,7 @@ class SignupController extends AbstractController
             ->to($email)
             ->subject('Thanks for signing up to Playdoink.com')
             ->html("
+                <p><img src=\"https://playdoink.com/mascots.png\" alt=\"The Do!nk mascots\" width=\"320\" style=\"max-width:100%;height:auto;\"></p>
                 <h2>Thanks for signing up!</h2>
                 <p>This is going to be fun.</p>
                 <p>We'll let you know when there's something new to play. In the meantime:</p>
