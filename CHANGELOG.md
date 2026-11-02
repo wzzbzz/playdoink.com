@@ -56,3 +56,4 @@
 - 2026-11-02: Craig's Do!nk mascot art (hub/mascots.png) on the home page, in the signed-up thank-you, and at the top of the welcome email.
 
 - 2026-11-02: Quadruplex hidden from the home page games list for now (commented out).
+- 2026-11-02: Quadruplex also removed from the link-preview image and the welcome email's games list.

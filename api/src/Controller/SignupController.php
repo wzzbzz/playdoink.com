@@ -53,7 +53,6 @@ class SignupController extends AbstractController
                 <p>This is going to be fun.</p>
                 <p>We'll let you know when there's something new to play. In the meantime:</p>
                 <ul>
-                    <li><a href=\"https://quadruplex.playdoink.com\">Quadruplex</a>: bust your brain on this word game with a twist.</li>
                     <li><a href=\"https://duckduckgoose.playdoink.com\">Duck, Duck, Goose</a>: crack all eight ducks without hitting the goose.</li>
                     <li><a href=\"https://doink.playdoink.com\">Doink!</a>: the world's hardest simplest game.</li>
                 </ul>
