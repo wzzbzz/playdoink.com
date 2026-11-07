@@ -48,8 +48,12 @@ if (!file_exists($filePath)) {
 }
 
 // public URL (adjust to your domain)
-$imageUrl = "https://playdoink.com/scores/" . $filename;
-$gameUrl = "https://playdoink.com/";
+// Links and images must point at the game's own site (doink.playdoink.com),
+// not the playdoink.com hub, or link previews come up blank.
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$base = preg_match('/^[a-z0-9.:-]+$/i', $host) ? "https://" . $host : "https://doink.playdoink.com";
+$imageUrl = $base . "/scores/" . $filename;
+$gameUrl = $base . "/";
 
 
 echo json_encode(["url" => $imageUrl, "gameUrl" => $gameUrl]);

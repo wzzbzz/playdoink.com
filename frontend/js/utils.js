@@ -19,7 +19,9 @@ function renderShareButtons(url) {
     const container = document.getElementById("share-buttons-container");
     const shareData = { title: "DO!NK Score", url: url };
 
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    // iPad Safari reports itself as a Mac, so also treat a touch-screen "Mac" as mobile.
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     console.log("isMobile=" + isMobile);
     console.log("navigator.share=" + navigator.share);
     if (isMobile && navigator.share) {

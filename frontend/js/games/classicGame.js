@@ -374,7 +374,7 @@ const classicGame = {
 
     $.post("save_score_image.php", { image: imgData, score: bestScore })
       .done(function (response) {
-        const sharePage = `https://playdoink.com/share.php?score=${bestScore}`;
+        const sharePage = `${window.location.origin}/share.php?score=${bestScore}`;
         renderShareButtons(sharePage);
       })
       .fail(function (err) {
