@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Score;
 use App\Repository\ScoreRepository;
 use App\Repository\UserRepository;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,6 +19,8 @@ class LeaderboardController extends AbstractController
     public function submitScore(
         Request $request,
         UserRepository $userRepository,
+        ScoreRepository $scoreRepository,
+        EmailService $emailService,
         EntityManagerInterface $em
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
@@ -33,6 +36,9 @@ class LeaderboardController extends AbstractController
             return new JsonResponse(['message' => 'User not found'], 404);
         }
 
+        // Check leaderboard position BEFORE saving the score
+        $leaderboardCheck = $scoreRepository->checkLeaderboardPosition((int) $scoreValue);
+
         $score = new Score();
         $score->setUser($user);
         $score->setScore((int) $scoreValue);
@@ -41,9 +47,57 @@ class LeaderboardController extends AbstractController
         $em->persist($score);
         $em->flush();
 
+        // Send dethroned emails if applicable
+        if ($leaderboardCheck['isAllTimeFirst'] && $leaderboardCheck['dethronedAllTimeLeader']) {
+            $dethroned = $leaderboardCheck['dethronedAllTimeLeader'];
+            
+            // Don't email if they beat their own record
+            if ($dethroned['userId'] !== $userId && $dethroned['email']) {
+                try {
+                    $emailService->sendDethronedEmail(
+                        $dethroned['email'],
+                        $dethroned['username'] ?? 'Champion',
+                        $dethroned['score'],
+                        (int) $scoreValue,
+                        $user->getUsername() ?? 'Anonymous',
+                        'all-time'
+                    );
+                } catch (\Exception $e) {
+                    // Log error but don't fail the request
+                    error_log('Failed to send dethroned email: ' . $e->getMessage());
+                }
+            }
+        }
+
+        if ($leaderboardCheck['isDailyFirst'] && $leaderboardCheck['dethronedDailyLeader']) {
+            $dethroned = $leaderboardCheck['dethronedDailyLeader'];
+            
+            // Don't email if they beat their own record or if same person as all-time
+            $isDifferentPerson = $dethroned['userId'] !== $userId;
+            $notAlreadyEmailed = !$leaderboardCheck['isAllTimeFirst'] || 
+                                $dethroned['userId'] !== $leaderboardCheck['dethronedAllTimeLeader']['userId'];
+            
+            if ($isDifferentPerson && $notAlreadyEmailed && $dethroned['email']) {
+                try {
+                    $emailService->sendDethronedEmail(
+                        $dethroned['email'],
+                        $dethroned['username'] ?? 'Champion',
+                        $dethroned['score'],
+                        (int) $scoreValue,
+                        $user->getUsername() ?? 'Anonymous',
+                        'daily'
+                    );
+                } catch (\Exception $e) {
+                    error_log('Failed to send dethroned email: ' . $e->getMessage());
+                }
+            }
+        }
+
         return new JsonResponse([
             'message' => 'Score submitted',
-            'score' => $scoreValue
+            'score' => $scoreValue,
+            'isDailyFirst' => $leaderboardCheck['isDailyFirst'],
+            'isAllTimeFirst' => $leaderboardCheck['isAllTimeFirst']
         ], 200);
     }
 

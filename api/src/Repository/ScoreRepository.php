@@ -88,4 +88,68 @@ class ScoreRepository extends ServiceEntityRepository
 
         return (int) $result;
     }
+
+    /**
+     * Check if a score is #1 on daily or all-time leaderboard
+     * Returns info about previous leaders if dethroned
+     */
+    public function checkLeaderboardPosition(int $score): array
+    {
+        $result = [
+            'isDailyFirst' => false,
+            'isAllTimeFirst' => false,
+            'dethronedDailyLeader' => null,
+            'dethronedAllTimeLeader' => null
+        ];
+
+        // Check all-time #1 and get previous leader
+        $allTimeTop = $this->createQueryBuilder('s')
+            ->select('s.score as topScore', 'u.id as userId', 'u.email', 'u.username')
+            ->join('s.user', 'u')
+            ->orderBy('s.score', 'DESC')
+            ->addOrderBy('s.createdAt', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if ($allTimeTop && $score > $allTimeTop['topScore']) {
+            $result['isAllTimeFirst'] = true;
+            $result['dethronedAllTimeLeader'] = [
+                'userId' => $allTimeTop['userId'],
+                'email' => $allTimeTop['email'],
+                'username' => $allTimeTop['username'],
+                'score' => $allTimeTop['topScore']
+            ];
+        }
+
+        // Check daily #1 and get previous leader
+        $tz = new \DateTimeZone('America/New_York');
+        $today = (new \DateTimeImmutable('now', $tz))->setTime(0, 0, 0);
+        $tomorrow = $today->modify('+1 day');
+
+        $dailyTop = $this->createQueryBuilder('s')
+            ->select('s.score as topScore', 'u.id as userId', 'u.email', 'u.username')
+            ->join('s.user', 'u')
+            ->where('s.createdAt >= :today')
+            ->andWhere('s.createdAt < :tomorrow')
+            ->setParameter('today', $today)
+            ->setParameter('tomorrow', $tomorrow)
+            ->orderBy('s.score', 'DESC')
+            ->addOrderBy('s.createdAt', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if ($dailyTop && $score > $dailyTop['topScore']) {
+            $result['isDailyFirst'] = true;
+            $result['dethronedDailyLeader'] = [
+                'userId' => $dailyTop['userId'],
+                'email' => $dailyTop['email'],
+                'username' => $dailyTop['username'],
+                'score' => $dailyTop['topScore']
+            ];
+        }
+
+        return $result;
+    }
 }
