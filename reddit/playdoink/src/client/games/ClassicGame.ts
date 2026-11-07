@@ -6,8 +6,8 @@ import { showToast } from '@devvit/web/client';
  * ClassicGame - The original 2-button DO!NK game
  */
 export class ClassicGame implements IDoinkGame {
-  name = "Classic DO!NK";
-  description = "The classic DO!NK experience - pick the right button!";
+  name = "DO!NK";
+  description = "The World's Hardest Simplest Game.";
   
   private state: GameState = {
     streak: 0,
@@ -143,7 +143,7 @@ export class ClassicGame implements IDoinkGame {
     if (score === 0) return;
     
     try {
-      const response = await fetch('/api/submit-score', {
+      const response = await fetch('/api/save-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
