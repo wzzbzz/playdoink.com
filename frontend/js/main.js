@@ -5,13 +5,21 @@ $(document).ready(function () {
 
   // Handle browser back button
   let isInGame = false;
+  let isInMenu = false;
 
   window.addEventListener('popstate', function(event) {
-    if (isInGame) {
-      // User pressed back while in game - return to intro
-      $("#game-console").fadeOut(300);
-      $("#intro-overlay").fadeIn(500);
-      isInGame = false;
+
+    // Check if menu is currently open
+    if(isInMenu) {
+      // User pressed back while in menu - close menu
+      $("#game-menu-overlay").fadeOut(300);
+      isInMenu = false;
+      enterGame();
+    } else if(event.state && event.state.inGame) {
+       // User pressed back while in game - return to intro
+       $("#game-console").fadeOut(300);
+       $("#intro-overlay").fadeIn(500);
+       isInGame = false;
     }
   });
 
@@ -106,10 +114,17 @@ $(document).ready(function () {
 
   // Menu button handlers
   $("#menu-btn").click(function () {
+    
+    // Push a NEW history entry for the menu
+    let state = {...history.state, inMenu: true}; // Preserve inGame state
+    history.pushState(state, '', window.location.href);
+    isInMenu = true;
     $("#game-menu-overlay").fadeIn(300);
   });
 
   $("#close-menu").click(function () {
+    
+    history.back(); // Go back to previous state
     $("#game-menu-overlay").fadeOut(300);
   });
 
