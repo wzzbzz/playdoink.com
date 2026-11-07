@@ -52,6 +52,11 @@ use Doink\Copy;
         <a href="#" id="play-now" class="btn play"><?= Copy::get('homepage.play_button') ?></a>
         <div class="subtext"><?= Copy::get('homepage.play_subtext') ?></div>
 
+        <div class="more-modes" style="margin-top:1em;">
+            <a href="/megadoink.html" class="btn" style="display:inline-block;margin:0.25em;">MEGADOINK</a>
+            <a href="/ultradoink.html" class="btn" style="display:inline-block;margin:0.25em;">ULTRADOINK</a>
+        </div>
+
         <hr style="margin:1em 0;">
 
         <a href="#" id="login-register" class="btn login-register" data-mode="page"><?= Copy::get('homepage.login_button') ?></a>

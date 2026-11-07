@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ULTRADOINK playtest</title>
+  <link rel="stylesheet" href="css/megadoink.css">
+  <style>
+    body { margin: 0; background: #f4f4f4; font-family: system-ui, sans-serif; }
+    .md-tune { max-width: 420px; margin: 8px auto 0; padding: 0 16px; font-size: .85rem; color: #555; }
+    .md-tune a { margin-right: 10px; color: #16871a; }
+  </style>
+</head>
+<body>
+  <!-- Playtest page: not linked from the live site. Tune with ?cols=5&rows=6&reds=3&time=45&lockMs=400&penalty=zones|5&showReds=0|1 -->
+  <div class="md-tune">
+    <a href="/">&larr; Home</a> Try:
+    <a href="?">5x6 · 3 reds · 45s · zones</a>
+    <a href="?reds=4">4 reds</a>
+    <a href="?penalty=5">-5s per red</a>
+    <a href="?showReds=1">reds stay visible</a>
+    <a href="?cols=6&rows=6&reds=4">6x6 · 4 reds</a>
+  </div>
+  <div id="game-console"></div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="js/sounds.js"></script>
+  <script src="js/gameEngine.js"></script>
+  <script src="js/games/ultradoinkGame.js"></script>
+  <script>loadGame('ultradoink');</script>
+</body>
+</html>

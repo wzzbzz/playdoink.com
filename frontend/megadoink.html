@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MEGADOINK playtest</title>
+  <link rel="stylesheet" href="css/megadoink.css">
+  <style>
+    body { margin: 0; background: #f4f4f4; font-family: system-ui, sans-serif; }
+    .md-tune { max-width: 420px; margin: 8px auto 0; padding: 0 16px; font-size: .85rem; color: #555; }
+    .md-tune a { margin-right: 10px; color: #16871a; }
+  </style>
+</head>
+<body>
+  <!-- Playtest page: not linked from the live site. Try sizes with ?cols=3&rows=5&reds=1&lockMs=250 -->
+  <div class="md-tune">
+    <a href="/">&larr; Home</a> Try:
+    <a href="?cols=3&rows=4&reds=1">3x4</a>
+    <a href="?cols=3&rows=5&reds=1">3x5</a>
+    <a href="?cols=4&rows=4&reds=1">4x4</a>
+    <a href="?cols=4&rows=5&reds=2">4x5, 2 reds</a>
+  </div>
+  <div id="game-console"></div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="js/sounds.js"></script>
+  <script src="js/gameEngine.js"></script>
+  <script src="js/games/megadoinkGame.js"></script>
+  <script>loadGame('megadoink');</script>
+</body>
+</html>
