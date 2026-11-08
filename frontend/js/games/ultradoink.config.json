@@ -1,0 +1,38 @@
+{
+  "rules": {
+    "grid": {
+      "cols": 5,
+      "rows": 6
+    },
+    "cellTypes": {
+      "trap": {
+        "count": 3,
+        "placement": { "algorithm": "random" },
+        "stayVisible": false,
+        "onTap": [
+          { "do": "penalty" },
+          { "do": "greens", "mode": "reset" }
+        ]
+      },
+      "golden": {
+        "enabled": false,
+        "count": 1,
+        "placement": { "algorithm": "random" },
+        "onTap": [
+          { "do": "win", "if": "firstTap" }
+        ],
+        "otherwise": "green"
+      }
+    },
+    "clock": {
+      "seconds": 45,
+      "startsOn": "firstTap",
+      "penalty": { "type": "zone", "zones": 3 }
+    },
+    "timing": {
+      "tapPauseMs": 400,
+      "trapPauseMs": 700
+    },
+    "win": { "condition": "allGreens" }
+  }
+}

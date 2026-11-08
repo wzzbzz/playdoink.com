@@ -145,15 +145,16 @@ const classicGame = {
     const selection = buttonId === '1' ? 'bottom' : 'top';
 
     try {
-      await fetch(`${CONFIG.API_URL}/api/auth/save-selection`, {
+      const response = await fetch(`${CONFIG.API_URL}/api/auth/save-selection`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (user.apiToken || '') },
         body: JSON.stringify({
-          userId: user.id,
           selection: selection,
           success: success
         })
       });
+      // Logged in before login tokens existed (or token replaced): treat as logged out
+      if (response.status === 401) localStorage.removeItem('doink_user');
     } catch (error) {
       console.error('Failed to save selection:', error);
       // Don't block gameplay on save failures
@@ -211,13 +212,18 @@ const classicGame = {
     try {
       const response = await fetch(`${CONFIG.API_URL}/api/leaderboard/submit-score`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (user.apiToken || '') },
         body: JSON.stringify({
-          userId: user.id,
           score: scoreValue
         })
       });
-      
+
+      if (response.status === 401) {
+        // Logged in before login tokens existed (or token replaced): treat as logged out
+        localStorage.removeItem('doink_user');
+        return { isDailyFirst: false, isAllTimeFirst: false };
+      }
+
       const data = await response.json();
       console.log('Score submitted:', scoreValue);
       

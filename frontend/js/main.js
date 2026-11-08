@@ -199,12 +199,19 @@ $(document).ready(function () {
       // Save nickname to backend
       const response = await fetch(`${CONFIG.API_URL}/api/auth/update-username`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (userData.apiToken || '') },
         body: JSON.stringify({
-          userId: userData.id,
           username: nickname
         })
       });
+
+      if (response.status === 401) {
+        // Logged in before login tokens existed (or token replaced): log in again
+        localStorage.removeItem('doink_user');
+        alert('Please log in again to save your nickname.');
+        location.reload();
+        return;
+      }
 
       const data = await response.json();
 

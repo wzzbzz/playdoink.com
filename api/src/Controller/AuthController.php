@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Service\ApiAuth;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api/auth')]
@@ -96,6 +97,11 @@ class AuthController extends AbstractController
         // Clear the token after successful use
         $user->setLoginToken(null);
         $user->setLoginTokenExpiresAt(null);
+
+        // Issue an API token so later requests can prove who they are (see ApiAuth).
+        // One per user: logging in again replaces it.
+        $apiToken = bin2hex(random_bytes(32));
+        $user->setApiTokenHash(hash('sha256', $apiToken));
         $em->flush();
 
         return new JsonResponse([
@@ -104,28 +110,46 @@ class AuthController extends AbstractController
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),
                 'username' => $user->getUsername(),
+                'apiToken' => $apiToken,
             ]
         ], 200);
+    }
+
+    /** Who the login token belongs to, and whether they can use the admin backend (config tool). */
+    #[Route('/me', methods: ['GET'])]
+    public function me(Request $request, ApiAuth $auth): JsonResponse
+    {
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
+            'isEditor' => $auth->isEditor($user),
+        ]);
     }
 
     #[Route('/save-selection', methods: ['POST'])]
     public function saveSelection(
         Request $request,
-        UserRepository $userRepository,
+        ApiAuth $auth,
         EntityManagerInterface $em
     ): JsonResponse {
+        // The user comes from the login token, not from the request body.
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
         $data = json_decode($request->getContent(), true);
-        $userId = $data['userId'] ?? null;
         $selection = $data['selection'] ?? null; // "top" or "bottom"
         $success = $data['success'] ?? null; // true or false
 
-        if (!$userId || !$selection || !is_bool($success)) {
+        if (!$selection || !is_bool($success)) {
             return new JsonResponse(['message' => 'Invalid data'], 400);
-        }
-
-        $user = $userRepository->find($userId);
-        if (!$user) {
-            return new JsonResponse(['message' => 'User not found'], 404);
         }
 
         // Get existing history or create new
@@ -199,25 +223,25 @@ class AuthController extends AbstractController
     #[Route('/update-username', methods: ['POST'])]
     public function updateUsername(
         Request $request,
-        UserRepository $userRepository,
+        ApiAuth $auth,
         EntityManagerInterface $em
     ): JsonResponse {
+        // The user comes from the login token, not from the request body.
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
         $data = json_decode($request->getContent(), true);
-        $userId = $data['userId'] ?? null;
         $username = $data['username'] ?? null;
 
-        if (!$userId || !$username) {
-            return new JsonResponse(['message' => 'User ID and username required'], 400);
+        if (!$username) {
+            return new JsonResponse(['message' => 'Username required'], 400);
         }
 
         // Validate username (alphanumeric, 3-20 chars)
         if (!preg_match('/^[a-zA-Z0-9_]{3,20}$/', $username)) {
             return new JsonResponse(['message' => 'Username must be 3-20 characters (letters, numbers, underscore only)'], 400);
-        }
-
-        $user = $userRepository->find($userId);
-        if (!$user) {
-            return new JsonResponse(['message' => 'User not found'], 404);
         }
 
         $user->setUsername($username);

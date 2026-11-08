@@ -34,6 +34,11 @@
 .md-cell.is-green { border-color: var(--md-green-2); background: linear-gradient(180deg, var(--md-green-1) 20%, var(--md-green-2)); cursor: default; }
 .md-cell.is-red   { border-color: var(--md-red-2);   background: linear-gradient(180deg, var(--md-red-1) 20%, var(--md-red-2)); cursor: default; }
 .md-cell.is-dim { opacity: .35; cursor: default; }
+/* ULTRADOINK cell types (class is "is-" + the cellType name in the config) */
+.md-cell.is-trap  { border-color: var(--md-red-2); background: linear-gradient(180deg, var(--md-red-1) 20%, var(--md-red-2)); cursor: default; }
+.md-cell.is-golden { border-color: #b8860b; background: linear-gradient(180deg, #ffe680 20%, #f5c518); cursor: default; }
+.md-cell.is-green.is-set { filter: brightness(.75); }
+.md-cell.is-void { display: block; visibility: hidden; pointer-events: none; }
 #megadoink.is-locked .md-cell, #ultradoink.is-locked .md-cell { cursor: wait; }
 
 .md-result { margin-top: 18px; font-size: 1.2rem; font-weight: 700; }

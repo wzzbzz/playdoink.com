@@ -28,6 +28,10 @@ class User
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $loginTokenExpiresAt = null;
 
+    /** sha256 of the API token issued at login; sent back as "Authorization: Bearer <token>". */
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $apiTokenHash = null;
+
     #[ORM\Column(type: 'blob', nullable: true)]
     private $selectionHistory = null;
 
@@ -178,6 +182,18 @@ class User
     public function setSelectionCount(?int $selectionCount): static
     {
         $this->selectionCount = $selectionCount;
+
+        return $this;
+    }
+
+    public function getApiTokenHash(): ?string
+    {
+        return $this->apiTokenHash;
+    }
+
+    public function setApiTokenHash(?string $apiTokenHash): static
+    {
+        $this->apiTokenHash = $apiTokenHash;
 
         return $this;
     }

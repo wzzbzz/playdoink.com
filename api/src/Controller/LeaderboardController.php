@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Score;
 use App\Repository\ScoreRepository;
 use App\Repository\UserRepository;
+use App\Service\ApiAuth;
 use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,22 +19,23 @@ class LeaderboardController extends AbstractController
     #[Route('/submit-score', methods: ['POST'])]
     public function submitScore(
         Request $request,
-        UserRepository $userRepository,
+        ApiAuth $auth,
         ScoreRepository $scoreRepository,
         EmailService $emailService,
         EntityManagerInterface $em
     ): JsonResponse {
+        // The user comes from the login token, not from the request body.
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+        $userId = $user->getId();
+
         $data = json_decode($request->getContent(), true);
-        $userId = $data['userId'] ?? null;
         $scoreValue = $data['score'] ?? null;
 
-        if (!$userId || !is_numeric($scoreValue)) {
+        if (!is_numeric($scoreValue)) {
             return new JsonResponse(['message' => 'Invalid data'], 400);
-        }
-
-        $user = $userRepository->find($userId);
-        if (!$user) {
-            return new JsonResponse(['message' => 'User not found'], 404);
         }
 
         // Check leaderboard position BEFORE saving the score
