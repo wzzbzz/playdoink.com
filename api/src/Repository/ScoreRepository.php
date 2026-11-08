@@ -18,7 +18,7 @@ class ScoreRepository extends ServiceEntityRepository
      */
     public function getAllTimeLeaderboard(int $limit = 100): array
     {
-        return $this->createQueryBuilder('s')
+        $rows = $this->createQueryBuilder('s')
             ->select('s.score', 'u.username', 'u.email', 's.createdAt')
             ->join('s.user', 'u')
             ->orderBy('s.score', 'DESC')
@@ -26,6 +26,8 @@ class ScoreRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return $this->publicRows($rows);
     }
 
     /**
@@ -39,7 +41,7 @@ class ScoreRepository extends ServiceEntityRepository
         
         $tomorrow = $today->modify('+1 day');
 
-        return $this->createQueryBuilder('s')
+        $rows = $this->createQueryBuilder('s')
             ->select('s.score', 'u.username', 'u.email', 's.createdAt')
             ->join('s.user', 'u')
             ->where('s.createdAt >= :today')
@@ -50,6 +52,8 @@ class ScoreRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return $this->publicRows($rows);
     }
 
     /**
@@ -151,5 +155,21 @@ class ScoreRepository extends ServiceEntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * Leaderboards are public: never send email addresses to clients.
+     * Players without a username keep the name the page already showed
+     * (the part of their email before the @).
+     */
+    private function publicRows(array $rows): array
+    {
+        return array_map(function (array $row) {
+            if (empty($row['username'])) {
+                $row['username'] = strstr((string) ($row['email'] ?? ''), '@', true) ?: 'Anonymous';
+            }
+            unset($row['email']);
+            return $row;
+        }, $rows);
     }
 }
