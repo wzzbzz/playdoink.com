@@ -53,8 +53,8 @@ use Doink\Copy;
         <div class="subtext"><?= Copy::get('homepage.play_subtext') ?></div>
 
         <div class="more-modes" style="margin-top:1em;">
-            <a href="/megadoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#222;font-weight:bold;border:2px solid #b8860b;text-shadow:none;">MEGADOINK<sup style="color:#e00000;font-size:0.6em;font-weight:bold;margin-left:0.3em;text-transform:none;">Beta!</sup></a>
-            <a href="/ultradoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#222;font-weight:bold;border:2px solid #b8860b;text-shadow:none;">ULTRADOINK<sup style="color:#e00000;font-size:0.6em;font-weight:bold;margin-left:0.3em;text-transform:none;">Beta!</sup></a>
+            <a href="/megadoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#222;font-weight:bold;border:2px solid #b8860b;text-shadow:none;">Megado!nk<sup style="color:#e00000;font-size:0.6em;font-weight:bold;margin-left:0.3em;text-transform:none;">Beta!</sup></a>
+            <a href="/ultradoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#222;font-weight:bold;border:2px solid #b8860b;text-shadow:none;">Ultrado!nk<sup style="color:#e00000;font-size:0.6em;font-weight:bold;margin-left:0.3em;text-transform:none;">Beta!</sup></a>
         </div>
 
         <hr style="margin:1em 0;">

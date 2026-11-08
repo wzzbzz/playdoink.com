@@ -9,7 +9,7 @@
 // touch the classic two-button console or the global .svgbutton handlers.
 
 const megadoinkGame = {
-  name: "MEGADOINK",
+  name: "MEGADO!NK",
   config: { cols: 3, rows: 4, reds: 1, lockMs: 250 },
   state: { reds: new Set(), found: 0, locked: false, over: false, best: 0 },
 
@@ -63,7 +63,7 @@ const megadoinkGame = {
     const c = this.config;
     root.innerHTML = `
       <div class="md-head">
-        <div class="md-title">${this.name}</div>
+        <div class="md-title">${this.name.replace(/^(MEGA|ULTRA)/, '<span class="md-prefix">$1</span>')}</div>
         <div class="md-score"><span id="md-found">0</span> / ${this.greens()}
           <span class="md-best">best <span id="md-best">${this.state.best}</span></span></div>
       </div>

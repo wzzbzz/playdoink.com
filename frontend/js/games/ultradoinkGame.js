@@ -11,7 +11,7 @@
 // The clock starts on your first tap.
 
 const ultradoinkGame = {
-  name: "ULTRADOINK",
+  name: "ULTRADO!NK",
   defaults: { cols: 5, rows: 6, reds: 3, time: 45, lockMs: 400, penalty: "zones", showReds: 0 },
   config: null,
   state: null,
@@ -70,7 +70,7 @@ const ultradoinkGame = {
     const best = this.bestTime();
     root.innerHTML = `
       <div class="md-head">
-        <div class="md-title">${this.name}</div>
+        <div class="md-title">${this.name.replace(/^(MEGA|ULTRA)/, '<span class="md-prefix">$1</span>')}</div>
         <div class="md-score"><span id="ud-found">0</span> / ${this.greens()}
           <span class="md-best">best <span id="ud-best">${best ? best.toFixed(1) + "s" : "-"}</span></span></div>
       </div>

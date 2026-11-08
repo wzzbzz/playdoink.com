@@ -13,7 +13,8 @@
   -webkit-tap-highlight-color: transparent;
 }
 .md-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-.md-title { font-weight: 800; letter-spacing: .04em; font-size: 1.4rem; }
+.md-title { font-family: 'Luckiest Guy', system-ui, sans-serif; font-weight: 400; letter-spacing: .04em; font-size: 1.6rem; color: #222; }
+.md-prefix { color: var(--md-green-2); }
 .md-score { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
 .md-best { font-size: .8rem; opacity: .6; margin-left: 8px; }
 
