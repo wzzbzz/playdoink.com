@@ -14,6 +14,7 @@
         "count": 1,
         "placement": { "algorithm": "random" },
         "points": 15,
+        "streak": { "countBy": "rounds", "bonus": [0, 5, 20] },
         "otherwise": "green"
       }
     },

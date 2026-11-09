@@ -8,7 +8,16 @@
 // Replay a specific deal with ?seed=12345.
 //
 // These still work as overrides on top of the config (loadGame args win over URL params):
-//   cols, rows, reds (trap count), lockMs (tapPauseMs), golden (0 turns the Golden Circle off)
+//   cols, rows, reds (trap count), lockMs (tapPauseMs), golden (0 turns the Golden Circle off),
+//   goldens (how many Golden Circles), streak (countBy: "rounds" or "taps")
+//
+// Streaks: a cell type with points can have streak: { countBy, bonus: [..] }. When the streak reaches n,
+// bonus[n-1] extra points are awarded; past the end of the list the last value repeats. countBy is a
+// name in streakCounters below:
+//   "rounds": grows when the cell is found on back-to-back rounds, resets on a round where it isn't.
+//             The streak lives in this.carry, which init() keeps when called with { keepStreak: true }
+//             (for bonus rounds); a fresh game starts it again at 0.
+//   "taps":   grows on taps of that cell type with no other tap in between.
 //
 // If ultradoinkGame.js is loaded, its placement registry and seeded RNG are reused, so a placement
 // algorithm added there works here too. Without it, only "random" placement is available.
@@ -24,6 +33,31 @@ const megadoinkGame = {
   args: {},
   config: null,     // rules with the overrides applied: { cols, rows, tapPauseMs, cellTypes }
   state: null,
+  carry: { streaks: {} },   // survives from one board to the next when init() gets keepStreak
+
+  // How each streak countBy option counts. tap() runs on a tap of that cell type and returns the new
+  // streak length, or null if this tap doesn't move the streak. roundEnd() runs when the board ends.
+  streakCounters: {
+    rounds: {
+      tap(name) {
+        const s = this.state;
+        if (s.streakRoundCounted[name]) return null;   // only the first find in a round counts
+        s.streakRoundCounted[name] = true;
+        return (this.carry.streaks[name] = (this.carry.streaks[name] || 0) + 1);
+      },
+      roundEnd(name) {
+        if (!this.state.streakRoundCounted[name]) this.carry.streaks[name] = 0;
+      },
+    },
+    taps: {
+      tap(name) {
+        const s = this.state;
+        s.tapStreaks[name] = s.lastTap === name ? (s.tapStreaks[name] || 0) + 1 : 1;
+        return s.tapStreaks[name];
+      },
+      roundEnd() {},
+    },
+  },
 
   // Fallbacks for when ultradoinkGame.js isn't on the page.
   ownPlacements: {
@@ -53,6 +87,7 @@ const megadoinkGame = {
   // ---- Setup ----
 
   init(args = {}) {
+    if (!args.keepStreak) this.carry = { streaks: {} };
     this.args = args;
     const q = new URLSearchParams(window.location.search);
     const url = args.config || q.get("config") || this.defaultConfig;
@@ -85,7 +120,10 @@ const megadoinkGame = {
     this.state = {
       seed, kind,
       found: 0,          // greens found, the Golden Circle included
-      bonus: 0,          // points from special cells (the Golden Circle)
+      bonus: 0,          // points from special cells (the Golden Circle) and their streak bonuses
+      lastTap: null,     // the kind of the previous cell tapped
+      tapStreaks: {},    // for countBy "taps"
+      streakRoundCounted: {},   // for countBy "rounds": cell types already counted on this board
       locked: false,
       over: false,
       best: 0,
@@ -109,7 +147,9 @@ const megadoinkGame = {
     if (types.golden) {
       const g = pick("golden", undefined);
       if (g !== undefined) types.golden.enabled = g !== 0;
-      types.golden.count = Math.max(0, Math.min(types.golden.count ?? 1, cells - types.trap.count));
+      types.golden.count = Math.max(0, Math.min(pick("goldens", types.golden.count ?? 1), cells - types.trap.count));
+      const by = args.streak ?? q.get("streak");
+      if (by) types.golden.streak = Object.assign({ bonus: [0] }, types.golden.streak, { countBy: by });
     }
     return {
       cols, rows, cellTypes: types,
@@ -201,6 +241,8 @@ const megadoinkGame = {
       el.classList.add("is-" + k);
       s.bonus += Number(t.points) || 0;
     }
+    this.updateStreaks(k, el);
+    s.lastTap = k;
     document.getElementById("md-found").textContent = s.found;
     document.getElementById("md-points").textContent = this.score();
     this.play(t && t.points ? "highscore" : "doink");
@@ -219,9 +261,48 @@ const megadoinkGame = {
     }, this.config.tapPauseMs);
   },
 
+  // Run every streak counter for this tap; award the bonus for the streak length it reaches.
+  updateStreaks(kind, el) {
+    const s = this.state;
+    for (const [name, t] of Object.entries(this.config.cellTypes)) {
+      if (!t.streak) continue;
+      const counter = this.streakCounters[t.streak.countBy];
+      if (!counter) { console.warn(`Unknown streak countBy "${t.streak.countBy}"`); continue; }
+      if (name !== kind) {
+        if (t.streak.countBy === "taps") s.tapStreaks[name] = 0;   // any other tap breaks a taps streak
+        continue;
+      }
+      const n = counter.tap.call(this, name);
+      if (!n) continue;
+      const list = t.streak.bonus || [];
+      const extra = Number(list[Math.min(n, list.length) - 1]) || 0;   // past the end: repeat the last value
+      if (extra) {
+        s.bonus += extra;
+        this.popup(el, `+${extra} streak!`);
+      }
+    }
+  },
+
+  // A short label that floats up from a cell and fades.
+  popup(el, text) {
+    const root = this.root();
+    const pop = document.createElement("div");
+    pop.className = "md-pop";
+    pop.textContent = text;
+    const a = el.getBoundingClientRect(), b = root.getBoundingClientRect();
+    pop.style.left = (a.left - b.left + a.width / 2) + "px";
+    pop.style.top = (a.top - b.top) + "px";
+    root.appendChild(pop);
+    setTimeout(() => pop.remove(), 1200);
+  },
+
   endGame(cleared) {
     const s = this.state;
     s.over = true;
+    for (const [name, t] of Object.entries(this.config.cellTypes)) {
+      const counter = t.streak && this.streakCounters[t.streak.countBy];
+      if (counter) counter.roundEnd.call(this, name);
+    }
     const root = this.root();
     // reveal the remaining reds, and where the Golden Circle was if it wasn't found
     s.kind.forEach((k, i) => {

@@ -41,6 +41,13 @@
 .md-cell.is-green.is-golden { border-color: #b8860b; background: linear-gradient(180deg, #ffe680 20%, #f5c518); cursor: default; }
 .md-cell.is-green.is-set { filter: brightness(.75); }
 .md-cell.is-void { display: block; visibility: hidden; pointer-events: none; }
+#megadoink { position: relative; }
+.md-pop {
+  position: absolute; transform: translate(-50%, 0); pointer-events: none; white-space: nowrap;
+  font-weight: 700; font-size: 1.1rem; color: #8a6400; text-shadow: 0 1px 0 #fff;
+  animation: md-pop 1.2s ease-out forwards;
+}
+@keyframes md-pop { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -40px); } }
 #megadoink.is-locked .md-cell, #ultradoink.is-locked .md-cell { cursor: wait; }
 
 .md-result { margin-top: 18px; font-size: 1.2rem; font-weight: 700; }
