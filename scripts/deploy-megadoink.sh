@@ -20,16 +20,18 @@ cd ~/Ampelos/greenhouse/Doink
 BASE=f86512b
 FILES="megadoink.html css/megadoink.css js/games/megadoinkGame.js js/games/megadoink.config.json"
 STAMP=$(date +%Y%m%d-%H%M%S)
-RSYNC_OPTS=(-rlti --checksum --chmod=D755,F644 --exclude=vendor/ --exclude=var/ --exclude='.env*' --exclude=.DS_Store)
+# macOS rsync 2.6.9 has no D755,F644 form; this gives files 644 and folders 755.
+RSYNC_OPTS=(-rlti --checksum --chmod=u=rwX,go=rX --exclude=vendor/ --exclude=var/ --exclude='.env*' --exclude=.DS_Store)
 
 # Frontend checks first, so nothing is changed anywhere if the live site has surprises.
 B=~/doink-backups/megadoink-$STAMP; mkdir -p "$B"
 for f in $FILES; do
   mkdir -p "$B/$(dirname $f)"
   if scp -q "$HOST:$LIVE/$f" "$B/$f" 2>/dev/null; then
-    if ! git show "$BASE:frontend/$f" 2>/dev/null | cmp -s - "$B/$f"; then
+    # git cat-file, not git show: on this Mac git show can write to stderr when piped
+    if ! git cat-file -p "$BASE:frontend/$f" | cmp -s - "$B/$f"; then
       echo "STOP: live $f differs from commit $BASE. Nothing uploaded. Diff:"
-      git show "$BASE:frontend/$f" 2>/dev/null | diff - "$B/$f" | head -40
+      git cat-file -p "$BASE:frontend/$f" | diff - "$B/$f" | head -40
       exit 1
     fi
   else
