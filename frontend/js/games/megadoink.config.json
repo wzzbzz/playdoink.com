@@ -18,6 +18,11 @@
         "otherwise": "green"
       }
     },
+    "rounds": {
+      "enabled": true,
+      "onClear": "nextRound",
+      "progression": { "algorithm": "same" }
+    },
     "timing": {
       "tapPauseMs": 250
     }

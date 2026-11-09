@@ -17,6 +17,7 @@
 .md-prefix { color: var(--md-green-2); }
 .md-score { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
 .md-best { font-size: .8rem; opacity: .6; margin-left: 8px; }
+.md-round { font-size: .9rem; font-weight: 700; margin-right: 8px; color: var(--md-green-2); }
 .md-points { font-size: .9rem; margin-left: 8px; font-weight: 700; color: #8a6400; }
 
 .md-grid { display: grid; gap: 10px; }
