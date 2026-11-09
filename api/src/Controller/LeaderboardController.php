@@ -33,21 +33,34 @@ class LeaderboardController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         $scoreValue = $data['score'] ?? null;
+        $game = $data['game'] ?? Score::DEFAULT_GAME;
 
-        if (!is_numeric($scoreValue)) {
+        if (!is_numeric($scoreValue) || !in_array($game, Score::GAMES, true)) {
             return new JsonResponse(['message' => 'Invalid data'], 400);
         }
 
-        // Check leaderboard position BEFORE saving the score
-        $leaderboardCheck = $scoreRepository->checkLeaderboardPosition((int) $scoreValue);
+        // Check leaderboard position BEFORE saving the score (each game has its own leaderboard)
+        $leaderboardCheck = $scoreRepository->checkLeaderboardPosition((int) $scoreValue, $game);
 
         $score = new Score();
         $score->setUser($user);
         $score->setScore((int) $scoreValue);
+        $score->setGame($game);
         $score->setCreatedAt(new \DateTimeImmutable());
 
         $em->persist($score);
         $em->flush();
+
+        // Dethroned emails are Classic-only for now.
+        if ($game !== 'classic') {
+            return new JsonResponse([
+                'message' => 'Score submitted',
+                'score' => $scoreValue,
+                'game' => $game,
+                'isDailyFirst' => $leaderboardCheck['isDailyFirst'],
+                'isAllTimeFirst' => $leaderboardCheck['isAllTimeFirst']
+            ], 200);
+        }
 
         // Send dethroned emails if applicable
         if ($leaderboardCheck['isAllTimeFirst'] && $leaderboardCheck['dethronedAllTimeLeader']) {
@@ -104,9 +117,13 @@ class LeaderboardController extends AbstractController
     }
 
     #[Route('/all-time', methods: ['GET'])]
-    public function getAllTime(ScoreRepository $scoreRepository): JsonResponse
+    public function getAllTime(Request $request, ScoreRepository $scoreRepository): JsonResponse
     {
-        $leaderboard = $scoreRepository->getAllTimeLeaderboard(100);
+        $game = $request->query->get('game', Score::DEFAULT_GAME);
+        if (!in_array($game, Score::GAMES, true)) {
+            return new JsonResponse(['message' => 'Unknown game'], 400);
+        }
+        $leaderboard = $scoreRepository->getAllTimeLeaderboard(100, $game);
         
         return new JsonResponse([
             'type' => 'all-time',
@@ -115,9 +132,13 @@ class LeaderboardController extends AbstractController
     }
 
     #[Route('/daily', methods: ['GET'])]
-    public function getDaily(ScoreRepository $scoreRepository): JsonResponse
+    public function getDaily(Request $request, ScoreRepository $scoreRepository): JsonResponse
     {
-        $leaderboard = $scoreRepository->getDailyLeaderboard(100);
+        $game = $request->query->get('game', Score::DEFAULT_GAME);
+        if (!in_array($game, Score::GAMES, true)) {
+            return new JsonResponse(['message' => 'Unknown game'], 400);
+        }
+        $leaderboard = $scoreRepository->getDailyLeaderboard(100, $game);
         
         return new JsonResponse([
             'type' => 'daily',

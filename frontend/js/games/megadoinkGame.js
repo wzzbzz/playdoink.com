@@ -30,6 +30,10 @@
 // If ultradoinkGame.js is loaded, its placement registry and seeded RNG are reused, so a placement
 // algorithm added there works here too. Without it, only "random" placement is available.
 //
+// Leaderboard: with rounds on, a run's total score is posted to /api/leaderboard/submit-score with
+// game=megadoink when the player is logged in (same token as Classic). Playtests aren't posted: no score
+// is sent when any URL param or loadGame arg changes the rules (see isPlaytest()).
+//
 // The game draws its own grid into #megadoink (created if missing), so it doesn't
 // touch the classic two-button console or the global .svgbutton handlers.
 
@@ -270,12 +274,16 @@ const megadoinkGame = {
       </div>
       <div class="md-result" id="md-result" hidden>
         <div id="md-result-text"></div>
+        <div class="md-save" id="md-save" hidden></div>
         <button id="md-again">Play again</button>
-      </div>`;
+        <button id="md-lb-btn" class="md-lb-btn" hidden>Leaderboard</button>
+      </div>
+      <div class="md-lb" id="md-lb" hidden></div>`;
 
     root.querySelectorAll(".md-cell").forEach((el) =>
       el.addEventListener("click", () => this.action(el)));
     root.querySelector("#md-again").addEventListener("click", () => this.init(this.baseArgs));
+    root.querySelector("#md-lb-btn").addEventListener("click", () => this.showLeaderboard("all-time"));
   },
 
   cell(i) { return document.querySelector(`#megadoink .md-cell[data-i="${i}"]`); },
@@ -392,7 +400,78 @@ const megadoinkGame = {
         : `You got ${s.found}.${pts}${nb}`;
     document.getElementById("md-result-text").textContent = text;
     setTimeout(() => { document.getElementById("md-result").hidden = false; }, 400);
-    // Not wired to the leaderboard or tracking yet: those are Classic-only for now.
+    if (this.roundsOn()) {
+      document.getElementById("md-lb-btn").hidden = false;
+      this.submitScore(score);
+    }
+  },
+
+  // Rule-changing URL params and loadGame args: a game played with any of these is a playtest.
+  PLAYTEST_PARAMS: ["config", "seed", "cols", "rows", "reds", "lockMs", "golden", "goldens", "streak",
+                    "rounds", "progression", "every", "maxTraps"],
+  isPlaytest() {
+    const q = new URLSearchParams(window.location.search);
+    return this.PLAYTEST_PARAMS.some((k) => q.has(k) || this.baseArgs[k] !== undefined);
+  },
+
+  apiUrl() { return (typeof CONFIG !== "undefined" ? CONFIG.API_URL : "https://app.playdoink.com"); },
+
+  loggedInUser() {
+    try {
+      const u = JSON.parse(localStorage.getItem("doink_user")) || {};
+      return u.id && u.apiToken ? u : null;
+    } catch (e) { return null; }
+  },
+
+  // Post the run's total to the Megado!nk leaderboard (logged in, not a playtest, more than 0).
+  async submitScore(score) {
+    const save = document.getElementById("md-save");
+    const say = (html) => { save.innerHTML = html; save.hidden = false; };
+    const loginHint = () => say(`<a href="/">Log in</a> to save your score`);
+    if (this.isPlaytest()) return say("Playtest: score not saved");
+    if (!(score > 0)) return;
+    const user = this.loggedInUser();
+    if (!user) return loginHint();
+    try {
+      const r = await fetch(this.apiUrl() + "/api/leaderboard/submit-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + user.apiToken },
+        body: JSON.stringify({ score, game: "megadoink" }),
+      });
+      if (r.status === 401) {
+        // token no longer valid: treat as logged out, like Classic does
+        try { localStorage.removeItem("doink_user"); } catch (e) {}
+        return loginHint();
+      }
+      if (!r.ok) throw new Error(r.status);
+      const data = await r.json();
+      say(data.isAllTimeFirst ? "Saved: #1 all-time!" : data.isDailyFirst ? "Saved: #1 today!" : "Score saved");
+    } catch (e) {
+      console.error("Failed to submit Megado!nk score:", e);
+      say("Couldn't save your score");
+    }
+  },
+
+  // A plain Megado!nk leaderboard under the result (type: "all-time" or "daily").
+  async showLeaderboard(type) {
+    const box = document.getElementById("md-lb");
+    box.hidden = false;
+    const tab = (t, label) => `<button data-t="${t}" class="${t === type ? "is-on" : ""}">${label}</button>`;
+    box.innerHTML = `<div class="md-lb-tabs">${tab("all-time", "All-time")}${tab("daily", "Today")}</div><div class="md-lb-body">Loading...</div>`;
+    box.querySelectorAll(".md-lb-tabs button").forEach((b) =>
+      b.addEventListener("click", () => this.showLeaderboard(b.dataset.t)));
+    const body = box.querySelector(".md-lb-body");
+    try {
+      const r = await fetch(`${this.apiUrl()}/api/leaderboard/${type}?game=megadoink`);
+      if (!r.ok) throw new Error(r.status);
+      const rows = (await r.json()).leaderboard || [];
+      if (!rows.length) { body.textContent = type === "daily" ? "No scores yet today." : "No scores yet."; return; }
+      const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+      body.innerHTML = `<table class="md-lb-table"><tbody>${rows.slice(0, 20).map((e, i) =>
+        `<tr><td>${i + 1}</td><td>${esc(e.username)}</td><td>${esc(e.score)}</td></tr>`).join("")}</tbody></table>`;
+    } catch (e) {
+      body.textContent = "Couldn't load the leaderboard.";
+    }
   },
 
   // Board cleared with rounds on: a short beat, then a fresh deal that keeps the score and the streak.

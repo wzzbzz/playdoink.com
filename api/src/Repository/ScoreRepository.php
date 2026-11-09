@@ -16,11 +16,13 @@ class ScoreRepository extends ServiceEntityRepository
     /**
      * Get all-time leaderboard
      */
-    public function getAllTimeLeaderboard(int $limit = 100): array
+    public function getAllTimeLeaderboard(int $limit = 100, string $game = Score::DEFAULT_GAME): array
     {
         $rows = $this->createQueryBuilder('s')
             ->select('s.score', 'u.username', 'u.email', 's.createdAt')
             ->join('s.user', 'u')
+            ->where('s.game = :game')
+            ->setParameter('game', $game)
             ->orderBy('s.score', 'DESC')
             ->addOrderBy('s.createdAt', 'ASC')
             ->setMaxResults($limit)
@@ -33,7 +35,7 @@ class ScoreRepository extends ServiceEntityRepository
     /**
      * Get daily leaderboard (today's scores only)
      */
-    public function getDailyLeaderboard(int $limit = 100): array
+    public function getDailyLeaderboard(int $limit = 100, string $game = Score::DEFAULT_GAME): array
     {
         
         $tz = new \DateTimeZone('America/New_York');
@@ -46,6 +48,8 @@ class ScoreRepository extends ServiceEntityRepository
             ->join('s.user', 'u')
             ->where('s.createdAt >= :today')
             ->andWhere('s.createdAt < :tomorrow')
+            ->andWhere('s.game = :game')
+            ->setParameter('game', $game)
             ->setParameter('today', $today)
             ->setParameter('tomorrow', $tomorrow)
             ->orderBy('s.score', 'DESC')
@@ -59,12 +63,14 @@ class ScoreRepository extends ServiceEntityRepository
     /**
      * Get user's best score ever
      */
-    public function getUserBestScore(int $userId): ?int
+    public function getUserBestScore(int $userId, string $game = Score::DEFAULT_GAME): ?int
     {
         $result = $this->createQueryBuilder('s')
             ->select('MAX(s.score) as bestScore')
             ->where('s.user = :userId')
+            ->andWhere('s.game = :game')
             ->setParameter('userId', $userId)
+            ->setParameter('game', $game)
             ->getQuery()
             ->getOneOrNullResult();
 
@@ -74,9 +80,9 @@ class ScoreRepository extends ServiceEntityRepository
     /**
      * Get user's rank in all-time leaderboard
      */
-    public function getUserAllTimeRank(int $userId): ?int
+    public function getUserAllTimeRank(int $userId, string $game = Score::DEFAULT_GAME): ?int
     {
-        $bestScore = $this->getUserBestScore($userId);
+        $bestScore = $this->getUserBestScore($userId, $game);
         
         if ($bestScore === null) {
             return null;
@@ -86,7 +92,9 @@ class ScoreRepository extends ServiceEntityRepository
             ->select('COUNT(DISTINCT s2.score) + 1 as rank')
             ->from(Score::class, 's2')
             ->where('s2.score > :bestScore')
+            ->andWhere('s2.game = :game')
             ->setParameter('bestScore', $bestScore)
+            ->setParameter('game', $game)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -97,7 +105,7 @@ class ScoreRepository extends ServiceEntityRepository
      * Check if a score is #1 on daily or all-time leaderboard
      * Returns info about previous leaders if dethroned
      */
-    public function checkLeaderboardPosition(int $score): array
+    public function checkLeaderboardPosition(int $score, string $game = Score::DEFAULT_GAME): array
     {
         $result = [
             'isDailyFirst' => false,
@@ -110,6 +118,8 @@ class ScoreRepository extends ServiceEntityRepository
         $allTimeTop = $this->createQueryBuilder('s')
             ->select('s.score as topScore', 'u.id as userId', 'u.email', 'u.username')
             ->join('s.user', 'u')
+            ->where('s.game = :game')
+            ->setParameter('game', $game)
             ->orderBy('s.score', 'DESC')
             ->addOrderBy('s.createdAt', 'ASC')
             ->setMaxResults(1)
@@ -136,6 +146,8 @@ class ScoreRepository extends ServiceEntityRepository
             ->join('s.user', 'u')
             ->where('s.createdAt >= :today')
             ->andWhere('s.createdAt < :tomorrow')
+            ->andWhere('s.game = :game')
+            ->setParameter('game', $game)
             ->setParameter('today', $today)
             ->setParameter('tomorrow', $tomorrow)
             ->orderBy('s.score', 'DESC')

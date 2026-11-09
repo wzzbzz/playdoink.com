@@ -52,6 +52,16 @@
 #megadoink.is-locked .md-cell, #ultradoink.is-locked .md-cell { cursor: wait; }
 
 .md-result { margin-top: 18px; font-size: 1.2rem; font-weight: 700; }
+.md-save { margin-top: 6px; font-size: .9rem; font-weight: 400; opacity: .8; }
+.md-save a { color: var(--md-green-2); }
+.md-result .md-lb-btn { background: #fff; color: var(--md-green-2); border: 2px solid var(--md-green-2); margin-left: 6px; }
+.md-lb { margin-top: 14px; font-size: .95rem; }
+.md-lb-tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.md-lb-tabs button { font: inherit; padding: 4px 12px; border-radius: 999px; border: 1px solid #bbb; background: #fff; cursor: pointer; }
+.md-lb-tabs button.is-on { border-color: var(--md-green-2); color: var(--md-green-2); font-weight: 700; }
+.md-lb-table { margin: 0 auto; border-collapse: collapse; }
+.md-lb-table td { padding: 3px 10px; text-align: left; }
+.md-lb-table td:first-child, .md-lb-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
 .md-result button {
   margin-top: 10px; font: inherit; font-size: 1rem; padding: 10px 22px;
   border-radius: 999px; border: 0; background: var(--md-green-2); color: #fff; cursor: pointer;
