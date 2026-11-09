@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "grid": {
+      "cols": 3,
+      "rows": 4
+    },
+    "cellTypes": {
+      "trap": {
+        "count": 1,
+        "placement": { "algorithm": "random" }
+      },
+      "golden": {
+        "enabled": true,
+        "count": 1,
+        "placement": { "algorithm": "random" },
+        "points": 15,
+        "otherwise": "green"
+      }
+    },
+    "timing": {
+      "tapPauseMs": 250
+    }
+  }
+}

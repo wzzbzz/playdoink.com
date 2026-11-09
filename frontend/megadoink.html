@@ -13,13 +13,14 @@
   </style>
 </head>
 <body>
-  <!-- Playtest page: not linked from the live site. Try sizes with ?cols=3&rows=5&reds=1&lockMs=250 -->
+  <!-- Playtest page: not linked from the live site. Try sizes with ?cols=3&rows=5&reds=1&lockMs=250&golden=0&seed=123 -->
   <div class="md-tune">
     <a href="/">&larr; Home</a> Try:
     <a href="?cols=3&rows=4&reds=1">3x4</a>
     <a href="?cols=3&rows=5&reds=1">3x5</a>
     <a href="?cols=4&rows=4&reds=1">4x4</a>
     <a href="?cols=4&rows=5&reds=2">4x5, 2 reds</a>
+    <a href="?golden=0">no gold</a>
   </div>
   <div id="game-console"></div>
 
@@ -27,6 +28,8 @@
       integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script src="js/sounds.js"></script>
   <script src="js/gameEngine.js"></script>
+  <!-- loaded for its placement registry and seeded RNG; it only starts if loadGame('ultradoink') is called -->
+  <script src="js/games/ultradoinkGame.js"></script>
   <script src="js/games/megadoinkGame.js"></script>
   <script>loadGame('megadoink');</script>
 </body>
