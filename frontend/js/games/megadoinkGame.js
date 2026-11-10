@@ -1,6 +1,6 @@
 // megadoinkGame.js
 // MEGADOINK: a grid of buttons with hidden red(s), and optionally a Golden Circle. Tap greens until you hit a red.
-// Score = greens found before the red, plus the Golden Circle's points if you found it.
+// Score: each green is worth rules.greenPoints (default 1); the Golden Circle scores by its scoring algorithm.
 //
 // The rules come from a config file (default js/games/megadoink.config.json), same shape as
 // ultradoink.config.json: rules.grid { cols, rows }, rules.cellTypes { trap, golden }, rules.timing { tapPauseMs }.
@@ -27,6 +27,18 @@
 //             (for bonus rounds); a fresh game starts it again at 0.
 //   "taps":   grows on taps of that cell type with no other tap in between.
 //
+// Golden Circle scoring: cellTypes.golden.scoring.algorithm is a name in goldScoring below
+// (override with ?scoring=streak|tiers):
+//   "streak": the gold is a green plus `points`, plus streak bonuses (see Streaks above). The old scoring.
+//   "tiers":  Craig's scoring (Nov 9, 2026). base, multiplier, gapBonus, latePoints, gapFrom:
+//             - Gold on the first tap of a round pays by tier. tierValue(n) = base * multiplier^(n-1);
+//               T is the highest tier reached this run (0 at the start).
+//               Previous round also had a first-tap gold: T = T+1, pays tierValue(T).
+//               Otherwise: T = 0 -> T = 1, pays tierValue(1); else pays tierValue(T) + gapBonus, T unchanged
+//               (gapFrom: "lastPayout" pays the last first-tap payout + gapBonus instead).
+//             - Gold found later in the round pays latePoints and still counts toward clearing.
+// golden.firstTap.endsRound: a gold on the first tap ends the round at once (on to the next round).
+//
 // If ultradoinkGame.js is loaded, its placement registry and seeded RNG are reused, so a placement
 // algorithm added there works here too. Without it, only "random" placement is available.
 //
@@ -47,7 +59,7 @@ const megadoinkGame = {
   state: null,
   baseArgs: {},     // the args the run started with, for "Play again"
   // Survives from one board to the next when init() gets keepStreak (the next round of a run).
-  carry: { streaks: {}, round: 1, carried: 0, baseSeed: null },
+  carry: { streaks: {}, round: 1, carried: 0, baseSeed: null, tier: 0, prevFirstGold: false, lastFirstPayout: 0 },
 
   // Cap on traps, as a share of the board, so a progression can never leave the board without greens.
   MAX_TRAP_SHARE: 0.5,
@@ -62,6 +74,36 @@ const megadoinkGame = {
       if (opts.max != null) t.count = Math.min(t.count, Math.max(Number(opts.max), 1));
     },
   },
+
+  // How a gold (any special cell with a scoring algorithm) scores. Each returns { points, label? }.
+  // first = this is the round's first tap. Tier state lives in this.carry so it lasts the whole run.
+  goldScoring: {
+    streak(t, el) {
+      return { points: this.config.greenPoints + (Number(t.points) || 0) };   // streak bonuses come from updateStreaks
+    },
+    tiers(t, el, first) {
+      const o = t.scoring, c = this.carry;
+      if (!first) return { points: Number(o.latePoints ?? 5) };
+      const value = (n) => Number(o.base ?? 15) * Math.pow(Number(o.multiplier ?? 2), n - 1);
+      let points, label;
+      if (c.prevFirstGold) {
+        c.tier++;
+        points = value(c.tier);
+        label = `Tier ${c.tier}`;
+      } else if (c.tier === 0) {
+        c.tier = 1;
+        points = value(1);
+        label = "Tier 1";
+      } else {
+        const gap = Number(o.gapBonus ?? 5);
+        points = (o.gapFrom === "lastPayout" ? c.lastFirstPayout : value(c.tier)) + gap;
+        label = `Tier ${c.tier} +${gap}`;
+      }
+      c.lastFirstPayout = points;
+      return { points, label };
+    },
+  },
+  scoringAlgo(t) { return (t && t.scoring && t.scoring.algorithm) || "streak"; },
 
   // How each streak countBy option counts. tap() runs on a tap of that cell type and returns the new
   // streak length, or null if this tap doesn't move the streak. roundEnd() runs when the board ends.
@@ -116,7 +158,7 @@ const megadoinkGame = {
 
   init(args = {}) {
     if (!args.keepStreak) {
-      this.carry = { streaks: {}, round: 1, carried: 0, baseSeed: null };
+      this.carry = { streaks: {}, round: 1, carried: 0, baseSeed: null, tier: 0, prevFirstGold: false, lastFirstPayout: 0 };
       this.baseArgs = args;
     }
     this.args = args;
@@ -155,7 +197,10 @@ const megadoinkGame = {
     this.state = {
       seed, kind,
       found: 0,          // greens found, the Golden Circle included
-      bonus: 0,          // points from special cells (the Golden Circle) and their streak bonuses
+      points: 0,         // this board's points (greens, gold, bonuses)
+      taps: 0,           // taps on this board
+      firstTapGold: false,   // this board's first tap was a gold
+      goldNote: "",      // what the first-tap gold paid, for the round-end message
       lastTap: null,     // the kind of the previous cell tapped
       tapStreaks: {},    // for countBy "taps"
       streakRoundCounted: {},   // for countBy "rounds": cell types already counted on this board
@@ -204,9 +249,15 @@ const megadoinkGame = {
       types.golden.count = Math.max(0, Math.min(pick("goldens", types.golden.count ?? 1), cells - types.trap.count));
       const by = args.streak ?? q.get("streak");
       if (by) types.golden.streak = Object.assign({ bonus: [0] }, types.golden.streak, { countBy: by });
+      const algo = args.scoring ?? q.get("scoring");
+      if (algo) {
+        types.golden.scoring = Object.assign({}, types.golden.scoring, { algorithm: algo });
+        if (algo === "streak") delete types.golden.firstTap;   // ?scoring=streak plays the old game
+      }
     }
     return {
       cols, rows, cellTypes: types, rounds,
+      greenPoints: Number(rules.greenPoints ?? 1),
       tapPauseMs: pick("lockMs", (rules.timing && rules.timing.tapPauseMs) ?? 250),
     };
   },
@@ -220,9 +271,9 @@ const megadoinkGame = {
   actsGreen(k) { return k === "green" || (this.type(k) && this.type(k).otherwise === "green"); },
   greens() { return this.state.kind.filter((k) => this.actsGreen(k)).length; },
   // The run's total: earlier rounds' scores plus this board's.
-  score() { return this.carry.carried + this.state.found + this.state.bonus; },
+  score() { return this.carry.carried + this.state.points; },
   roundsOn() { return this.config.rounds.enabled && this.config.rounds.onClear === "nextRound"; },
-  hasBonusCells() { return this.state.kind.some((k) => k !== "green" && !this.isTrap(k) && this.type(k).points); },
+  hasBonusCells() { return this.state.kind.some((k) => k !== "green" && !this.isTrap(k) && (this.type(k).points || this.type(k).scoring)); },
 
   storageKey() {
     const c = this.config, g = c.cellTypes.golden;
@@ -232,7 +283,9 @@ const megadoinkGame = {
     const r = c.rounds.enabled ? `_r${c.rounds.progression.algorithm}` : "";
     // Uses the round-1 trap count, so the key stays the same for the whole run.
     const traps = c.rounds.enabled ? this.applyOverrides(this.rules, this.args, new URLSearchParams(window.location.search), 1).cellTypes.trap.count : c.cellTypes.trap.count;
-    return `megadoink_best_${c.cols}x${c.rows}_${traps}${gold}${r}`;
+    // Each scoring algorithm other than the original streak scoring keeps its own best.
+    const sc = g && this.scoringAlgo(g) !== "streak" ? `_${this.scoringAlgo(g)}` : "";
+    return `megadoink_best_${c.cols}x${c.rows}_${traps}${gold}${r}${sc}`;
   },
 
   storage(op, value) {
@@ -304,18 +357,34 @@ const megadoinkGame = {
 
     el.classList.add("is-green");
     s.found++;
+    const first = s.taps === 0;
+    s.taps++;
     const t = k !== "green" ? this.type(k) : null;
+    let endsRound = false;
     if (t) {
       el.classList.add("is-" + k);
-      s.bonus += Number(t.points) || 0;
+      const fn = this.goldScoring[this.scoringAlgo(t)];
+      if (!fn) console.warn(`Unknown scoring "${this.scoringAlgo(t)}"`);
+      const r = fn ? fn.call(this, t, el, first) : { points: this.config.greenPoints };
+      s.points += r.points;
+      if (first) {
+        s.firstTapGold = true;
+        endsRound = !!(t.firstTap && t.firstTap.endsRound);
+      }
+      if (r.label) {
+        s.goldNote = `+${r.points} (${r.label})`;
+        this.popup(el, `Gold! ${s.goldNote}`);
+      }
+    } else {
+      s.points += this.config.greenPoints;
     }
     this.updateStreaks(k, el);
     s.lastTap = k;
     document.getElementById("md-found").textContent = s.found;
     document.getElementById("md-points").textContent = this.score();
-    this.play(t && t.points ? "highscore" : "doink");
+    this.play(t ? "highscore" : "doink");
 
-    if (s.found === this.greens()) {
+    if (endsRound || s.found === this.greens()) {
       this.endGame(true);
       return;
     }
@@ -333,7 +402,7 @@ const megadoinkGame = {
   updateStreaks(kind, el) {
     const s = this.state;
     for (const [name, t] of Object.entries(this.config.cellTypes)) {
-      if (!t.streak) continue;
+      if (!t.streak || this.scoringAlgo(t) !== "streak") continue;
       const counter = this.streakCounters[t.streak.countBy];
       if (!counter) { console.warn(`Unknown streak countBy "${t.streak.countBy}"`); continue; }
       if (name !== kind) {
@@ -345,7 +414,7 @@ const megadoinkGame = {
       const list = t.streak.bonus || [];
       const extra = Number(list[Math.min(n, list.length) - 1]) || 0;   // past the end: repeat the last value
       if (extra) {
-        s.bonus += extra;
+        s.points += extra;
         this.popup(el, `+${extra} streak!`);
       }
     }
@@ -368,7 +437,7 @@ const megadoinkGame = {
     const s = this.state;
     s.over = true;
     for (const [name, t] of Object.entries(this.config.cellTypes)) {
-      const counter = t.streak && this.streakCounters[t.streak.countBy];
+      const counter = t.streak && this.scoringAlgo(t) === "streak" && this.streakCounters[t.streak.countBy];
       if (counter) counter.roundEnd.call(this, name);
     }
     if (cleared && this.roundsOn()) return this.nextRound();
@@ -391,11 +460,13 @@ const megadoinkGame = {
     }
     if (cleared) this.play("highscore");
 
-    const pts = s.bonus ? ` Score ${score}.` : "";
+    const pts = score !== s.found ? ` Score ${score}.` : "";
     const nb = newBest ? " New best!" : "";
     const text = this.roundsOn()
       ? `Trap on round ${this.carry.round}. Total score ${score}.${nb}`
-      : cleared
+      : cleared && s.firstTapGold && s.found < this.greens()
+        ? `Gold first! ${s.goldNote || ""} Score ${score}.`
+        : cleared
         ? `MEGADOINK! You cleared all ${this.greens()}.${pts}`
         : `You got ${s.found}.${pts}${nb}`;
     document.getElementById("md-result-text").textContent = text;
@@ -408,7 +479,7 @@ const megadoinkGame = {
 
   // Rule-changing URL params and loadGame args: a game played with any of these is a playtest.
   PLAYTEST_PARAMS: ["config", "seed", "cols", "rows", "reds", "lockMs", "golden", "goldens", "streak",
-                    "rounds", "progression", "every", "maxTraps"],
+                    "rounds", "progression", "every", "maxTraps", "scoring"],
   isPlaytest() {
     const q = new URLSearchParams(window.location.search);
     return this.PLAYTEST_PARAMS.some((k) => q.has(k) || this.baseArgs[k] !== undefined);
@@ -479,10 +550,13 @@ const megadoinkGame = {
     const s = this.state, carry = this.carry;
     this.play("highscore");
     const text = document.getElementById("md-result-text");
-    text.textContent = `Round ${carry.round} cleared!`;
+    text.textContent = s.firstTapGold && s.goldNote
+      ? `Gold first! Round ${carry.round}: ${s.goldNote}`
+      : `Round ${carry.round} cleared!`;
     document.getElementById("md-again").hidden = true;
     document.getElementById("md-result").hidden = false;
-    carry.carried += s.found + s.bonus;
+    carry.carried += s.points;
+    carry.prevFirstGold = s.firstTapGold;   // tiers: a round without a first-tap gold breaks the chain
     carry.round++;
     setTimeout(() => this.init(Object.assign({}, this.baseArgs, { keepStreak: true })), 1200);
   },

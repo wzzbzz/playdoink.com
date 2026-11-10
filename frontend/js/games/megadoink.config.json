@@ -7,22 +7,47 @@
     "cellTypes": {
       "trap": {
         "count": 1,
-        "placement": { "algorithm": "random" }
+        "placement": {
+          "algorithm": "random"
+        }
       },
       "golden": {
         "enabled": true,
         "count": 1,
-        "placement": { "algorithm": "random" },
+        "placement": {
+          "algorithm": "random"
+        },
         "points": 15,
-        "streak": { "countBy": "rounds", "bonus": [0, 5, 20] },
+        "firstTap": {
+          "endsRound": true
+        },
+        "scoring": {
+          "algorithm": "tiers",
+          "base": 15,
+          "multiplier": 2,
+          "gapBonus": 5,
+          "gapFrom": "tier",
+          "latePoints": 5
+        },
+        "streak": {
+          "countBy": "rounds",
+          "bonus": [
+            0,
+            5,
+            20
+          ]
+        },
         "otherwise": "green"
       }
     },
     "rounds": {
       "enabled": true,
       "onClear": "nextRound",
-      "progression": { "algorithm": "same" }
+      "progression": {
+        "algorithm": "same"
+      }
     },
+    "greenPoints": 1,
     "timing": {
       "tapPauseMs": 250
     }
