@@ -31,3 +31,10 @@
 - New `frontend/resources/gold.mp3`: Craig's Pixabay clip (from his screen recording), trimmed to the 1.4s hit with a short fade, converted with ffmpeg (44.1kHz, 128k), level left as-is (close to doink/sproing).
 - Every gold hit plays `gold` (like green's doink and red's sproing). The fanfare now plays only when a new round starts, with the "ROUND N" graphic.
 - Files: `frontend/js/sounds.js` (adds `gold`), `frontend/js/games/megadoinkGame.js`, `frontend/resources/gold.mp3`.
+
+## 2026-11-10 — Megado!nk share (Jim)
+
+- At game over Megado!nk now saves a "can you beat my N on MEGADO!NK?" image (Do!nk's layout, MEGA in green, DO!NK in blue) and shows Do!nk's share buttons: one Share button on phones/iPads, five buttons on desktop. The shared link previews with that image and opens megadoink.html.
+- `share.php` and `save_score_image.php` take an optional `game` (only `doink` or `megadoink`; anything else means Do!nk). Do!nk's share is unchanged. Megado!nk images are saved as `scores/megadoink-score-N.png`.
+- `megadoink.html` now loads `js/utils.js` and `css/share.css`.
+- Deploy with `scripts/deploy-megadoink-share.sh` (also carries the Nov 7 share-link fix if that isn't live yet).

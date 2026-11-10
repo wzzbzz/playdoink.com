@@ -37,7 +37,13 @@ if (!is_writable($dir)) {
     exit;
 }
 
-$filename = "score-" . $score . ".png";
+// Which game the share is for (Doink by default). Only these names are accepted.
+$games = [
+    "doink"     => ["title" => "DO!NK",     "file" => "score-",           "page" => "/"],
+    "megadoink" => ["title" => "MEGADO!NK", "file" => "megadoink-score-", "page" => "/megadoink.html"],
+];
+$gameKey = isset($_POST['game']) && isset($games[$_POST['game']]) ? $_POST['game'] : "doink";
+$filename = $games[$gameKey]["file"] . $score . ".png";
 $filePath = $dir . "/" . $filename;
 file_put_contents($filePath, $decoded);
 // verify the file was saved
@@ -53,7 +59,7 @@ if (!file_exists($filePath)) {
 $host = $_SERVER['HTTP_HOST'] ?? '';
 $base = preg_match('/^[a-z0-9.:-]+$/i', $host) ? "https://" . $host : "https://doink.playdoink.com";
 $imageUrl = $base . "/scores/" . $filename;
-$gameUrl = $base . "/";
+$gameUrl = $base . $games[$gameKey]["page"];
 
 
 echo json_encode(["url" => $imageUrl, "gameUrl" => $gameUrl]);

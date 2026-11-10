@@ -338,6 +338,7 @@ const megadoinkGame = {
         <div class="md-save" id="md-save" hidden></div>
         <button id="md-again">Play again</button>
         <button id="md-lb-btn" class="md-lb-btn" hidden>Leaderboard</button>
+        <div id="share-buttons-container" class="md-share"></div>
       </div>
       <div class="md-lb" id="md-lb" hidden></div>`;
 
@@ -482,6 +483,45 @@ const megadoinkGame = {
       document.getElementById("md-lb-btn").hidden = false;
       this.submitScore(score);
     }
+    this.shareScore(score);
+  },
+
+  // Share, like Do!nk's: save a "can you beat my N on MEGADO!NK?" image, then show the share button(s).
+  shareScore(score) {
+    if (!(score > 0) || typeof renderShareButtons !== "function") return;
+    const image = this.makeShareImage(score);
+    $.post("save_score_image.php", { image, score, game: "megadoink" })
+      .done(() => renderShareButtons(`${window.location.origin}/share.php?score=${score}&game=megadoink`))
+      .fail((err) => console.error("Error saving share image:", err));
+  },
+
+  // Same layout as Do!nk's share image (600x315), with MEGA in green and DO!NK in blue (Craig's branding).
+  makeShareImage(score) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 600; canvas.height = 315;
+    const ctx = canvas.getContext("2d"), font = (px) => `${px}px 'Luckiest Guy', Arial, sans-serif`;
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 600, 315);
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "#000"; ctx.font = font(50); ctx.fillText("can you beat my", 300, 80);
+    ctx.fillStyle = "#4CAF50"; ctx.font = font(140); ctx.fillText(String(score), 300, 200);
+
+    // "on [MEGADO!NK]?" with a blue box around the name
+    ctx.font = font(50); ctx.textAlign = "left";
+    const parts = [["on ", "#000"], ["MEGA", "#1a8f1a"], ["DO!NK", "#2b8bf6"], ["?", "#000"]];
+    const pad = 10, w = parts.map(([t]) => ctx.measureText(t).width);
+    const total = w.reduce((a, b) => a + b, 0) + pad * 4;
+    let x = 300 - total / 2;
+    const y = 280, m = ctx.measureText("MEGADO!NK");
+    parts.forEach(([t, color], i) => {
+      if (i === 1) {
+        ctx.strokeStyle = "#2b8bf6"; ctx.lineWidth = 2;
+        ctx.strokeRect(x, y - m.actualBoundingBoxAscent - pad, w[1] + w[2] + pad * 2, m.actualBoundingBoxAscent + m.actualBoundingBoxDescent + pad * 2);
+        x += pad;
+      }
+      ctx.fillStyle = color; ctx.fillText(t, x, y); x += w[i];
+      if (i === 2) x += pad * 2;
+    });
+    return canvas.toDataURL("image/png");
   },
 
   // Rule-changing URL params and loadGame args: a game played with any of these is a playtest.
