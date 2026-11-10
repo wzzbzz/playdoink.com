@@ -26,7 +26,8 @@
           "base": 15,
           "multiplier": 2,
           "gapBonus": 5,
-          "gapFrom": "tier",
+          "gapFrom": "lastPayout",
+          "tierUpAtLeastGap": true,
           "latePoints": 5
         },
         "streak": {

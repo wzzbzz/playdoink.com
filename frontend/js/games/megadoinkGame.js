@@ -30,12 +30,14 @@
 // Golden Circle scoring: cellTypes.golden.scoring.algorithm is a name in goldScoring below
 // (override with ?scoring=streak|tiers):
 //   "streak": the gold is a green plus `points`, plus streak bonuses (see Streaks above). The old scoring.
-//   "tiers":  Craig's scoring (Nov 9, 2026). base, multiplier, gapBonus, latePoints, gapFrom:
+//   "tiers":  Craig's scoring (Nov 9, 2026). base, multiplier, gapBonus, latePoints, gapFrom, tierUpAtLeastGap:
 //             - Gold on the first tap of a round pays by tier. tierValue(n) = base * multiplier^(n-1);
 //               T is the highest tier reached this run (0 at the start).
-//               Previous round also had a first-tap gold: T = T+1, pays tierValue(T).
-//               Otherwise: T = 0 -> T = 1, pays tierValue(1); else pays tierValue(T) + gapBonus, T unchanged
-//               (gapFrom: "lastPayout" pays the last first-tap payout + gapBonus instead).
+//               Previous round also had a first-tap gold: T = T+1, pays tierValue(T)
+//               (tierUpAtLeastGap: never less than the last first-tap payout + gapBonus).
+//               Otherwise: T = 0 -> T = 1, pays tierValue(1); else T unchanged and pays
+//               the last first-tap payout + gapBonus (gapFrom "lastPayout", Craig's Nov 9 10pm answer)
+//               or tierValue(T) + gapBonus (gapFrom "tier").
 //             - Gold found later in the round pays latePoints and still counts toward clearing.
 // golden.firstTap.endsRound: a gold on the first tap ends the round at once (on to the next round).
 //
@@ -86,18 +88,24 @@ const megadoinkGame = {
       if (!first) return { points: Number(o.latePoints ?? 5) };
       const value = (n) => Number(o.base ?? 15) * Math.pow(Number(o.multiplier ?? 2), n - 1);
       let points, label;
+      const gap = Number(o.gapBonus ?? 5);
       if (c.prevFirstGold) {
         c.tier++;
         points = value(c.tier);
         label = `Tier ${c.tier}`;
+        // Craig: if last payout + gap is more than the new tier is worth, pay the higher amount
+        if (o.tierUpAtLeastGap && c.lastFirstPayout + gap > points) {
+          points = c.lastFirstPayout + gap;
+          label += ` (${c.lastFirstPayout} +${gap})`;
+        }
       } else if (c.tier === 0) {
         c.tier = 1;
         points = value(1);
         label = "Tier 1";
       } else {
-        const gap = Number(o.gapBonus ?? 5);
-        points = (o.gapFrom === "lastPayout" ? c.lastFirstPayout : value(c.tier)) + gap;
-        label = `Tier ${c.tier} +${gap}`;
+        const last = o.gapFrom === "lastPayout";
+        points = (last ? c.lastFirstPayout : value(c.tier)) + gap;
+        label = last ? `Tier ${c.tier}: ${c.lastFirstPayout} +${gap}` : `Tier ${c.tier} +${gap}`;
       }
       c.lastFirstPayout = points;
       return { points, label };
