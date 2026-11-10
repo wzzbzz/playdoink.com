@@ -1,4 +1,4 @@
-# Game landing pages: spec (draft for Jim to confirm)
+# Game landing pages: spec (confirmed by Jim, 2026-11-10)
 
 One landing page per game on playdoink.com, with evergreen content and a big link to the game. Nothing is built yet.
 
@@ -14,7 +14,7 @@ Each page is a folder with an `index.html` in the hub (`/var/www/playdoink.com/h
 | Megadoink | playdoink.com/megadoink/ | https://doink.playdoink.com/megadoink.html |
 | Ultradoink | playdoink.com/ultradoink/ | https://doink.playdoink.com/ultradoink.html |
 | Duck Duck Goose | playdoink.com/duckduckgoose/ | https://duckduckgoose.playdoink.com |
-| Quadruplex | playdoink.com/quadruplex/ | https://quadruplex.playdoink.com |
+| Quadruplex | playdoink.com/quadruplex/ (coming soon) | none yet: no Play button until the game is back |
 
 Reserved for later: `playdoink.com/blog/` (blog) and the home page carousel at `playdoink.com/`.
 
@@ -26,8 +26,11 @@ Reserved for later: `playdoink.com/blog/` (blog) and the home page carousel at `
 4. **How to play**: 3 to 5 short steps.
 5. **Craig's note**: a few lines in Craig's voice on why he likes it (the "editor in chief" angle).
 6. **Tips** (optional): 2 or 3 hints, no spoilers.
-7. **More games**: cards for the other games, each linking to its landing page. Later, the latest blog posts about this game go here too.
-8. **Footer**: Play now again, the shared sign-up line, About, back to all games.
+7. **Doink! family** (Doink!, Megadoink, Ultradoink pages only): a row linking the three Doink! pages to each other.
+8. **More games**: cards for the other games, each linking to its landing page. Later, the latest blog posts about this game go here too.
+9. **Footer**: Play now again, the shared sign-up line, About, back to all games.
+
+The Quadruplex page uses the same sections, but the hero says "Coming soon" with the sign-up form in place of Play now, and the page still explains the game (what it is, how to play).
 
 Each page also gets its own `<title>`, description, and og/twitter tags with the hero image, so a shared link previews well.
 
@@ -52,7 +55,7 @@ Later option, if the carousel and blog want the same data: one `hub/games.json` 
 ## 5. Links in and out
 
 - **Landing page to game**: the Play now buttons link to the game URL in the table above.
-- **Game back to hub**: Doink! already has "More games" links to playdoink.com. Duck Duck Goose and Quadruplex get the same small link. Optionally each game's link goes to its own landing page (e.g. "How to play") instead of the hub.
+- **Game back to hub**: each game links back to the hub (playdoink.com). Doink! already has "More games" links there; Megadoink, Ultradoink and Duck Duck Goose get the same small link.
 - **Hub to landing pages**: on the home page games list (and later each carousel slide), the game name links to its landing page, with a small "Play" link straight to the game.
 
 ## 6. Fit with the carousel and blog
@@ -60,8 +63,8 @@ Later option, if the carousel and blog want the same data: one `hub/games.json` 
 - Each landing page's hero image is 1200x630 so the same image works as its og image and as its carousel slide.
 - The blog links to landing pages, and each landing page's "More games" section has room for a "From the blog" list.
 
-## Open questions for Jim
+## Decisions (Jim, 2026-11-10)
 
-1. Megadoink and Ultradoink: own landing pages (as above), or sections on the Doink! page?
-2. Quadruplex is hidden from the hub. Build its page now but keep it unlinked until it's back?
-3. Should games link back to their own landing page or to the hub?
+1. Megadoink and Ultradoink get their own pages, and the three Doink! pages link to each other.
+2. Quadruplex stays hidden from the games list, but gets a coming-soon page that explains the game.
+3. Each game links back to the hub.
