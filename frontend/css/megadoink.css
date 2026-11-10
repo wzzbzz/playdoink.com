@@ -48,6 +48,18 @@
   font-weight: 700; font-size: 1.1rem; color: #8a6400; text-shadow: 0 1px 0 #fff;
   animation: md-pop 1.2s ease-out forwards;
 }
+/* Gold hit: big "+N" in Luckiest Guy, ~0.6s, centred on the cell (Craig, Nov 10). */
+.md-pop.md-pop-gold {
+  font-family: 'Luckiest Guy', Arial, sans-serif; font-weight: 400; font-size: 3rem; line-height: 1;
+  color: #f29f05; -webkit-text-stroke: 1px #b36b00; text-shadow: 0 2px 0 rgba(0,0,0,.15);
+  margin-top: 10px; z-index: 5; animation: md-pop-gold .7s ease-out forwards;
+}
+@keyframes md-pop-gold {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(.7); }
+  15%  { opacity: 1; transform: translate(-50%, -6px) scale(1.1); }
+  65%  { opacity: 1; transform: translate(-50%, -30px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50px) scale(1); }
+}
 @keyframes md-pop { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -40px); } }
 #megadoink.is-locked .md-cell, #ultradoink.is-locked .md-cell { cursor: wait; }
 

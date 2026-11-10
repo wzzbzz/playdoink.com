@@ -379,10 +379,9 @@ const megadoinkGame = {
         s.firstTapGold = true;
         endsRound = !!(t.firstTap && t.firstTap.endsRound);
       }
-      if (r.label) {
-        s.goldNote = `+${r.points} (${r.label})`;
-        this.popup(el, `Gold! ${s.goldNote}`);
-      }
+      if (r.label) s.goldNote = `+${r.points} (${r.label})`;
+      // Craig (Nov 10): every gold hit shows just its points, big and gold, rising and fading.
+      this.popup(el, `+${r.points}`, "md-pop-gold");
     } else {
       s.points += this.config.greenPoints;
     }
@@ -429,10 +428,10 @@ const megadoinkGame = {
   },
 
   // A short label that floats up from a cell and fades.
-  popup(el, text) {
+  popup(el, text, extraClass) {
     const root = this.root();
     const pop = document.createElement("div");
-    pop.className = "md-pop";
+    pop.className = "md-pop" + (extraClass ? " " + extraClass : "");
     pop.textContent = text;
     const a = el.getBoundingClientRect(), b = root.getBoundingClientRect();
     pop.style.left = (a.left - b.left + a.width / 2) + "px";
