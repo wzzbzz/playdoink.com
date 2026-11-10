@@ -9,7 +9,7 @@ HOST=sysop@playdoink.com
 LIVE=/var/www/doink.playdoink.com/frontend
 cd ~/Ampelos/greenhouse/Doink
 KNOWN="2b182ef d63f152 1563c8a b440d2a"
-NEW=$(git rev-parse --short HEAD)
+NEW=617a010
 FILES="share.php save_score_image.php js/utils.js js/games/classicGame.js megadoink.html js/games/megadoinkGame.js"
 B=~/doink-backups/megadoink-share-$(date +%Y%m%d-%H%M%S); mkdir -p "$B"
 for f in $FILES; do
