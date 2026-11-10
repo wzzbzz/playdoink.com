@@ -1,6 +1,8 @@
 <?php
 header("Content-Type: application/json");
 // save_score_image.php
+function fail($code, $msg) { http_response_code($code); echo json_encode(["error" => $msg]); exit; }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') fail(405, "POST only");
 if (!isset($_POST['image']) || !isset($_POST['score'])) {
     http_response_code(400);
     echo json_encode(["error" => "Missing data"]);
@@ -13,7 +15,14 @@ $score = intval($_POST['score']);
 // strip off the "data:image/png;base64," part
 $imgData = str_replace('data:image/png;base64,', '', $imgData);
 $imgData = str_replace(' ', '+', $imgData);
-$decoded = base64_decode($imgData);
+$decoded = base64_decode($imgData, true);
+
+// Only accept what the games actually send: a 600x315 PNG under 100 KB, for a sensible score.
+// (Tightened 2026-11-10: before this, anyone could POST any bytes and they were saved as a .png.)
+if (!preg_match('/^\d{1,5}$/', (string)$_POST['score'])) fail(400, "Bad score");
+if ($decoded === false || strlen($decoded) > 100000) fail(400, "Bad image");
+$info = @getimagesizefromstring($decoded);
+if (!$info || $info[2] !== IMAGETYPE_PNG || $info[0] !== 600 || $info[1] !== 315) fail(400, "Bad image");
 
 // make sure directory exists
 $dir = __DIR__ . "/scores";
@@ -45,7 +54,8 @@ $games = [
 $gameKey = isset($_POST['game']) && isset($games[$_POST['game']]) ? $_POST['game'] : "doink";
 $filename = $games[$gameKey]["file"] . $score . ".png";
 $filePath = $dir . "/" . $filename;
-file_put_contents($filePath, $decoded);
+// The image for a given score is always the same, so never overwrite one that's already there.
+if (!file_exists($filePath)) file_put_contents($filePath, $decoded);
 // verify the file was saved
 if (!file_exists($filePath)) {
     http_response_code(500);

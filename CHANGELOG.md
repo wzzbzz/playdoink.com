@@ -38,3 +38,9 @@
 - `share.php` and `save_score_image.php` take an optional `game` (only `doink` or `megadoink`; anything else means Do!nk). Do!nk's share is unchanged. Megado!nk images are saved as `scores/megadoink-score-N.png`.
 - `megadoink.html` now loads `js/utils.js` and `css/share.css`.
 - Deploy with `scripts/deploy-megadoink-share.sh` (also carries the Nov 7 share-link fix if that isn't live yet).
+
+## 2026-11-10 — save_score_image.php tightened
+
+- Before: anyone could POST any bytes and they were saved as `scores/score-N.png` (overwriting existing images).
+- Now: POST only; score must be 0–99999; the image must be a real 600x315 PNG under 100 KB (what Do!nk and Megado!nk send); an existing score image is never overwritten. Tested against good, junk, wrong-size, negative/huge-score and GET requests.
+- Ships with `scripts/deploy-megadoink-share.sh`.
