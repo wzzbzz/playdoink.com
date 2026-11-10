@@ -19,3 +19,9 @@
 ## 2026-11-10 — Megado!nk: big "+N" on every gold hit (Craig, "Megado!nk notes for Claude")
 
 - Every gold hit (first tap or later) now shows just its points ("+5", "+15", "+30"…) in big gold-orange Luckiest Guy, rising and fading over ~0.7s. Replaces the small "Gold! +15 (Tier 1)" text, which was too much to read. Files: `frontend/js/games/megadoinkGame.js`, `frontend/css/megadoink.css`.
+
+## 2026-11-10 — Megado!nk: "ROUND N" graphic on each new round (Craig, "Megado!nk notes for Claude")
+
+- When a round is won (gold first or board cleared), the new board appears with a big "ROUND N" (small "ROUND" over a large numeral, Do!nk popup blue #2b8bf6, Luckiest Guy). It grows from small to full size in the centre of the board and fades out over ~2.1s, the length of the fanfare.
+- The fanfare now plays as the new board appears (with the graphic) instead of when the old board ends. (Gold hits still play the fanfare too, until Craig's gold sound is added.)
+- Files: `frontend/js/games/megadoinkGame.js` (new `showRound`), `frontend/css/megadoink.css`.

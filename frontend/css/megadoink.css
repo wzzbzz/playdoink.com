@@ -104,3 +104,20 @@
 .ud-hint { margin-top: 10px; font-size: .85rem; opacity: .6; }
 #ultradoink.is-hit .md-grid { animation: ud-shake .3s ease; }
 @keyframes ud-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* "ROUND N" on a new round: small "ROUND" over a big numeral, Do!nk popup blue, grows from the
+   centre of the board and fades out with the fanfare (~2.1s). Craig, Nov 10. */
+.md-round-banner {
+  position: absolute; z-index: 6; pointer-events: none; text-align: center; line-height: .85;
+  font-family: 'Luckiest Guy', Arial, sans-serif; color: #2b8bf6;
+  transform: translate(-50%, -50%) scale(.15); opacity: 0;
+  animation: md-round-in 2.1s ease-out forwards;
+}
+.md-round-word { display: block; font-size: 3.6rem; }
+.md-round-num { display: block; font-size: 14rem; }
+@keyframes md-round-in {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(.15); }
+  30%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
+}

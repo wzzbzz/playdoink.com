@@ -555,7 +555,6 @@ const megadoinkGame = {
   // Board cleared with rounds on: a short beat, then a fresh deal that keeps the score and the streak.
   nextRound() {
     const s = this.state, carry = this.carry;
-    this.play("highscore");
     const text = document.getElementById("md-result-text");
     text.textContent = s.firstTapGold && s.goldNote
       ? `Gold first! Round ${carry.round}: ${s.goldNote}`
@@ -565,7 +564,26 @@ const megadoinkGame = {
     carry.carried += s.points;
     carry.prevFirstGold = s.firstTapGold;   // tiers: a round without a first-tap gold breaks the chain
     carry.round++;
-    setTimeout(() => this.init(Object.assign({}, this.baseArgs, { keepStreak: true })), 1200);
+    setTimeout(() => {
+      this.init(Object.assign({}, this.baseArgs, { keepStreak: true }));
+      this.showRound(carry.round);
+    }, 1200);
+  },
+
+  // Craig (Nov 10): as the new board appears, the fanfare plays and a big "ROUND N" grows
+  // from the centre of the board and fades out over the length of the fanfare.
+  showRound(n) {
+    this.play("highscore");
+    const root = this.root(), grid = root.querySelector(".md-grid");
+    if (!grid) return;
+    const banner = document.createElement("div");
+    banner.className = "md-round-banner";
+    banner.innerHTML = `<span class="md-round-word">ROUND</span><span class="md-round-num">${n}</span>`;
+    const a = grid.getBoundingClientRect(), b = root.getBoundingClientRect();
+    banner.style.left = (a.left - b.left + a.width / 2) + "px";
+    banner.style.top = (a.top - b.top + a.height / 2) + "px";
+    root.appendChild(banner);
+    setTimeout(() => banner.remove(), 2200);
   },
 
   play(name) {
