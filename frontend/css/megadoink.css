@@ -74,7 +74,7 @@
 .md-lb-table { margin: 0 auto; border-collapse: collapse; }
 .md-lb-table td { padding: 3px 10px; text-align: left; }
 .md-lb-table td:first-child, .md-lb-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
-.md-result button {
+.md-result > button {   /* direct children only, so the share buttons keep Do!nk's colours */
   margin-top: 10px; font: inherit; font-size: 1rem; padding: 10px 22px;
   border-radius: 999px; border: 0; background: var(--md-green-2); color: #fff; cursor: pointer;
 }
