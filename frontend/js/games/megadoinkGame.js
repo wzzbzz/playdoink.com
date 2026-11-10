@@ -389,7 +389,7 @@ const megadoinkGame = {
     s.lastTap = k;
     document.getElementById("md-found").textContent = s.found;
     document.getElementById("md-points").textContent = this.score();
-    this.play(t ? "highscore" : "doink");
+    this.play(t ? "gold" : "doink");   // fanfare is kept for a new round (showRound)
 
     if (endsRound || s.found === this.greens()) {
       this.endGame(true);

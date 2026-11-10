@@ -4,6 +4,7 @@ const sounds = {
     doink: new Audio('resources/doink.mp3'),
     sproing: new Audio('resources/sproing2.mp3'),
     highscore: new Audio('resources/fanfare.mp3'),
+    gold: new Audio('resources/gold.mp3'),   // Megado!nk gold hit (Craig's Pixabay pick, Nov 10)
     ding: new Audio('resources/ding.mp3'),
     highfive: new Audio('resources/highfive.mp3')
 };

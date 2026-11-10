@@ -25,3 +25,9 @@
 - When a round is won (gold first or board cleared), the new board appears with a big "ROUND N" (small "ROUND" over a large numeral, Do!nk popup blue #2b8bf6, Luckiest Guy). It grows from small to full size in the centre of the board and fades out over ~2.1s, the length of the fanfare.
 - The fanfare now plays as the new board appears (with the graphic) instead of when the old board ends. (Gold hits still play the fanfare too, until Craig's gold sound is added.)
 - Files: `frontend/js/games/megadoinkGame.js` (new `showRound`), `frontend/css/megadoink.css`.
+
+## 2026-11-10 — Megado!nk: gold has its own hit sound; fanfare only for a new round
+
+- New `frontend/resources/gold.mp3`: Craig's Pixabay clip (from his screen recording), trimmed to the 1.4s hit with a short fade, converted with ffmpeg (44.1kHz, 128k), level left as-is (close to doink/sproing).
+- Every gold hit plays `gold` (like green's doink and red's sproing). The fanfare now plays only when a new round starts, with the "ROUND N" graphic.
+- Files: `frontend/js/sounds.js` (adds `gold`), `frontend/js/games/megadoinkGame.js`, `frontend/resources/gold.mp3`.
