@@ -2,13 +2,12 @@
 # Deploys Megado!nk share (2026-11-10). Also carries the Nov 7 Do!nk share-link + iPad fix (d63f152)
 # in case that isn't live yet, since both touch the same files.
 # Run on Jim's Mac:  bash ~/Ampelos/greenhouse/Doink/scripts/deploy-megadoink-share.sh
-# Site only. Backs up the live files. Each live file must match one of the known versions below
-# (before or after earlier deploys), otherwise it stops and uploads nothing. Then uploads, 644.
+# Site only. Backs up the live files. Each live file must match some committed version of itself
+# (i.e. something already deployed), otherwise it stops and uploads nothing. Then uploads, 644.
 set -e
 HOST=sysop@playdoink.com
 LIVE=/var/www/doink.playdoink.com/frontend
 cd ~/Ampelos/greenhouse/Doink
-KNOWN="2b182ef d63f152 1563c8a b440d2a"
 NEW=9bb24b0
 FILES="share.php save_score_image.php js/utils.js js/games/classicGame.js megadoink.html js/games/megadoinkGame.js css/megadoink.css src/ScoreImage.php resources/fonts/LuckiestGuy-Regular.ttf"
 B=~/doink-backups/megadoink-share-$(date +%Y%m%d-%H%M%S); mkdir -p "$B"
@@ -19,9 +18,10 @@ for f in $FILES; do
     echo "  $f: new file"; rm -f "$B/$f"; continue
   fi
   ok=""
-  for c in $KNOWN $NEW; do git cat-file -p "$c:frontend/$f" 2>/dev/null | cmp -s - "$B/$f" && { ok=$c; break; }; done
+  # Accept any version of this file that was ever committed (i.e. something we deployed); stop on anything else.
+  for c in $NEW $(git log --format=%h "$NEW" -- "frontend/$f"); do git cat-file -p "$c:frontend/$f" 2>/dev/null | cmp -s - "$B/$f" && { ok=$c; break; }; done
   if [ -z "$ok" ]; then
-    echo "STOP: live $f matches none of $KNOWN $NEW. Nothing uploaded. Diff against $NEW:"
+    echo "STOP: live $f matches no committed version. Nothing uploaded. Diff against $NEW:"
     git cat-file -p "$NEW:frontend/$f" | diff - "$B/$f" | head -40
     exit 1
   fi
