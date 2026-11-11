@@ -9,7 +9,7 @@ HOST=sysop@playdoink.com
 LIVE=/var/www/doink.playdoink.com/frontend
 cd ~/Ampelos/greenhouse/Doink
 KNOWN="2b182ef d63f152 1563c8a b440d2a"
-NEW=e378322
+NEW=9bb24b0
 FILES="share.php save_score_image.php js/utils.js js/games/classicGame.js megadoink.html js/games/megadoinkGame.js css/megadoink.css src/ScoreImage.php resources/fonts/LuckiestGuy-Regular.ttf"
 B=~/doink-backups/megadoink-share-$(date +%Y%m%d-%H%M%S); mkdir -p "$B"
 for f in $FILES; do
