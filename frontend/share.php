@@ -8,12 +8,22 @@ $base = preg_match('/^[a-z0-9.:-]+$/i', $host) ? "https://" . $host : "https://d
 
 // Which game the share is for (Doink by default). Only these names are accepted.
 $games = [
-    "doink"     => ["title" => "DO!NK",     "file" => "score-",           "page" => "/"],
-    "megadoink" => ["title" => "MEGADO!NK", "file" => "megadoink-score-", "page" => "/megadoink.html"],
+    "doink"     => ["title" => "DO!NK",     "file" => "score-",           "page" => "/",
+                    "name" => [["DO!NK", "#2b8bf6"]]],
+    "megadoink" => ["title" => "MEGADO!NK", "file" => "megadoink-score-", "page" => "/megadoink.html",
+                    "name" => [["MEGA", "#1a8f1a"], ["DO!NK", "#2b8bf6"]]],
 ];
 $gameKey = isset($_GET['game']) && isset($games[$_GET['game']]) ? $_GET['game'] : "doink";
 $game = $games[$gameKey];
 $gameParam = $gameKey === "doink" ? "" : "&game=" . $gameKey;
+
+// If the image isn't there yet (e.g. an old link), draw it now so the preview isn't blank.
+$score = max(0, min($score, 99999));
+$imgPath = __DIR__ . "/scores/" . $game["file"] . $score . ".png";
+if (!file_exists($imgPath) && is_writable(__DIR__ . "/scores")) {
+    require_once __DIR__ . '/src/ScoreImage.php';
+    if (ScoreImage::available()) file_put_contents($imgPath, ScoreImage::png($score, $game["name"]));
+}
 
 // build image + page URLs
 $imgUrl  = $base . "/scores/" . $game["file"] . $score . ".png";

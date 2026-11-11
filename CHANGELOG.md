@@ -44,3 +44,10 @@
 - Before: anyone could POST any bytes and they were saved as `scores/score-N.png` (overwriting existing images).
 - Now: POST only; score must be 0–99999; the image must be a real 600x315 PNG under 100 KB (what Do!nk and Megado!nk send); an existing score image is never overwritten. Tested against good, junk, wrong-size, negative/huge-score and GET requests.
 - Ships with `scripts/deploy-megadoink-share.sh`.
+
+## 2026-11-11 — Share images drawn on the server
+
+- New `frontend/src/ScoreImage.php` draws the 600x315 "can you beat my N on DO!NK?" / "...MEGADO!NK?" image with PHP GD, same layout as the browser canvas. Font `frontend/resources/fonts/LuckiestGuy-Regular.ttf` (Luckiest Guy, Apache 2.0, from Google Fonts).
+- `save_score_image.php` now ignores the uploaded picture and draws its own (and redraws, which also replaces any old junk). If the server has no GD/FreeType it falls back to the checked-upload rules from 2026-11-10.
+- `share.php` draws the image if it's missing, so old share links get a preview too.
+- Tested: a fake red 600x315 upload and a junk upload both came out as the proper drawn image; bad scores refused.

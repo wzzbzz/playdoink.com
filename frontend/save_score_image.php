@@ -20,9 +20,14 @@ $decoded = base64_decode($imgData, true);
 // Only accept what the games actually send: a 600x315 PNG under 100 KB, for a sensible score.
 // (Tightened 2026-11-10: before this, anyone could POST any bytes and they were saved as a .png.)
 if (!preg_match('/^\d{1,5}$/', (string)$_POST['score'])) fail(400, "Bad score");
-if ($decoded === false || strlen($decoded) > 100000) fail(400, "Bad image");
-$info = @getimagesizefromstring($decoded);
-if (!$info || $info[2] !== IMAGETYPE_PNG || $info[0] !== 600 || $info[1] !== 315) fail(400, "Bad image");
+require_once __DIR__ . '/src/ScoreImage.php';
+$serverDraws = ScoreImage::available();
+if (!$serverDraws) {
+    // Fallback when the server can't draw (no GD/FreeType): accept only a real 600x315 PNG under 100 KB.
+    if ($decoded === false || strlen($decoded) > 100000) fail(400, "Bad image");
+    $info = @getimagesizefromstring($decoded);
+    if (!$info || $info[2] !== IMAGETYPE_PNG || $info[0] !== 600 || $info[1] !== 315) fail(400, "Bad image");
+}
 
 // make sure directory exists
 $dir = __DIR__ . "/scores";
@@ -48,14 +53,22 @@ if (!is_writable($dir)) {
 
 // Which game the share is for (Doink by default). Only these names are accepted.
 $games = [
-    "doink"     => ["title" => "DO!NK",     "file" => "score-",           "page" => "/"],
-    "megadoink" => ["title" => "MEGADO!NK", "file" => "megadoink-score-", "page" => "/megadoink.html"],
+    "doink"     => ["title" => "DO!NK",     "file" => "score-",           "page" => "/",
+                    "name" => [["DO!NK", "#2b8bf6"]]],
+    "megadoink" => ["title" => "MEGADO!NK", "file" => "megadoink-score-", "page" => "/megadoink.html",
+                    "name" => [["MEGA", "#1a8f1a"], ["DO!NK", "#2b8bf6"]]],
 ];
 $gameKey = isset($_POST['game']) && isset($games[$_POST['game']]) ? $_POST['game'] : "doink";
 $filename = $games[$gameKey]["file"] . $score . ".png";
 $filePath = $dir . "/" . $filename;
-// The image for a given score is always the same, so never overwrite one that's already there.
-if (!file_exists($filePath)) file_put_contents($filePath, $decoded);
+if ($serverDraws) {
+    // Normal case: the server draws the image itself and ignores what was uploaded,
+    // so nobody can put their own picture up as a score image. (Redrawing also replaces any old junk.)
+    file_put_contents($filePath, ScoreImage::png($score, $games[$gameKey]["name"]));
+} elseif (!file_exists($filePath)) {
+    // Fallback: the image for a given score is always the same, so never overwrite one that's already there.
+    file_put_contents($filePath, $decoded);
+}
 // verify the file was saved
 if (!file_exists($filePath)) {
     http_response_code(500);
