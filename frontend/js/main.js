@@ -222,7 +222,8 @@ $(document).ready(function () {
 
         // Hide nickname overlay and show intro
         $("#nickname-overlay").fadeOut(300, function () {
-          // Update the logged-in display
+          // Update the logged-in display (redrawn so it shows the nickname and drops "Set nickname")
+          $(".login-status").remove();
           loadCurrentUser();
         });
       } else {
@@ -267,11 +268,18 @@ function loadCurrentUser() {
             <p style="font-family: Arial; font-size: 0.9rem; color: #fff; margin-top: 1rem;">
               ✓ Logged in as <strong>${displayName}</strong>
             </p>
+            ${user.username ? '' : `<a href="#" id="set-nickname-link" style="font-family: Arial; font-size: 0.85rem; color: rgba(255,255,255,0.85);">Set nickname</a><br>`}
             <button id="logout-btn" style="font-family: Arial; background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; margin-top: 0.5rem;">
               Logout
             </button>
           </div>
         `);
+
+        // No nickname yet (prompt skipped): the link reopens the nickname prompt, on every visit until one is set
+        $("#set-nickname-link").click(function (e) {
+          e.preventDefault();
+          $("#nickname-overlay").fadeIn(300);
+        });
 
         // Logout handler
         $("#logout-btn").click(function () {

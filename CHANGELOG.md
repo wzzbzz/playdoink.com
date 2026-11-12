@@ -86,3 +86,8 @@
 - `verify.php` carries the safe `next` through the nickname step (`next` + `show-nickname=1`); with no `next` it still goes to `/?show-nickname=1`, so Do!nk Classic is unchanged.
 - Until a nickname is set, Megado!nk's top bar says "Set nickname"; tapping it reopens the prompt.
 - Files: `frontend/verify.php`, `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. No API change. Not deployed yet.
+
+## 2026-11-12 — Do!nk: "Set nickname" reminder until a nickname is set
+
+- On Do!nk's home, a logged-in player with no nickname (who skipped the prompt after logging in) sees a small "Set nickname" link under "Logged in as …" on every visit; it opens Do!nk's existing nickname prompt. Saving redraws the line with the new name and no link. The prompt right after the magic link is unchanged, and it doesn't open by itself on other visits.
+- File: `frontend/js/main.js`. Not deployed yet.
