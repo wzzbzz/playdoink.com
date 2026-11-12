@@ -77,6 +77,14 @@ $doink = new Doink\Doink();
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
 
+        // Page to return to after logging in (e.g. /megadoink.html). Same rule as the API's
+        // AuthController::safeReturnPath: a plain same-site path or nothing, never another site.
+        function safeReturnPath(p) {
+            if (typeof p !== 'string' || p.length > 200 || p.includes('//')) return '/';
+            return /^\/[A-Za-z0-9._~\-\/]*(\?[A-Za-z0-9._~\-=&]*)?$/.test(p) ? p : '/';
+        }
+        const next = safeReturnPath(urlParams.get('next'));
+
         if (!token) {
             document.getElementById('status').innerHTML = `
                 <p class="message error">Invalid or missing token</p>
@@ -126,9 +134,9 @@ $doink = new Doink\Doink();
                             <p class="message">Redirecting to game...</p>
                         `;
 
-                        // Redirect to game after 1.5 seconds
+                        // Redirect to game (or the page they logged in from) after 1.5 seconds
                         setTimeout(() => {
-                            window.location.href = '/';
+                            window.location.href = next;
                         }, 1500);
                     }
                 } else {

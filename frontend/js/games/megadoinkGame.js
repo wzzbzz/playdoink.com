@@ -535,7 +535,7 @@ const megadoinkGame = {
   async submitScore(score) {
     const save = document.getElementById("md-save");
     const say = (html) => { save.innerHTML = html; save.hidden = false; };
-    const loginHint = () => say(`<a href="/">Log in</a> to save your score`);
+    const loginHint = () => say(`<a href="#" data-open="login">Log in</a> to save your score`);
     if (this.isPlaytest()) return say("Playtest: score not saved");
     if (!(score > 0)) return;
     const user = this.loggedInUser();
@@ -585,8 +585,16 @@ const megadoinkGame = {
       menu.querySelectorAll(".md-panel").forEach((p) => { p.hidden = p.dataset.panel !== panel; });
       menu.hidden = false;
       if (panel === "leaderboard") this.showLeaderboard("all-time");
+      if (panel === "login") setTimeout(() => document.getElementById("md-email").focus(), 50);
     };
+    this.openMenu = open;
     document.getElementById("md-menu-btn").addEventListener("click", () => open("list"));
+    // "Log in" links anywhere on the page (top bar, end popup) open the login panel.
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest('a[data-open="login"]');
+      if (a && !menu.contains(a)) { e.preventDefault(); open("login"); }
+    });
+    document.getElementById("md-auth-form").addEventListener("submit", (e) => { e.preventDefault(); this.sendLoginLink(); });
     document.getElementById("md-menu-close").addEventListener("click", () => { menu.hidden = true; });
     menu.addEventListener("click", (e) => {
       if (e.target === menu) { menu.hidden = true; return; }   // tap outside the box closes it
@@ -596,7 +604,27 @@ const megadoinkGame = {
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") menu.hidden = true; });
   },
 
-  // Centre of the top bar: "Log in" (to the home page's Login/Register) or the player's name.
+  // Send the magic link (js/utils.js requestMagicLink); clicking it brings the player back to this page.
+  // A run that ended before logging in isn't saved afterwards.
+  async sendLoginLink() {
+    const input = document.getElementById("md-email"), btn = document.getElementById("md-auth-submit");
+    const msg = document.getElementById("md-auth-msg");
+    const show = (cls, text) => { msg.className = "md-auth-msg " + cls; msg.textContent = text; msg.hidden = false; };
+    if (typeof requestMagicLink !== "function") return show("error", "✗ Login isn't available here");
+    btn.disabled = true; btn.textContent = "Sending...";
+    msg.hidden = true;
+    try {
+      await requestMagicLink(input.value, window.location.pathname);
+      show("success", "✓ Check your email! We sent you a magic link.");
+      input.value = "";
+    } catch (err) {
+      show("error", "✗ " + err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = "Send Magic Link";
+    }
+  },
+
+  // Centre of the top bar: "Log in" (opens the login panel) or the player's name.
   // There are no Megado!nk stats yet, so the name is plain text for now.
   showUser() {
     const slot = document.getElementById("md-user");
@@ -607,7 +635,7 @@ const megadoinkGame = {
       if (!name) try { name = (JSON.parse(localStorage.getItem("doink_user")).email || "").split("@")[0]; } catch (e) {}
       slot.textContent = name || "Logged in";
     } else {
-      slot.innerHTML = `<a href="/" id="md-login">Log in</a>`;
+      slot.innerHTML = `<a href="#" data-open="login">Log in</a>`;
     }
   },
 

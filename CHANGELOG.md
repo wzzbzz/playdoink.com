@@ -64,3 +64,11 @@
 - Menu, styled like Do!nk's: MEGADO?NK (short how-to-play), Leaderboard (Megado!nk, All-time/Today), More games (https://playdoink.com, as on live Do!nk), Home. No My Stats yet: there are no Megado!nk stats.
 - Logo row: MEGADO!NK in Luckiest Guy with MEGA in Do!nk blue and DO!NK in black, about 2/3 of the grid's width, lined up with the grid's left edge; a gold-framed black score box with white numbers on the right. Round / found / score / best labels are gone, and so is the temporary Leaderboard link in the end popup.
 - Files: `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. Not deployed yet.
+
+## 2026-11-12 — Megado!nk: log in without leaving the game
+
+- "Log in" (top bar, and "Log in to save your score" in the end popup) opens a login panel in Megado!nk's menu: the same magic-link form and wording as Do!nk's Login/Register.
+- The magic link now brings the player back to the page they logged in from. `request-login` takes an optional `next`; only a plain same-site path gets into the link (`AuthController::safeReturnPath`: starts with one "/", URL-safe path characters and a simple query only, no "//", no backslashes, no scheme, max 200 characters), and `verify.php` checks it again before redirecting. Anything else means "/". Players without a nickname still go to the home page's nickname prompt.
+- Do!nk Classic is unchanged: its form sends no `next`, so its link and redirect are exactly as before (`js/main.js` not touched).
+- A run that ended before logging in isn't saved afterwards.
+- Files: `api/src/Controller/AuthController.php`, `frontend/verify.php`, `frontend/js/utils.js` (new `requestMagicLink()`), `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. No migration. Not deployed yet.

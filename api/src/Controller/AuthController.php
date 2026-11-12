@@ -16,6 +16,19 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/auth')]
 class AuthController extends AbstractController
 {
+    /**
+     * A return path after login, or "/" if it isn't a plain same-site path.
+     * Must start with a single "/", only URL-safe path characters, an optional simple query,
+     * no "//", no backslashes, no scheme, at most 200 characters. verify.php checks it again.
+     */
+    public static function safeReturnPath(mixed $path): string
+    {
+        if (!is_string($path) || strlen($path) > 200 || str_contains($path, '//')) {
+            return '/';
+        }
+        return preg_match('#^/[A-Za-z0-9._~\-/]*(\?[A-Za-z0-9._~\-=&]*)?$#D', $path) ? $path : '/';
+    }
+
     #[Route('/request-login', methods: ['POST'])]
     public function requestLogin(
         Request $request,
@@ -52,6 +65,13 @@ class AuthController extends AbstractController
         // Send magic link email
         $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'http://localhost:8080';
         $magicLink = $frontendUrl . '/verify.php?token=' . $token;
+
+        // Optional page to come back to after logging in (e.g. "/megadoink.html").
+        // Only a strict same-site path is passed on; anything else is dropped (no open redirect).
+        $next = self::safeReturnPath($data['next'] ?? null);
+        if ($next !== '/') {
+            $magicLink .= '&next=' . rawurlencode($next);
+        }
         
         $emailMessage = (new Email())
             ->from('doink@playdoink.com')

@@ -114,3 +114,20 @@ function deleteCookie(name) {
 }
 
 // presence.js
+
+
+// ---- Magic-link login, shared by pages that log in without Do!nk's intro screen (Megado!nk) ----
+// `next` is the page to come back to after the link is clicked; the API and verify.php only
+// accept a plain same-site path (see AuthController::safeReturnPath), anything else means "/".
+async function requestMagicLink(email, next) {
+    const body = { email };
+    if (next) body.next = next;
+    const response = await fetch(`${CONFIG.API_URL}/api/auth/request-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || 'Failed to send magic link');
+    return data;
+}

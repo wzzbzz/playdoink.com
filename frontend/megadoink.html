@@ -24,7 +24,7 @@
        The sound button keeps Do!nk's id and icons so js/sounds.js drives it. -->
   <div class="md-topbar">
     <a class="md-home" href="/">&larr; Home</a>
-    <span class="md-user" id="md-user"><a href="/" id="md-login">Log in</a></span>
+    <span class="md-user" id="md-user"><a href="#" data-open="login">Log in</a></span>
     <span class="md-tools">
       <button id="mute-btn" class="md-icon-btn md-mute" title="Toggle sound" aria-label="Toggle sound">
         <svg class="mute-icon unmuted" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -66,6 +66,18 @@
           <li>A gold found later is 5 points.</li>
           <li>Clear the board to move up a round. Your score carries over.</li>
         </ul>
+        <button class="md-back" data-open="list">&larr; Menu</button>
+      </div>
+      <div class="md-panel" data-panel="login" hidden>
+        <!-- Same flow and wording as Do!nk's Login/Register; the magic link brings you back here. -->
+        <h2>DO!NK</h2>
+        <p class="md-auth-sub">Join the battle!</p>
+        <form class="md-auth-form" id="md-auth-form">
+          <input type="email" id="md-email" placeholder="Enter your email" required autocomplete="email">
+          <button type="submit" id="md-auth-submit">Send Magic Link</button>
+        </form>
+        <div class="md-auth-msg" id="md-auth-msg" hidden></div>
+        <p class="md-auth-foot">We'll send you a link to login instantly.<br>No password needed!</p>
         <button class="md-back" data-open="list">&larr; Menu</button>
       </div>
       <div class="md-panel" data-panel="leaderboard" hidden>
