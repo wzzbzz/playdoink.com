@@ -15,17 +15,66 @@
       height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
       padding-top: env(safe-area-inset-top); box-sizing: border-box;
     }
-    .md-tune { flex: none; width: 100%; max-width: 420px; box-sizing: border-box; margin: 8px auto 0; padding: 0 16px; font-size: .85rem; color: #555; }
     #game-console { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-    .md-tune a { margin-right: 10px; color: #16871a; }
   </style>
 </head>
 <body>
   <!-- Playtest page: not linked from the live site. Try sizes with ?cols=3&rows=5&reds=1&lockMs=250&golden=0&seed=123 -->
-  <div class="md-tune">
-    <a href="/">&larr; Home</a>
+  <!-- Top bar (Craig, Nov 12): all quiet grey. Home | Log in / username | sound | menu.
+       The sound button keeps Do!nk's id and icons so js/sounds.js drives it. -->
+  <div class="md-topbar">
+    <a class="md-home" href="/">&larr; Home</a>
+    <span class="md-user" id="md-user"><a href="/" id="md-login">Log in</a></span>
+    <span class="md-tools">
+      <button id="mute-btn" class="md-icon-btn md-mute" title="Toggle sound" aria-label="Toggle sound">
+        <svg class="mute-icon unmuted" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <svg class="mute-icon muted" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+      <button id="md-menu-btn" class="md-icon-btn md-menu-btn" aria-label="Menu">&#9776;</button>
+    </span>
   </div>
   <div id="game-console"></div>
+
+  <!-- Menu, same look as Do!nk's (templates/game-menu.php). Panels: the list, how to play, leaderboard. -->
+  <div class="md-overlay" id="md-menu" hidden>
+    <div class="md-menu-box" role="dialog" aria-label="Menu">
+      <button class="md-close" id="md-menu-close" aria-label="Close">&times;</button>
+      <div class="md-panel" data-panel="list">
+        <h2>Menu</h2>
+        <div class="md-menu-options">
+          <button class="md-menu-opt" data-open="rules"><span class="md-menu-icon">&#10067;</span><span>MEGADO?NK</span></button>
+          <button class="md-menu-opt" data-open="leaderboard"><span class="md-menu-icon">&#127942;</span><span>Leaderboard</span></button>
+          <a class="md-menu-opt" href="https://playdoink.com"><span class="md-menu-icon">&#127922;</span><span>More games</span></a>
+          <a class="md-menu-opt" href="/"><span class="md-menu-icon">&#127968;</span><span>Home</span></a>
+        </div>
+        <div class="md-legal"><a href="/terms.php" target="_blank">Terms of Use</a><span>&bull;</span><a href="/privacy.php" target="_blank">Privacy Policy</a></div>
+      </div>
+      <div class="md-panel" data-panel="rules" hidden>
+        <h2>MEGADO?NK</h2>
+        <ul class="md-rules">
+          <li>Tap the circles. Avoid the <b class="r">red</b>: it ends your run.</li>
+          <li>Each <b class="g">green</b> is 1 point.</li>
+          <li>Find the <b class="y">gold</b> on your <i>first</i> tap and you win the round at once: 15, then 30, 60, 120&hellip; for golds back to back.</li>
+          <li>A gold found later is 5 points.</li>
+          <li>Clear the board to move up a round. Your score carries over.</li>
+        </ul>
+        <button class="md-back" data-open="list">&larr; Menu</button>
+      </div>
+      <div class="md-panel" data-panel="leaderboard" hidden>
+        <h2>Leaderboard</h2>
+        <div class="md-lb" id="md-lb"></div>
+        <button class="md-back" data-open="list">&larr; Menu</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
       integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>

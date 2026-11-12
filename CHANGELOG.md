@@ -57,3 +57,10 @@
 - The page is exactly the visible screen height (`100dvh`, safe-area insets) and the grid sizes itself to the space under the header, so nothing scrolls in portrait. Checked at 320x480, 375x548/667, 390x664/844, 430x746/932 and desktop.
 - Everything under the grid is gone. A trap now opens a popup over the grid styled like Do!nk's: YOU GOT / BEST RUN, PLAY AGAIN, the Share button(s), "Log in to save your score" when logged out, and (until the menu exists) a small Leaderboard link.
 - Score submit is unchanged. Files: `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. Not deployed yet.
+
+## 2026-11-12 — Megado!nk: new header and menu (Craig, "MEGADO!NK notes")
+
+- Top bar in quiet grey: ← Home, then "Log in" (to the home page's Login/Register) or the player's name, then Do!nk's sound toggle (same id/icons, driven by `js/sounds.js`, with the iOS blank-icon fix) and a hamburger menu.
+- Menu, styled like Do!nk's: MEGADO?NK (short how-to-play), Leaderboard (Megado!nk, All-time/Today), More games (https://playdoink.com, as on live Do!nk), Home. No My Stats yet: there are no Megado!nk stats.
+- Logo row: MEGADO!NK in Luckiest Guy with MEGA in Do!nk blue and DO!NK in black, about 2/3 of the grid's width, lined up with the grid's left edge; a gold-framed black score box with white numbers on the right. Round / found / score / best labels are gone, and so is the temporary Leaderboard link in the end popup.
+- Files: `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. Not deployed yet.

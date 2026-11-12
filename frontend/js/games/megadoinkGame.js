@@ -324,10 +324,7 @@ const megadoinkGame = {
     root.innerHTML = `
       <div class="md-head">
         <div class="md-title">${this.name.replace(/^(MEGA|ULTRA)/, '<span class="md-prefix">$1</span>')}</div>
-        <div class="md-score"><span class="md-round"${this.roundsOn() ? "" : " hidden"}>Round ${this.carry.round}</span>
-          <span id="md-found">0</span> / ${this.greens()}
-          <span class="md-points"${this.hasBonusCells() || this.roundsOn() ? "" : " hidden"}>score <span id="md-points">${this.score()}</span></span>
-          <span class="md-best">best <span id="md-best">${this.state.best}</span></span></div>
+        <div class="md-scorebox" id="md-points" aria-label="score">${this.score()}</div>
       </div>
       <div class="md-board">
         <div class="md-grid" style="--cols: ${c.cols}; --rows: ${c.rows}; grid-template-columns: repeat(${c.cols}, 1fr)">
@@ -342,8 +339,6 @@ const megadoinkGame = {
             <button id="md-again" class="md-playagain">PLAY AGAIN</button>
             <div id="share-buttons-container" class="md-share"></div>
             <div class="md-save" id="md-save" hidden></div>
-            <a href="#" class="md-lb-link" id="md-lb-link">Leaderboard</a>
-            <div class="md-lb" id="md-lb" hidden></div>
           </div>
         </div>
       </div>`;
@@ -351,8 +346,8 @@ const megadoinkGame = {
     root.querySelectorAll(".md-cell").forEach((el) =>
       el.addEventListener("click", () => this.action(el)));
     root.querySelector("#md-again").addEventListener("click", () => this.init(this.baseArgs));
-    // Until the menu exists (a later piece), the leaderboard opens from a small link in the end popup.
-    root.querySelector("#md-lb-link").addEventListener("click", (e) => { e.preventDefault(); this.showLeaderboard("all-time"); });
+    this.setupChrome();
+    this.alignHead();
   },
 
   cell(i) { return document.querySelector(`#megadoink .md-cell[data-i="${i}"]`); },
@@ -395,7 +390,6 @@ const megadoinkGame = {
     }
     this.updateStreaks(k, el);
     s.lastTap = k;
-    document.getElementById("md-found").textContent = s.found;
     document.getElementById("md-points").textContent = this.score();
     this.play(t ? "gold" : "doink");   // fanfare is kept for a new round (showRound)
 
@@ -471,7 +465,6 @@ const megadoinkGame = {
     if (newBest) {
       s.best = score;
       this.storage("set", String(s.best));
-      document.getElementById("md-best").textContent = s.best;
     }
     if (cleared) this.play("highscore");
 
@@ -556,6 +549,7 @@ const megadoinkGame = {
       if (r.status === 401) {
         // token no longer valid: treat as logged out, like Classic does
         try { localStorage.removeItem("doink_user"); } catch (e) {}
+        this.showUser();
         return loginHint();
       }
       if (!r.ok) throw new Error(r.status);
@@ -567,7 +561,57 @@ const megadoinkGame = {
     }
   },
 
-  // A plain Megado!nk leaderboard under the result (type: "all-time" or "daily").
+  // Keep the logo row exactly as wide as the grid, so MEGADO!NK lines up with the grid's left edge
+  // and the score box with its right edge (the grid shrinks on short screens).
+  alignHead() {
+    const root = this.root(), head = root.querySelector(".md-head"), grid = root.querySelector(".md-grid");
+    if (!head || !grid) return;
+    const fit = () => { head.style.width = grid.getBoundingClientRect().width + "px"; };
+    fit();
+    if (typeof ResizeObserver !== "undefined") {
+      if (this._headObs) this._headObs.disconnect();
+      this._headObs = new ResizeObserver(fit);
+      this._headObs.observe(grid);
+    }
+  },
+
+  // ---- Top bar and menu (megadoink.html). Bound once; the board re-renders every round. ----
+  setupChrome() {
+    this.showUser();
+    const menu = document.getElementById("md-menu");
+    if (!menu || menu.dataset.bound) return;
+    menu.dataset.bound = "1";
+    const open = (panel) => {
+      menu.querySelectorAll(".md-panel").forEach((p) => { p.hidden = p.dataset.panel !== panel; });
+      menu.hidden = false;
+      if (panel === "leaderboard") this.showLeaderboard("all-time");
+    };
+    document.getElementById("md-menu-btn").addEventListener("click", () => open("list"));
+    document.getElementById("md-menu-close").addEventListener("click", () => { menu.hidden = true; });
+    menu.addEventListener("click", (e) => {
+      if (e.target === menu) { menu.hidden = true; return; }   // tap outside the box closes it
+      const b = e.target.closest("[data-open]");
+      if (b) open(b.dataset.open);
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") menu.hidden = true; });
+  },
+
+  // Centre of the top bar: "Log in" (to the home page's Login/Register) or the player's name.
+  // There are no Megado!nk stats yet, so the name is plain text for now.
+  showUser() {
+    const slot = document.getElementById("md-user");
+    if (!slot) return;
+    const u = this.loggedInUser();
+    if (u) {
+      let name = u.username || "";
+      if (!name) try { name = (JSON.parse(localStorage.getItem("doink_user")).email || "").split("@")[0]; } catch (e) {}
+      slot.textContent = name || "Logged in";
+    } else {
+      slot.innerHTML = `<a href="/" id="md-login">Log in</a>`;
+    }
+  },
+
+  // The Megado!nk leaderboard, in the menu (type: "all-time" or "daily").
   async showLeaderboard(type) {
     const box = document.getElementById("md-lb");
     box.hidden = false;

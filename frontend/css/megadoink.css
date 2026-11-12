@@ -165,3 +165,88 @@
   55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
   100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
 }
+
+/* ---- MEGADO!NK header (Craig, Nov 12) ---- */
+/* Top bar: everything in the same quiet grey as Do!nk's sound/menu icons. */
+.md-topbar {
+  flex: none; width: 100%; max-width: 420px; box-sizing: border-box; margin: 0 auto;
+  padding: 6px 16px 0;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  font-family: system-ui, sans-serif; font-size: .85rem; color: rgba(128, 128, 128, .8);
+}
+.md-topbar a { color: inherit; }
+.md-home { justify-self: start; text-decoration: none; }
+.md-user { justify-self: center; max-width: 9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.md-tools { justify-self: end; display: flex; gap: 6px; }
+.md-icon-btn {
+  /* iOS Safari: no native button padding/appearance, or the icon can collapse to blank (iPad fix) */
+  -webkit-appearance: none; appearance: none; padding: 0; margin: 0;
+  width: 36px; height: 36px; border-radius: 8px; border: 0; background: transparent;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: rgba(128, 128, 128, .6); font: 1.4rem/1 Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.md-icon-btn:hover { color: rgba(128, 128, 128, .9); }
+.md-icon-btn .mute-icon { width: 22px; height: 22px; min-width: 22px; flex-shrink: 0; }
+.md-mute.muted { color: rgba(128, 128, 128, .45); }
+
+/* Logo row: MEGADO!NK big and left (about 2/3 of the width), one score box on the right. */
+#megadoink .md-head {
+  justify-content: space-between; align-items: center; gap: 10px; margin: 2px auto 10px;
+  box-sizing: border-box; max-width: 100%;
+}
+#megadoink .md-title {
+  font-size: min(10.5vw, 2.9rem); line-height: 1; letter-spacing: .02em; padding-top: .08em;
+  white-space: nowrap; color: #000;
+}
+#megadoink .md-prefix { color: #2b8bf6; }
+.md-scorebox {
+  flex: none; min-width: 2.4em; box-sizing: border-box; padding: .14em .35em 0;
+  border: 3px solid #f5c518; border-radius: 10px; background: #000; color: #fff;
+  font-family: 'Luckiest Guy', system-ui, sans-serif; font-size: min(8vw, 2.1rem); line-height: 1.15;
+  text-align: center; font-variant-numeric: tabular-nums;
+}
+
+/* Menu overlay, same look as Do!nk's game menu. */
+.md-overlay {
+  position: fixed; inset: 0; z-index: 50; box-sizing: border-box;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, .5); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+}
+.md-overlay[hidden] { display: none; }
+.md-menu-box {
+  position: relative; box-sizing: border-box; width: 100%; max-width: 400px; max-height: 100%; overflow-y: auto;
+  background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, .3);
+  font-family: system-ui, sans-serif; text-align: left;
+}
+.md-menu-box h2 {
+  font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 2.2rem; color: #2b8bf6;
+  text-align: center; margin: 0 0 1.2rem;
+}
+.md-close {
+  position: absolute; top: .6rem; right: .6rem; width: 40px; height: 40px; border: 0; background: none;
+  font: 2rem/1 Arial, sans-serif; color: #999; cursor: pointer; padding: 0; -webkit-appearance: none; appearance: none;
+}
+.md-close:hover { color: #333; }
+.md-menu-options { display: flex; flex-direction: column; gap: .8rem; }
+.md-menu-opt {
+  display: flex; align-items: center; gap: 1rem; box-sizing: border-box; width: 100%;
+  padding: .8rem 1.4rem; border: 0; border-radius: 12px; cursor: pointer; text-decoration: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
+  font-family: 'Luckiest Guy', cursive; font-size: 1.4rem; text-align: left;
+  transition: transform .2s, box-shadow .2s;
+}
+.md-menu-opt:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, .2); }
+.md-menu-icon { font-size: 1.7rem; }
+.md-legal { margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; text-align: center; font-size: .75rem; }
+.md-legal a { color: #999; text-decoration: none; }
+.md-legal span { color: #ccc; margin: 0 .5rem; }
+.md-rules { margin: 0; padding-left: 1.2em; font-size: 1rem; line-height: 1.45; color: #222; }
+.md-rules li { margin-bottom: .5em; }
+.md-rules .r { color: #af1620; } .md-rules .g { color: #16871a; } .md-rules .y { color: #b8860b; }
+.md-back {
+  margin-top: 1rem; border: 0; background: none; color: #667eea; font: 600 1rem system-ui, sans-serif;
+  cursor: pointer; padding: 0;
+}
+.md-menu-box .md-lb { margin-top: 0; text-align: center; }
