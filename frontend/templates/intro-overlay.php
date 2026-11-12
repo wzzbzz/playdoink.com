@@ -53,8 +53,9 @@ use Doink\Copy;
         <div class="subtext"><?= Copy::get('homepage.play_subtext') ?></div>
 
         <div class="more-modes" style="margin-top:1em;">
-            <a href="/megadoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#222;font-weight:bold;border:2px solid #b8860b;text-shadow:none;">Megado!nk<sup style="color:#e00000;font-size:0.6em;font-weight:bold;margin-left:0.3em;text-transform:none;">Beta!</sup></a>
-            <a href="/ultradoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#222;font-weight:bold;border:2px solid #b8860b;text-shadow:none;">Ultrado!nk<sup style="color:#e00000;font-size:0.6em;font-weight:bold;margin-left:0.3em;text-transform:none;">Beta!</sup></a>
+            <!-- Game names follow STYLEGUIDE.md: all caps, Luckiest Guy, MEGA blue / ULTRA red, DO!NK black (Craig, Nov 12). -->
+            <a href="/megadoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#000;font-family:'Luckiest Guy',cursive;font-weight:400;border:2px solid #b8860b;text-shadow:none;"><span style="color:#2b8bf6;">MEGA</span><span style="color:#000;">DO!NK</span><sup style="color:#e00000;font-size:0.6em;font-weight:400;margin-left:0.3em;">BETA!</sup></a>
+            <a href="/ultradoink.html" class="btn" style="display:inline-block;margin:0.25em;background:#f5c518;color:#000;font-family:'Luckiest Guy',cursive;font-weight:400;border:2px solid #b8860b;text-shadow:none;"><span style="color:#e00000;">ULTRA</span><span style="color:#000;">DO!NK</span><sup style="color:#e00000;font-size:0.6em;font-weight:400;margin-left:0.3em;">BETA!</sup></a>
         </div>
 
         <hr style="margin:1em 0;">

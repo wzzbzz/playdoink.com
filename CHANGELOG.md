@@ -91,3 +91,9 @@
 
 - On Do!nk's home, a logged-in player with no nickname (who skipped the prompt after logging in) sees a small "Set nickname" link under "Logged in as …" on every visit; it opens Do!nk's existing nickname prompt. Saving redraws the line with the new name and no link. The prompt right after the magic link is unchanged, and it doesn't open by itself on other visits.
 - File: `frontend/js/main.js`. Not deployed yet.
+
+## 2026-11-12 — Game-name style (Craig, "MEGADO!NK notes")
+
+- Splash page buttons: MEGADO!NK (MEGA blue `#2b8bf6`, DO!NK black) and ULTRADO!NK (ULTRA red `#e00000`, DO!NK black), all caps in Luckiest Guy, with the red "BETA!" tags. File: `frontend/templates/intro-overlay.php`.
+- Ultrado!nk's in-game title: ULTRA red, DO!NK black. File: `frontend/css/megadoink.css`.
+- New `STYLEGUIDE.md` with the rule. Not deployed yet.

@@ -294,3 +294,7 @@
 }
 #md-nick-submit:hover { background: #4fa047; }
 #md-nick-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+/* ULTRADO!NK title: ULTRA red, DO!NK black (STYLEGUIDE.md). */
+#ultradoink .md-title { color: #000; }
+#ultradoink .md-prefix { color: #e00000; }
