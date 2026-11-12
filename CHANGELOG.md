@@ -72,3 +72,10 @@
 - Do!nk Classic is unchanged: its form sends no `next`, so its link and redirect are exactly as before (`js/main.js` not touched).
 - A run that ended before logging in isn't saved afterwards.
 - Files: `api/src/Controller/AuthController.php`, `frontend/verify.php`, `frontend/js/utils.js` (new `requestMagicLink()`), `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. No migration. Not deployed yet.
+
+## 2026-11-12 — Megado!nk: #1 / personal-best banners (Craig, "MEGADO!NK notes")
+
+- When a run ends, the popup waits (like Do!nk's) for the score submit, then shows one banner with the fanfare, in Do!nk's purple style and motion: "👑 #1 ALL-TIME! 👑" or "🏆 #1 TODAY! 🏆" (3s), else "🎉 NEW PERSONAL BEST! 🎉" (1.5s). Personal best = beats the player's best before the run: their server best if logged in, else this browser's.
+- Logged out: personal best only (and the "Log in to save your score" line). Playtests: no #1 banners (they aren't submitted).
+- API: `submit-score` now treats an empty Megado!nk board (all-time or today) as #1; Classic unchanged. `my-stats/{id}` takes `?game=` (default classic, unknown = 400) for the best score and rank. No migration.
+- Files: `api/src/Repository/ScoreRepository.php`, `api/src/Controller/LeaderboardController.php`, `frontend/js/games/megadoinkGame.js`, `frontend/css/megadoink.css`. Not deployed yet.

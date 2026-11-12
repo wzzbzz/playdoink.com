@@ -216,7 +216,8 @@ const megadoinkGame = {
       over: false,
       best: 0,
     };
-    this.state.best = parseInt(this.storage("get") || "0", 10);
+    this.state.best = Math.max(parseInt(this.storage("get") || "0", 10), this.serverBest || 0);
+    if (!args.keepStreak) this.fetchServerBest();
     this.renderUI();
   },
 
@@ -442,7 +443,7 @@ const megadoinkGame = {
     setTimeout(() => pop.remove(), 1200);
   },
 
-  endGame(cleared) {
+  async endGame(cleared) {
     const s = this.state;
     s.over = true;
     for (const [name, t] of Object.entries(this.config.cellTypes)) {
@@ -461,19 +462,61 @@ const megadoinkGame = {
     root.querySelectorAll(".md-cell:not(.is-green):not(.is-red):not(.is-golden)").forEach((el) => el.classList.add("is-dim"));
 
     const score = this.score();
-    const newBest = score > s.best;
+    // Personal best: beats the best before this run (the server's, if logged in, else this browser's).
+    const newBest = score > 0 && score > s.best;
     if (newBest) {
       s.best = score;
       this.storage("set", String(s.best));
+      if (this.serverBest !== null) this.serverBest = Math.max(this.serverBest, score);
     }
-    if (cleared) this.play("highscore");
-
-    // The popup, after a short beat so the revealed red is seen first.
     document.getElementById("md-yourscore").textContent = score;
     document.getElementById("md-bestrun").textContent = s.best;
-    setTimeout(() => { document.getElementById("md-end").hidden = false; }, 400);
-    if (this.roundsOn()) this.submitScore(score);
     this.shareScore(score);
+
+    // Like Do!nk: the popup and the banner come once the server has said where the score ranks
+    // (at most ~2.5s), and never sooner than a short beat so the revealed red is seen first.
+    const beat = new Promise((r) => setTimeout(r, 400));
+    const submitted = this.roundsOn() ? this.submitScore(score) : Promise.resolve(null);
+    const ranked = await Promise.race([submitted, new Promise((r) => setTimeout(() => r(null), 2500))]);
+    await beat;
+    if (this.state !== s) return;   // a new game started meanwhile
+    document.getElementById("md-end").hidden = false;
+
+    // Only the highest one, and the fanfare with it (Do!nk's showEndScreen order and timing).
+    const banner = ranked && ranked.isAllTimeFirst ? ["👑 #1 ALL-TIME! 👑", 3000]
+      : ranked && ranked.isDailyFirst ? ["🏆 #1 TODAY! 🏆", 3000]
+      : newBest ? ["🎉 NEW PERSONAL BEST! 🎉", 1500]
+      : null;
+    if (banner) this.showBanner(banner[0], banner[1]);
+    else if (cleared) this.play("highscore");   // single-board game cleared (rounds off)
+  },
+
+  // Do!nk's purple achievement banner (.high-score-notification in game.css), over the end popup.
+  showBanner(text, ms) {
+    const el = document.createElement("div");
+    el.className = "md-banner";
+    el.textContent = text;
+    document.body.appendChild(el);
+    this.play("highscore");
+    setTimeout(() => el.classList.add("show"), 10);
+    setTimeout(() => {
+      el.classList.remove("show");
+      setTimeout(() => el.remove(), 500);
+    }, ms);
+  },
+
+  // A logged-in player's Megado!nk best on the server (null until known); used for "personal best".
+  serverBest: null,
+  async fetchServerBest() {
+    const user = this.loggedInUser();
+    if (!user || this.isPlaytest()) return;
+    try {
+      const r = await fetch(`${this.apiUrl()}/api/leaderboard/my-stats/${encodeURIComponent(user.id)}?game=megadoink`);
+      if (!r.ok) return;
+      const best = parseInt((await r.json()).bestScore, 10) || 0;
+      this.serverBest = Math.max(this.serverBest || 0, best);
+      if (this.state && !this.state.over) this.state.best = Math.max(this.state.best, this.serverBest);
+    } catch (e) { /* offline: the local best still works */ }
   },
 
   // Share, like Do!nk's: save a "can you beat my N on MEGADO!NK?" image, then show the share button(s).
@@ -532,14 +575,15 @@ const megadoinkGame = {
   },
 
   // Post the run's total to the Megado!nk leaderboard (logged in, not a playtest, more than 0).
+  // Returns the API's answer ({ isDailyFirst, isAllTimeFirst, ... }) when the score was saved, else null.
   async submitScore(score) {
     const save = document.getElementById("md-save");
     const say = (html) => { save.innerHTML = html; save.hidden = false; };
     const loginHint = () => say(`<a href="#" data-open="login">Log in</a> to save your score`);
-    if (this.isPlaytest()) return say("Playtest: score not saved");
-    if (!(score > 0)) return;
+    if (this.isPlaytest()) { say("Playtest: score not saved"); return null; }
+    if (!(score > 0)) return null;
     const user = this.loggedInUser();
-    if (!user) return loginHint();
+    if (!user) { loginHint(); return null; }
     try {
       const r = await fetch(this.apiUrl() + "/api/leaderboard/submit-score", {
         method: "POST",
@@ -550,14 +594,17 @@ const megadoinkGame = {
         // token no longer valid: treat as logged out, like Classic does
         try { localStorage.removeItem("doink_user"); } catch (e) {}
         this.showUser();
-        return loginHint();
+        loginHint();
+        return null;
       }
       if (!r.ok) throw new Error(r.status);
       const data = await r.json();
-      say(data.isAllTimeFirst ? "Saved: #1 all-time!" : data.isDailyFirst ? "Saved: #1 today!" : "Score saved");
+      say("Score saved");   // #1 today / all-time show as a banner instead
+      return data;
     } catch (e) {
       console.error("Failed to submit Megado!nk score:", e);
       say("Couldn't save your score");
+      return null;
     }
   },
 

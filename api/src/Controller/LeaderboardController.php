@@ -149,16 +149,23 @@ class LeaderboardController extends AbstractController
     #[Route('/my-stats/{userId}', methods: ['GET'])]
     public function getMyStats(
         int $userId,
+        Request $request,
         ScoreRepository $scoreRepository,
         UserRepository $userRepository
     ): JsonResponse {
+        // ?game= picks whose best score and rank to report (default Classic, as before).
+        $game = $request->query->get('game', Score::DEFAULT_GAME);
+        if (!in_array($game, Score::GAMES, true)) {
+            return new JsonResponse(['message' => 'Unknown game'], 400);
+        }
+
         $user = $userRepository->find($userId);
         if (!$user) {
             return new JsonResponse(['message' => 'User not found'], 404);
         }
 
-        $bestScore = $scoreRepository->getUserBestScore($userId);
-        $rank = $scoreRepository->getUserAllTimeRank($userId);
+        $bestScore = $scoreRepository->getUserBestScore($userId, $game);
+        $rank = $scoreRepository->getUserAllTimeRank($userId, $game);
         $totalSelections = $user->getSelectionCount() ?? 0;
 
         // Calculate success percentage from selection history

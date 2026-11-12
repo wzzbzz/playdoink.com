@@ -126,6 +126,12 @@ class ScoreRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
 
+        // Games other than Classic: the first score on an empty board is #1 too (Classic unchanged).
+        $emptyIsFirst = $game !== Score::DEFAULT_GAME && $score > 0;
+
+        if (!$allTimeTop && $emptyIsFirst) {
+            $result['isAllTimeFirst'] = true;
+        }
         if ($allTimeTop && $score > $allTimeTop['topScore']) {
             $result['isAllTimeFirst'] = true;
             $result['dethronedAllTimeLeader'] = [
@@ -156,6 +162,9 @@ class ScoreRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
 
+        if (!$dailyTop && $emptyIsFirst) {
+            $result['isDailyFirst'] = true;
+        }
         if ($dailyTop && $score > $dailyTop['topScore']) {
             $result['isDailyFirst'] = true;
             $result['dethronedDailyLeader'] = [
