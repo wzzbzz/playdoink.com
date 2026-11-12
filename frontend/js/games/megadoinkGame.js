@@ -633,15 +633,26 @@ const megadoinkGame = {
       menu.hidden = false;
       if (panel === "leaderboard") this.showLeaderboard("all-time");
       if (panel === "login") setTimeout(() => document.getElementById("md-email").focus(), 50);
+      if (panel === "nickname") setTimeout(() => document.getElementById("md-nick").focus(), 50);
     };
     this.openMenu = open;
     document.getElementById("md-menu-btn").addEventListener("click", () => open("list"));
-    // "Log in" links anywhere on the page (top bar, end popup) open the login panel.
+    // "Log in" / "Set nickname" links anywhere on the page (top bar, end popup) open their panel.
     document.addEventListener("click", (e) => {
-      const a = e.target.closest('a[data-open="login"]');
-      if (a && !menu.contains(a)) { e.preventDefault(); open("login"); }
+      const a = e.target.closest("a[data-open]");
+      if (a && !menu.contains(a)) { e.preventDefault(); open(a.dataset.open); }
     });
     document.getElementById("md-auth-form").addEventListener("submit", (e) => { e.preventDefault(); this.sendLoginLink(); });
+    document.getElementById("md-nick-form").addEventListener("submit", (e) => { e.preventDefault(); this.saveNickname(); });
+
+    // Back from the magic link as a new player (verify.php adds ?show-nickname=1): ask for a nickname now.
+    const q = new URLSearchParams(window.location.search);
+    if (q.get("show-nickname") === "1") {
+      q.delete("show-nickname");
+      const rest = q.toString();
+      history.replaceState(history.state, "", window.location.pathname + (rest ? "?" + rest : "") + window.location.hash);
+      if (this.needsNickname()) open("nickname");
+    }
     document.getElementById("md-menu-close").addEventListener("click", () => { menu.hidden = true; });
     menu.addEventListener("click", (e) => {
       if (e.target === menu) { menu.hidden = true; return; }   // tap outside the box closes it
@@ -671,19 +682,56 @@ const megadoinkGame = {
     }
   },
 
-  // Centre of the top bar: "Log in" (opens the login panel) or the player's name.
-  // There are no Megado!nk stats yet, so the name is plain text for now.
+  // Logged in but no nickname yet (a new player).
+  needsNickname() { const u = this.loggedInUser(); return !!(u && !u.username); },
+
+  // Do!nk's nickname step (main.js #nickname-form): same endpoint, token and messages.
+  async saveNickname() {
+    const input = document.getElementById("md-nick"), btn = document.getElementById("md-nick-submit");
+    const msg = document.getElementById("md-nick-msg");
+    const show = (cls, text) => { msg.className = "md-auth-msg " + cls; msg.textContent = text; msg.hidden = false; };
+    const nickname = input.value.trim();
+    if (!nickname) return show("error", "Please enter a nickname");
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem("doink_user")); } catch (e) {}
+    if (!user || !user.id) return show("error", "Error: User not found");
+    btn.disabled = true;
+    msg.hidden = true;
+    try {
+      const r = await fetch(`${this.apiUrl()}/api/auth/update-username`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + (user.apiToken || "") },
+        body: JSON.stringify({ username: nickname }),
+      });
+      if (r.status === 401) {
+        try { localStorage.removeItem("doink_user"); } catch (e) {}
+        this.showUser();
+        this.openMenu && this.openMenu("login");
+        return show("error", "Please log in again to save your nickname.");
+      }
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) return show("error", data.message || "Failed to save nickname");
+      user.username = nickname;
+      localStorage.setItem("doink_user", JSON.stringify(user));
+      this.showUser();
+      document.getElementById("md-menu").hidden = true;
+    } catch (e) {
+      console.error("Failed to save nickname:", e);
+      show("error", "Failed to save nickname. Please try again.");
+    } finally {
+      btn.disabled = false;
+    }
+  },
+
+  // Centre of the top bar: "Log in" (opens the login panel), "Set nickname" for a new player,
+  // or the player's name. There are no Megado!nk stats yet, so the name is plain text for now.
   showUser() {
     const slot = document.getElementById("md-user");
     if (!slot) return;
     const u = this.loggedInUser();
-    if (u) {
-      let name = u.username || "";
-      if (!name) try { name = (JSON.parse(localStorage.getItem("doink_user")).email || "").split("@")[0]; } catch (e) {}
-      slot.textContent = name || "Logged in";
-    } else {
-      slot.innerHTML = `<a href="#" data-open="login">Log in</a>`;
-    }
+    if (u && u.username) slot.textContent = u.username;
+    else if (u) slot.innerHTML = `<a href="#" data-open="nickname">Set nickname</a>`;
+    else slot.innerHTML = `<a href="#" data-open="login">Log in</a>`;
   },
 
   // The Megado!nk leaderboard, in the menu (type: "all-time" or "daily").

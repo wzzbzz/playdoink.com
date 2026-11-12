@@ -124,9 +124,11 @@ $doink = new Doink\Doink();
                             <p class="message">Redirecting to set nickname...</p>
                         `;
                         
-                        // Redirect to home and trigger nickname prompt
+                        // Redirect to home (or the page they logged in from) and trigger the nickname prompt
                         setTimeout(() => {
-                            window.location.href = '/?show-nickname=1';
+                            window.location.href = next === '/'
+                                ? '/?show-nickname=1'
+                                : next + (next.includes('?') ? '&' : '?') + 'show-nickname=1';
                         }, 1500);
                     } else {
                         document.getElementById('status').innerHTML = `

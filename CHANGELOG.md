@@ -79,3 +79,10 @@
 - Logged out: personal best only (and the "Log in to save your score" line). Playtests: no #1 banners (they aren't submitted).
 - API: `submit-score` now treats an empty Megado!nk board (all-time or today) as #1; Classic unchanged. `my-stats/{id}` takes `?game=` (default classic, unknown = 400) for the best score and rank. No migration.
 - Files: `api/src/Repository/ScoreRepository.php`, `api/src/Controller/LeaderboardController.php`, `frontend/js/games/megadoinkGame.js`, `frontend/css/megadoink.css`. Not deployed yet.
+
+## 2026-11-12 — New players get the nickname prompt in Megado!nk too
+
+- A brand-new player who logs in from Megado!nk comes back to Megado!nk (not Do!nk's home) and gets the nickname prompt there: same wording, same `/api/auth/update-username` call with the login token, same API validation messages.
+- `verify.php` carries the safe `next` through the nickname step (`next` + `show-nickname=1`); with no `next` it still goes to `/?show-nickname=1`, so Do!nk Classic is unchanged.
+- Until a nickname is set, Megado!nk's top bar says "Set nickname"; tapping it reopens the prompt.
+- Files: `frontend/verify.php`, `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. No API change. Not deployed yet.

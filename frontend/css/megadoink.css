@@ -281,3 +281,16 @@
   transition: all .5s cubic-bezier(.68, -.55, .265, 1.55);
 }
 .md-banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* Nickname panel: Do!nk's nickname prompt look (templates/nickname-overlay.php). */
+#md-nick {
+  font: 1rem Arial, sans-serif; padding: .9rem; border: 3px solid #2b8bf6; border-radius: 8px; outline: none;
+  text-align: center; box-sizing: border-box; width: 100%;
+}
+#md-nick:focus { border-color: #62bf5e; }
+#md-nick-submit {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.4rem; padding: .8rem; border: 0; border-radius: 8px;
+  background: #62bf5e; color: #fff; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+#md-nick-submit:hover { background: #4fa047; }
+#md-nick-submit:disabled { background: #ccc; cursor: not-allowed; }

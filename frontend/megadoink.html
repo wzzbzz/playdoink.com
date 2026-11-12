@@ -80,6 +80,17 @@
         <p class="md-auth-foot">We'll send you a link to login instantly.<br>No password needed!</p>
         <button class="md-back" data-open="list">&larr; Menu</button>
       </div>
+      <div class="md-panel" data-panel="nickname" hidden>
+        <!-- Same prompt and wording as Do!nk's (templates/nickname-overlay.php); saved with /api/auth/update-username. -->
+        <h2>Choose Your Nickname</h2>
+        <p class="md-auth-sub">This will be displayed on leaderboards</p>
+        <form class="md-auth-form" id="md-nick-form">
+          <input type="text" id="md-nick" placeholder="Enter nickname" maxlength="20" required autocomplete="off">
+          <button type="submit" id="md-nick-submit">Save Nickname</button>
+        </form>
+        <div class="md-auth-msg" id="md-nick-msg" hidden></div>
+        <p class="md-auth-foot">You can change this later in settings</p>
+      </div>
       <div class="md-panel" data-panel="leaderboard" hidden>
         <h2>Leaderboard</h2>
         <div class="md-lb" id="md-lb"></div>
