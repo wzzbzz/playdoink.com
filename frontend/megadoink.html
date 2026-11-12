@@ -2,14 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MEGADO!NK playtest</title>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/megadoink.css">
   <link rel="stylesheet" href="css/share.css">
   <style>
-    body { margin: 0; background: #f4f4f4; font-family: system-ui, sans-serif; }
-    .md-tune { max-width: 420px; margin: 8px auto 0; padding: 0 16px; font-size: .85rem; color: #555; }
+    /* The page is exactly the visible screen height (dvh follows Safari's toolbars), so the game never scrolls. */
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: #f4f4f4; font-family: system-ui, sans-serif;
+      height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+      padding-top: env(safe-area-inset-top); box-sizing: border-box;
+    }
+    .md-tune { flex: none; width: 100%; max-width: 420px; box-sizing: border-box; margin: 8px auto 0; padding: 0 16px; font-size: .85rem; color: #555; }
+    #game-console { flex: 1; min-height: 0; display: flex; flex-direction: column; }
     .md-tune a { margin-right: 10px; color: #16871a; }
   </style>
 </head>

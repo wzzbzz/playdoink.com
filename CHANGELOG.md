@@ -51,3 +51,9 @@
 - `save_score_image.php` now ignores the uploaded picture and draws its own (and redraws, which also replaces any old junk). If the server has no GD/FreeType it falls back to the checked-upload rules from 2026-11-10.
 - `share.php` draws the image if it's missing, so old share links get a preview too.
 - Tested: a fake red 600x315 upload and a junk upload both came out as the proper drawn image; bad scores refused.
+
+## 2026-11-12 — Megado!nk: fits a phone screen, end-of-game popup (Craig, "MEGADO!NK notes")
+
+- The page is exactly the visible screen height (`100dvh`, safe-area insets) and the grid sizes itself to the space under the header, so nothing scrolls in portrait. Checked at 320x480, 375x548/667, 390x664/844, 430x746/932 and desktop.
+- Everything under the grid is gone. A trap now opens a popup over the grid styled like Do!nk's: YOU GOT / BEST RUN, PLAY AGAIN, the Share button(s), "Log in to save your score" when logged out, and (until the menu exists) a small Leaderboard link.
+- Score submit is unchanged. Files: `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. Not deployed yet.

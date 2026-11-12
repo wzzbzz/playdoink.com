@@ -329,23 +329,30 @@ const megadoinkGame = {
           <span class="md-points"${this.hasBonusCells() || this.roundsOn() ? "" : " hidden"}>score <span id="md-points">${this.score()}</span></span>
           <span class="md-best">best <span id="md-best">${this.state.best}</span></span></div>
       </div>
-      <div class="md-grid" style="grid-template-columns: repeat(${c.cols}, 1fr)">
-        ${Array.from({ length: c.cols * c.rows }, (_, i) =>
-          `<button class="md-cell" data-i="${i}" aria-label="button ${i + 1}"></button>`).join("")}
-      </div>
-      <div class="md-result" id="md-result" hidden>
-        <div id="md-result-text"></div>
-        <div class="md-save" id="md-save" hidden></div>
-        <button id="md-again">Play again</button>
-        <button id="md-lb-btn" class="md-lb-btn" hidden>Leaderboard</button>
-        <div id="share-buttons-container" class="md-share"></div>
-      </div>
-      <div class="md-lb" id="md-lb" hidden></div>`;
+      <div class="md-board">
+        <div class="md-grid" style="--cols: ${c.cols}; --rows: ${c.rows}; grid-template-columns: repeat(${c.cols}, 1fr)">
+          ${Array.from({ length: c.cols * c.rows }, (_, i) =>
+            `<button class="md-cell" data-i="${i}" aria-label="button ${i + 1}"></button>`).join("")}
+        </div>
+        <!-- End of game: a popup over the grid like Do!nk's (Craig, Nov 12). Nothing goes below the grid. -->
+        <div class="md-end" id="md-end" hidden>
+          <div class="md-end-box" role="dialog" aria-label="Game over">
+            <div>YOU GOT: <span id="md-yourscore"></span></div>
+            <div>BEST RUN: <span id="md-bestrun"></span></div>
+            <button id="md-again" class="md-playagain">PLAY AGAIN</button>
+            <div id="share-buttons-container" class="md-share"></div>
+            <div class="md-save" id="md-save" hidden></div>
+            <a href="#" class="md-lb-link" id="md-lb-link">Leaderboard</a>
+            <div class="md-lb" id="md-lb" hidden></div>
+          </div>
+        </div>
+      </div>`;
 
     root.querySelectorAll(".md-cell").forEach((el) =>
       el.addEventListener("click", () => this.action(el)));
     root.querySelector("#md-again").addEventListener("click", () => this.init(this.baseArgs));
-    root.querySelector("#md-lb-btn").addEventListener("click", () => this.showLeaderboard("all-time"));
+    // Until the menu exists (a later piece), the leaderboard opens from a small link in the end popup.
+    root.querySelector("#md-lb-link").addEventListener("click", (e) => { e.preventDefault(); this.showLeaderboard("all-time"); });
   },
 
   cell(i) { return document.querySelector(`#megadoink .md-cell[data-i="${i}"]`); },
@@ -468,21 +475,11 @@ const megadoinkGame = {
     }
     if (cleared) this.play("highscore");
 
-    const pts = score !== s.found ? ` Score ${score}.` : "";
-    const nb = newBest ? " New best!" : "";
-    const text = this.roundsOn()
-      ? `Trap on round ${this.carry.round}. Total score ${score}.${nb}`
-      : cleared && s.firstTapGold && s.found < this.greens()
-        ? `Gold first! ${s.goldNote || ""} Score ${score}.`
-        : cleared
-        ? `MEGADOINK! You cleared all ${this.greens()}.${pts}`
-        : `You got ${s.found}.${pts}${nb}`;
-    document.getElementById("md-result-text").textContent = text;
-    setTimeout(() => { document.getElementById("md-result").hidden = false; }, 400);
-    if (this.roundsOn()) {
-      document.getElementById("md-lb-btn").hidden = false;
-      this.submitScore(score);
-    }
+    // The popup, after a short beat so the revealed red is seen first.
+    document.getElementById("md-yourscore").textContent = score;
+    document.getElementById("md-bestrun").textContent = s.best;
+    setTimeout(() => { document.getElementById("md-end").hidden = false; }, 400);
+    if (this.roundsOn()) this.submitScore(score);
     this.shareScore(score);
   },
 
@@ -595,12 +592,7 @@ const megadoinkGame = {
   // Board cleared with rounds on: a short beat, then a fresh deal that keeps the score and the streak.
   nextRound() {
     const s = this.state, carry = this.carry;
-    const text = document.getElementById("md-result-text");
-    text.textContent = s.firstTapGold && s.goldNote
-      ? `Gold first! Round ${carry.round}: ${s.goldNote}`
-      : `Round ${carry.round} cleared!`;
-    document.getElementById("md-again").hidden = true;
-    document.getElementById("md-result").hidden = false;
+    // No text under the grid any more: the "+N" pop-up and the "ROUND N" graphic carry the news.
     carry.carried += s.points;
     carry.prevFirstGold = s.firstTapGold;   // tiers: a round without a first-tap gold breaks the chain
     carry.round++;
