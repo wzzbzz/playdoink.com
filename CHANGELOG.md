@@ -97,3 +97,8 @@
 - Splash page buttons: MEGADO!NK (MEGA blue `#2b8bf6`, DO!NK black) and ULTRADO!NK (ULTRA red `#e00000`, DO!NK black), all caps in Luckiest Guy, with the red "BETA!" tags. File: `frontend/templates/intro-overlay.php`.
 - Ultrado!nk's in-game title: ULTRA red, DO!NK black. File: `frontend/css/megadoink.css`.
 - New `STYLEGUIDE.md` with the rule. Not deployed yet.
+
+## 2026-11-12 — Megado!nk share image follows the style guide
+
+- The "can you beat my N on MEGADO!NK?" card now draws MEGA in blue `#2b8bf6` and DO!NK in black (was MEGA green, DO!NK blue), on its white background inside the blue box. Fixed in the in-browser canvas (`frontend/js/games/megadoinkGame.js`) and in the server-drawn version (`frontend/share.php`, `frontend/save_score_image.php`; comment in `frontend/src/ScoreImage.php`). Do!nk Classic's card is unchanged.
+- Already-saved images on the server keep their old colours; only new shares use the new ones.

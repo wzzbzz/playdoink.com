@@ -11,7 +11,7 @@ class ScoreImage
         return function_exists('imagettftext') && is_readable(self::FONT);
     }
 
-    // $name: list of [text, "#rrggbb"] pieces for the game name, e.g. [["MEGA","#1a8f1a"],["DO!NK","#2b8bf6"]]
+    // $name: list of [text, "#rrggbb"] pieces for the game name, e.g. [["MEGA","#2b8bf6"],["DO!NK","#000000"]]
     public static function png(int $score, array $name): string
     {
         $w = 600; $h = 315;

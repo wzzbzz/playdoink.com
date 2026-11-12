@@ -528,7 +528,7 @@ const megadoinkGame = {
       .fail((err) => console.error("Error saving share image:", err));
   },
 
-  // Same layout as Do!nk's share image (600x315), with MEGA in green and DO!NK in blue (Craig's branding).
+  // Same layout as Do!nk's share image (600x315); MEGA in blue and DO!NK in black (STYLEGUIDE.md).
   makeShareImage(score) {
     const canvas = document.createElement("canvas");
     canvas.width = 600; canvas.height = 315;
@@ -540,7 +540,7 @@ const megadoinkGame = {
 
     // "on [MEGADO!NK]?" with a blue box around the name
     ctx.font = font(50); ctx.textAlign = "left";
-    const parts = [["on ", "#000"], ["MEGA", "#1a8f1a"], ["DO!NK", "#2b8bf6"], ["?", "#000"]];
+    const parts = [["on ", "#000"], ["MEGA", "#2b8bf6"], ["DO!NK", "#000"], ["?", "#000"]];
     const pad = 10, w = parts.map(([t]) => ctx.measureText(t).width);
     const total = w.reduce((a, b) => a + b, 0) + pad * 4;
     let x = 300 - total / 2;

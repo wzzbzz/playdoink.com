@@ -11,7 +11,7 @@ $games = [
     "doink"     => ["title" => "DO!NK",     "file" => "score-",           "page" => "/",
                     "name" => [["DO!NK", "#2b8bf6"]]],
     "megadoink" => ["title" => "MEGADO!NK", "file" => "megadoink-score-", "page" => "/megadoink.html",
-                    "name" => [["MEGA", "#1a8f1a"], ["DO!NK", "#2b8bf6"]]],
+                    "name" => [["MEGA", "#2b8bf6"], ["DO!NK", "#000000"]]],
 ];
 $gameKey = isset($_GET['game']) && isset($games[$_GET['game']]) ? $_GET['game'] : "doink";
 $game = $games[$gameKey];
