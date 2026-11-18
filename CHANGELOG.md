@@ -102,3 +102,9 @@
 
 - The "can you beat my N on MEGADO!NK?" card now draws MEGA in blue `#2b8bf6` and DO!NK in black (was MEGA green, DO!NK blue), on its white background inside the blue box. Fixed in the in-browser canvas (`frontend/js/games/megadoinkGame.js`) and in the server-drawn version (`frontend/share.php`, `frontend/save_score_image.php`; comment in `frontend/src/ScoreImage.php`). Do!nk Classic's card is unchanged.
 - Already-saved images on the server keep their old colours; only new shares use the new ones.
+
+## 2026-11-18 — "Today" leaderboards: New York day, fixed (Craig, "DO!NK: miscellaneous notes")
+
+- Bug: the daily leaderboard and the "#1 TODAY" check built New York midnight but compared it with score times stored in UTC as if it were UTC. So "today" ran midnight-to-midnight UTC: scores made after 7 PM ET (8 PM in summer) counted as tomorrow, and the previous evening's scores counted as today. That's why Craig's evening #1 was missing from TODAY.
+- Fix: one helper, `ScoreRepository::nyDayBounds()`, gives the New York calendar day converted to the stored timezone (UTC); both the daily board and the #1-today check use it. DST is handled (23h / 25h days). Applies to Do!nk Classic and Megado!nk. The daily boards now reset at midnight New York time.
+- File: `api/src/Repository/ScoreRepository.php`. No migration. Not deployed yet.

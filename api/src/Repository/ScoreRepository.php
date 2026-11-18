@@ -33,15 +33,30 @@ class ScoreRepository extends ServiceEntityRepository
     }
 
     /**
+     * "Today" for the leaderboards is the New York calendar day (it resets at midnight ET).
+     * Returns [start, end) of that day, converted to the timezone score.created_at is stored in:
+     * the column is TIMESTAMP WITHOUT TIME ZONE and scores are stamped with new \DateTimeImmutable(),
+     * i.e. PHP's default timezone (UTC on the server). Before 2026-11-18 the New York wall-clock
+     * midnight was compared to UTC times as if it were UTC, so scores after 7 PM ET (8 PM in summer)
+     * fell into "tomorrow". DST is handled by PHP: a New York day can be 23 or 25 hours long.
+     *
+     * @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable}
+     */
+    public static function nyDayBounds(?\DateTimeImmutable $now = null): array
+    {
+        $ny = new \DateTimeZone('America/New_York');
+        $stored = new \DateTimeZone(date_default_timezone_get());
+        $start = ($now ?? new \DateTimeImmutable('now'))->setTimezone($ny)->setTime(0, 0, 0);
+        $end = $start->modify('+1 day');   // next New York midnight (23/25h across DST changes)
+        return [$start->setTimezone($stored), $end->setTimezone($stored)];
+    }
+
+    /**
      * Get daily leaderboard (today's scores only)
      */
     public function getDailyLeaderboard(int $limit = 100, string $game = Score::DEFAULT_GAME): array
     {
-        
-        $tz = new \DateTimeZone('America/New_York');
-        $today = (new \DateTimeImmutable('now', $tz))->setTime(0, 0, 0);
-        
-        $tomorrow = $today->modify('+1 day');
+        [$today, $tomorrow] = self::nyDayBounds();
 
         $rows = $this->createQueryBuilder('s')
             ->select('s.score', 'u.username', 'u.email', 's.createdAt')
@@ -143,9 +158,7 @@ class ScoreRepository extends ServiceEntityRepository
         }
 
         // Check daily #1 and get previous leader
-        $tz = new \DateTimeZone('America/New_York');
-        $today = (new \DateTimeImmutable('now', $tz))->setTime(0, 0, 0);
-        $tomorrow = $today->modify('+1 day');
+        [$today, $tomorrow] = self::nyDayBounds();
 
         $dailyTop = $this->createQueryBuilder('s')
             ->select('s.score as topScore', 'u.id as userId', 'u.email', 'u.username')
