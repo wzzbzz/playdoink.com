@@ -298,3 +298,23 @@
 /* ULTRADO!NK title: ULTRA red, DO!NK black (STYLEGUIDE.md). */
 #ultradoink .md-title { color: #000; }
 #ultradoink .md-prefix { color: #e00000; }
+
+/* Settings panel (shared form, js/utils.js initSettingsForm). */
+.md-menu-box .settings-form { font-family: Arial, sans-serif; text-align: left; }
+.md-menu-box .settings-label { display: block; font-weight: 700; color: #444; margin: .9rem 0 .4rem; }
+.md-menu-box .settings-row { display: flex; gap: .5rem; }
+.md-menu-box .settings-row[hidden] { display: none; }
+.md-menu-box .settings-form input, .md-menu-box .settings-form select {
+  flex: 1; min-width: 0; width: 100%; box-sizing: border-box; font: 1rem Arial, sans-serif;
+  padding: .7rem; border: 3px solid #2b8bf6; border-radius: 8px; outline: none; background: #fff;
+}
+.md-menu-box .settings-form input:focus, .md-menu-box .settings-form select:focus { border-color: #62bf5e; }
+.md-menu-box .settings-save {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.2rem; padding: .6rem 1rem; border: 0; border-radius: 8px;
+  background: #62bf5e; color: #fff; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+.md-menu-box .settings-note { font-size: .85rem; color: #777; margin: .4rem 0 0; }
+.md-menu-box .settings-note a { color: #2b8bf6; }
+.md-menu-box .settings-msg { font-size: .85rem; margin-top: .4rem; }
+.md-menu-box .settings-msg.ok { color: #155724; }
+.md-menu-box .settings-msg.err { color: #721c24; }

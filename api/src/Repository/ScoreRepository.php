@@ -35,10 +35,16 @@ class ScoreRepository extends ServiceEntityRepository
     /** Timezone used for "today" when the viewer's isn't given or isn't a real IANA zone. */
     public const DEFAULT_DAY_TZ = 'America/New_York';
 
+    /** True for a real IANA timezone name (DateTimeZone::listIdentifiers()), e.g. "Europe/London". */
+    public static function isTimezone(mixed $tz): bool
+    {
+        return is_string($tz) && in_array($tz, \DateTimeZone::listIdentifiers(), true);
+    }
+
     /** The viewer's IANA timezone (e.g. "Europe/London") if valid, else America/New_York. */
     public static function dayTimezone(mixed $tz): string
     {
-        return is_string($tz) && in_array($tz, \DateTimeZone::listIdentifiers(), true) ? $tz : self::DEFAULT_DAY_TZ;
+        return self::isTimezone($tz) ? $tz : self::DEFAULT_DAY_TZ;
     }
 
     /**

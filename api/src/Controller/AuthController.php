@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\ScoreRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -130,6 +131,7 @@ class AuthController extends AbstractController
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),
                 'username' => $user->getUsername(),
+                'timezone' => $user->getTimezone(),
                 'apiToken' => $apiToken,
             ]
         ], 200);
@@ -148,6 +150,7 @@ class AuthController extends AbstractController
             'id' => $user->getId(),
             'email' => $user->getEmail(),
             'username' => $user->getUsername(),
+            'timezone' => $user->getTimezone(),
             'isEditor' => $auth->isEditor($user),
         ]);
     }
@@ -237,6 +240,43 @@ class AuthController extends AbstractController
         return new JsonResponse([
             'message' => 'Selection saved',
             'totalSelections' => $currentSelections
+        ], 200);
+    }
+
+    /**
+     * The player's settings. Body: { "timezone": "Europe/London" } or { "timezone": null } for automatic
+     * (the device's timezone). Only real IANA names are accepted (same check as the leaderboards).
+     */
+    #[Route('/update-settings', methods: ['POST'])]
+    public function updateSettings(Request $request, ApiAuth $auth, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data) || !array_key_exists('timezone', $data)) {
+            return new JsonResponse(['message' => 'Nothing to update'], 400);
+        }
+        $tz = $data['timezone'];
+        if ($tz === '') {
+            $tz = null;
+        }
+        if ($tz !== null && !ScoreRepository::isTimezone($tz)) {
+            return new JsonResponse(['message' => 'Unknown timezone'], 400);
+        }
+
+        $user->setTimezone($tz);
+        $em->flush();
+
+        return new JsonResponse([
+            'message' => 'Settings saved',
+            'user' => [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'timezone' => $user->getTimezone(),
+            ]
         ], 200);
     }
 

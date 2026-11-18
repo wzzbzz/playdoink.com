@@ -52,6 +52,7 @@
         <div class="md-menu-options">
           <button class="md-menu-opt" data-open="rules"><span class="md-menu-icon">&#10067;</span><span>MEGADO?NK</span></button>
           <button class="md-menu-opt" data-open="leaderboard"><span class="md-menu-icon">&#127942;</span><span>Leaderboard</span></button>
+          <button class="md-menu-opt" data-open="settings"><span class="md-menu-icon">&#9881;&#65039;</span><span>Settings</span></button>
           <a class="md-menu-opt" href="https://playdoink.com"><span class="md-menu-icon">&#127922;</span><span>More games</span></a>
           <a class="md-menu-opt" href="/"><span class="md-menu-icon">&#127968;</span><span>Home</span></a>
         </div>
@@ -90,6 +91,24 @@
         </form>
         <div class="md-auth-msg" id="md-nick-msg" hidden></div>
         <p class="md-auth-foot">You can change this later in settings</p>
+      </div>
+      <div class="md-panel" data-panel="settings" hidden>
+        <!-- Nickname (logged in) and the timezone for "today"; wired by initSettingsForm() in js/utils.js. -->
+        <h2>Settings</h2>
+        <div class="settings-form">
+          <label class="settings-label" for="md-set-nick">Nickname</label>
+          <div class="settings-row" data-nick-row>
+            <input type="text" id="md-set-nick" data-nick maxlength="20" autocomplete="off" placeholder="Enter nickname">
+            <button type="button" data-nick-save class="settings-save">Save</button>
+          </div>
+          <p class="settings-note" data-nick-loggedout hidden><a href="#" data-open="login">Log in</a> to set a nickname.</p>
+          <div class="settings-msg" data-nick-msg hidden></div>
+          <label class="settings-label" for="md-set-tz">Timezone for &ldquo;Today&rdquo;</label>
+          <select id="md-set-tz" data-tz></select>
+          <p class="settings-note">The daily leaderboard resets at midnight in this timezone.</p>
+          <div class="settings-msg" data-tz-msg hidden></div>
+        </div>
+        <button class="md-back" data-open="list">&larr; Menu</button>
       </div>
       <div class="md-panel" data-panel="leaderboard" hidden>
         <h2>Leaderboard</h2>

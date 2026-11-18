@@ -156,6 +156,27 @@ $(document).ready(function () {
     $("#stats-overlay").fadeOut(300);
   });
 
+  // Settings: nickname + timezone for "today" (initSettingsForm in utils.js)
+  $("#view-settings").click(function () {
+    $("#game-menu-overlay").fadeOut(300);
+    initSettingsForm(document.querySelector("#settings-overlay .settings-form"), {
+      onNickname: function () { $(".login-status").remove(); loadCurrentUser(); }
+    });
+    $("#settings-overlay").fadeIn(300);
+  });
+
+  $("#close-settings").click(function () {
+    $("#settings-overlay").fadeOut(300);
+  });
+
+  // Logged out: "Log in" in Settings goes to the home screen's Login/Register
+  $("#settings-login").click(function (e) {
+    e.preventDefault();
+    $("#settings-overlay").fadeOut(300);
+    $("#back-to-home").click();
+    setTimeout(function () { $("#login-register").click(); }, 600);
+  });
+
   $("#close-leaderboard").click(function () {
     $("#leaderboard-overlay").fadeOut(300);
   });

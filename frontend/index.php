@@ -29,6 +29,9 @@ include 'templates/leaderboard.php';
 // stats page
 include 'templates/stats.php';
 
+// settings (nickname, timezone for "today")
+include 'templates/settings.php';
+
 // faq
 include 'templates/faq.php';
 

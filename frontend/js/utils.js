@@ -133,8 +133,117 @@ async function requestMagicLink(email, next) {
 }
 
 
-// The player's timezone for "today" on the leaderboards (an IANA name such as "Europe/London").
-// One place to hook in a saved setting later; for now it's the device's timezone.
-function getUserTimeZone() {
+// ---- Settings: the player's timezone for "today" on the leaderboards, and their nickname ----
+// A saved timezone comes from this browser (localStorage "doink_timezone", set on the Settings screen)
+// or from the account (doink_user.timezone, returned at login). "" means automatic = this device's zone.
+const DOINK_TZ_KEY = 'doink_timezone';
+
+function getDeviceTimeZone() {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; }
+}
+
+function getSavedTimeZone() {
+    try { const v = localStorage.getItem(DOINK_TZ_KEY); if (v) return v; } catch (e) {}
+    try { const u = JSON.parse(localStorage.getItem('doink_user') || '{}'); if (u && u.timezone) return u.timezone; } catch (e) {}
+    return '';
+}
+
+// The timezone for "today" (an IANA name such as "Europe/London"): the saved setting, else the device's.
+function getUserTimeZone() {
+    return getSavedTimeZone() || getDeviceTimeZone();
+}
+
+// Every IANA timezone the browser knows (falls back to a short list on old browsers).
+function listTimeZones() {
+    try { if (Intl.supportedValuesOf) return Intl.supportedValuesOf('timeZone'); } catch (e) {}
+    return ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Anchorage',
+            'Pacific/Honolulu', 'America/Toronto', 'America/Mexico_City', 'America/Sao_Paulo', 'Europe/London',
+            'Europe/Paris', 'Europe/Berlin', 'Africa/Johannesburg', 'Asia/Kolkata', 'Asia/Shanghai', 'Asia/Tokyo',
+            'Australia/Sydney', 'Pacific/Auckland', 'UTC'];
+}
+
+function doinkUser() {
+    try { const u = JSON.parse(localStorage.getItem('doink_user') || '{}'); return u && u.id && u.apiToken ? u : null; }
+    catch (e) { return null; }
+}
+
+// Save the timezone choice ("" = automatic): always in this browser, and on the account when logged in.
+async function saveTimeZoneSetting(tz) {
+    try { if (tz) localStorage.setItem(DOINK_TZ_KEY, tz); else localStorage.removeItem(DOINK_TZ_KEY); } catch (e) {}
+    const user = doinkUser();
+    if (!user) return { ok: true, message: 'Saved in this browser' };
+    try {
+        const r = await fetch(`${CONFIG.API_URL}/api/auth/update-settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + user.apiToken },
+            body: JSON.stringify({ timezone: tz || null })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) return { ok: false, message: data.message || 'Couldn\'t save to your account' };
+        user.timezone = tz || null;
+        localStorage.setItem('doink_user', JSON.stringify(user));
+        return { ok: true, message: 'Saved' };
+    } catch (e) {
+        return { ok: false, message: 'Saved in this browser; couldn\'t reach the server' };
+    }
+}
+
+// Change the nickname (same endpoint and rules as the nickname prompt).
+async function saveNicknameSetting(name) {
+    const user = doinkUser();
+    if (!user) return { ok: false, message: 'Please log in' };
+    try {
+        const r = await fetch(`${CONFIG.API_URL}/api/auth/update-username`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + user.apiToken },
+            body: JSON.stringify({ username: name })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) return { ok: false, message: data.message || 'Failed to save nickname' };
+        user.username = name;
+        localStorage.setItem('doink_user', JSON.stringify(user));
+        return { ok: true, message: 'Saved' };
+    } catch (e) {
+        return { ok: false, message: 'Failed to save nickname. Please try again.' };
+    }
+}
+
+// Wire up a Settings form (Do!nk's overlay or Megado!nk's menu panel). Markup uses data- hooks:
+// [data-nick-row] [data-nick] [data-nick-save] [data-nick-loggedout] [data-tz] [data-tz-msg] [data-nick-msg].
+// opts.onNickname(name) runs after a nickname is saved (to refresh the page's own display).
+function initSettingsForm(root, opts = {}) {
+    const $ = (sel) => root.querySelector(sel);
+    const user = doinkUser();
+    const say = (el, ok, text) => { el.textContent = text; el.className = 'settings-msg ' + (ok ? 'ok' : 'err'); el.hidden = false; };
+
+    // Nickname: logged in only.
+    $('[data-nick-row]').hidden = !user;
+    $('[data-nick-loggedout]').hidden = !!user;
+    if (user) $('[data-nick]').value = user.username || '';
+    $('[data-nick-msg]').hidden = true;
+    if (!root.dataset.bound) {
+        $('[data-nick-save]').addEventListener('click', async () => {
+            const name = $('[data-nick]').value.trim();
+            if (!name) return say($('[data-nick-msg]'), false, 'Please enter a nickname');
+            const r = await saveNicknameSetting(name);
+            say($('[data-nick-msg]'), r.ok, r.message);
+            if (r.ok && opts.onNickname) opts.onNickname(name);
+        });
+        $('[data-tz]').addEventListener('change', async (e) => {
+            const r = await saveTimeZoneSetting(e.target.value);
+            say($('[data-tz-msg]'), r.ok, r.message);
+            if (opts.onTimeZone) opts.onTimeZone(getUserTimeZone());
+        });
+        root.dataset.bound = '1';
+    }
+
+    // Timezone: "Automatic (this device: X)" first, then every zone.
+    const sel = $('[data-tz]'), saved = getSavedTimeZone(), device = getDeviceTimeZone();
+    const zones = listTimeZones();
+    if (saved && !zones.includes(saved)) zones.unshift(saved);
+    sel.innerHTML = '';
+    sel.add(new Option(`Automatic (this device: ${device || 'unknown'})`, ''));
+    zones.forEach((z) => sel.add(new Option(z.replace(/_/g, ' '), z)));
+    sel.value = saved;
+    $('[data-tz-msg]').hidden = true;
 }

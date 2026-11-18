@@ -634,6 +634,8 @@ const megadoinkGame = {
       if (panel === "leaderboard") this.showLeaderboard("all-time");
       if (panel === "login") setTimeout(() => document.getElementById("md-email").focus(), 50);
       if (panel === "nickname") setTimeout(() => document.getElementById("md-nick").focus(), 50);
+      if (panel === "settings" && typeof initSettingsForm === "function")
+        initSettingsForm(menu.querySelector('[data-panel="settings"] .settings-form'), { onNickname: () => this.showUser() });
     };
     this.openMenu = open;
     document.getElementById("md-menu-btn").addEventListener("click", () => open("list"));

@@ -116,3 +116,11 @@
 - Frontend: new `getUserTimeZone()` in `js/utils.js` (the device's timezone for now; the place to hook a saved setting later). Do!nk (`js/main.js` daily board, `js/games/classicGame.js` submit) and Megado!nk (`js/games/megadoinkGame.js` daily board + submit) send it.
 - So the daily boards reset at each player's own midnight, and players in different timezones can see different "Today" lists.
 - Files: `api/src/Repository/ScoreRepository.php`, `api/src/Controller/LeaderboardController.php`, `frontend/js/utils.js`, `frontend/js/main.js`, `frontend/js/games/classicGame.js`, `frontend/js/games/megadoinkGame.js`. No migration. Not deployed yet.
+
+## 2026-11-18 — Settings: nickname and timezone for "Today"
+
+- New Settings screen in Do!nk's menu (`templates/settings.php`, ⚙️ Settings) and in Megado!nk's menu (a panel), in each game's menu style. It shows the nickname (editable when logged in, via `/api/auth/update-username`; logged-out players get a "Log in to set a nickname" link) and a timezone dropdown: "Automatic (this device: X)" or any IANA zone.
+- The choice is always saved in this browser, and also on the account when logged in (`POST /api/auth/update-settings`, token required, real IANA zones only, null/"" = automatic). `getUserTimeZone()` now returns the saved setting, else the device's zone, so the daily boards and "#1 TODAY" use it.
+- API: new nullable `app_user.timezone` (migration `Version20261118180000`), returned by login (`verify-token`) and `/api/auth/me`.
+- `templates/game-menu.php` was first synced with the live copy, which had a server-only "More games" item.
+- Files: `api/migrations/Version20261118180000.php`, `api/src/Entity/User.php`, `api/src/Controller/AuthController.php`, `api/src/Repository/ScoreRepository.php`, `frontend/index.php`, `frontend/templates/settings.php`, `frontend/templates/game-menu.php`, `frontend/js/utils.js`, `frontend/js/main.js`, `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. Not deployed yet.
