@@ -40,7 +40,9 @@ class LeaderboardController extends AbstractController
         }
 
         // Check leaderboard position BEFORE saving the score (each game has its own leaderboard)
-        $leaderboardCheck = $scoreRepository->checkLeaderboardPosition((int) $scoreValue, $game);
+        // "#1 today" is in the player's own day; tz = their IANA timezone (invalid/missing -> New York)
+        $tz = isset($data['tz']) && is_string($data['tz']) ? $data['tz'] : null;
+        $leaderboardCheck = $scoreRepository->checkLeaderboardPosition((int) $scoreValue, $game, $tz);
 
         $score = new Score();
         $score->setUser($user);
@@ -138,7 +140,9 @@ class LeaderboardController extends AbstractController
         if (!in_array($game, Score::GAMES, true)) {
             return new JsonResponse(['message' => 'Unknown game'], 400);
         }
-        $leaderboard = $scoreRepository->getDailyLeaderboard(100, $game);
+        // ?tz= is the viewer's IANA timezone, so "today" is their own day (invalid/missing -> New York)
+        $tz = $request->query->get('tz');
+        $leaderboard = $scoreRepository->getDailyLeaderboard(100, $game, is_string($tz) ? $tz : null);
         
         return new JsonResponse([
             'type' => 'daily',

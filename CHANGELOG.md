@@ -108,3 +108,11 @@
 - Bug: the daily leaderboard and the "#1 TODAY" check built New York midnight but compared it with score times stored in UTC as if it were UTC. So "today" ran midnight-to-midnight UTC: scores made after 7 PM ET (8 PM in summer) counted as tomorrow, and the previous evening's scores counted as today. That's why Craig's evening #1 was missing from TODAY.
 - Fix: one helper, `ScoreRepository::nyDayBounds()`, gives the New York calendar day converted to the stored timezone (UTC); both the daily board and the #1-today check use it. DST is handled (23h / 25h days). Applies to Do!nk Classic and Megado!nk. The daily boards now reset at midnight New York time.
 - File: `api/src/Repository/ScoreRepository.php`. No migration. Not deployed yet.
+
+## 2026-11-18 — "Today" is each player's own local day (Jim)
+
+- Replaces the fixed New York day above: `ScoreRepository::dayBoundsUtc($tz)` takes the viewer's IANA timezone (validated against `DateTimeZone::listIdentifiers()`; missing or invalid = America/New_York) and returns that local day in UTC for the query. DST handled.
+- API: `/api/leaderboard/daily?tz=…` and `submit-score` (`tz` in the body, for "#1 TODAY") use it. my-stats has no "today" parts.
+- Frontend: new `getUserTimeZone()` in `js/utils.js` (the device's timezone for now; the place to hook a saved setting later). Do!nk (`js/main.js` daily board, `js/games/classicGame.js` submit) and Megado!nk (`js/games/megadoinkGame.js` daily board + submit) send it.
+- So the daily boards reset at each player's own midnight, and players in different timezones can see different "Today" lists.
+- Files: `api/src/Repository/ScoreRepository.php`, `api/src/Controller/LeaderboardController.php`, `frontend/js/utils.js`, `frontend/js/main.js`, `frontend/js/games/classicGame.js`, `frontend/js/games/megadoinkGame.js`. No migration. Not deployed yet.

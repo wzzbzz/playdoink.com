@@ -303,7 +303,7 @@ async function loadLeaderboard(type) {
 
   try {
     const endpoint = type === 'daily'
-      ? `${CONFIG.API_URL}/api/leaderboard/daily`
+      ? `${CONFIG.API_URL}/api/leaderboard/daily?tz=${encodeURIComponent(getUserTimeZone())}`
       : `${CONFIG.API_URL}/api/leaderboard/all-time`;
 
     const response = await fetch(endpoint);

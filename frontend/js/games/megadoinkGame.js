@@ -588,7 +588,7 @@ const megadoinkGame = {
       const r = await fetch(this.apiUrl() + "/api/leaderboard/submit-score", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + user.apiToken },
-        body: JSON.stringify({ score, game: "megadoink" }),
+        body: JSON.stringify({ score, game: "megadoink", tz: typeof getUserTimeZone === "function" ? getUserTimeZone() : "" }),
       });
       if (r.status === 401) {
         // token no longer valid: treat as logged out, like Classic does
@@ -744,7 +744,8 @@ const megadoinkGame = {
       b.addEventListener("click", () => this.showLeaderboard(b.dataset.t)));
     const body = box.querySelector(".md-lb-body");
     try {
-      const r = await fetch(`${this.apiUrl()}/api/leaderboard/${type}?game=megadoink`);
+      const tz = type === "daily" && typeof getUserTimeZone === "function" ? `&tz=${encodeURIComponent(getUserTimeZone())}` : "";
+      const r = await fetch(`${this.apiUrl()}/api/leaderboard/${type}?game=megadoink${tz}`);
       if (!r.ok) throw new Error(r.status);
       const rows = (await r.json()).leaderboard || [];
       if (!rows.length) { body.textContent = type === "daily" ? "No scores yet today." : "No scores yet."; return; }

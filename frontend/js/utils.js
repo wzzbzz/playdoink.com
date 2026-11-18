@@ -131,3 +131,10 @@ async function requestMagicLink(email, next) {
     if (!response.ok) throw new Error(data.message || 'Failed to send magic link');
     return data;
 }
+
+
+// The player's timezone for "today" on the leaderboards (an IANA name such as "Europe/London").
+// One place to hook in a saved setting later; for now it's the device's timezone.
+function getUserTimeZone() {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; }
+}

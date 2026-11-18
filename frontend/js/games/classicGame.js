@@ -214,7 +214,8 @@ const classicGame = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (user.apiToken || '') },
         body: JSON.stringify({
-          score: scoreValue
+          score: scoreValue,
+          tz: getUserTimeZone()   // "#1 today" is in the player's own day
         })
       });
 

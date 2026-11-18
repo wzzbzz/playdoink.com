@@ -32,8 +32,18 @@ class ScoreRepository extends ServiceEntityRepository
         return $this->publicRows($rows);
     }
 
+    /** Timezone used for "today" when the viewer's isn't given or isn't a real IANA zone. */
+    public const DEFAULT_DAY_TZ = 'America/New_York';
+
+    /** The viewer's IANA timezone (e.g. "Europe/London") if valid, else America/New_York. */
+    public static function dayTimezone(mixed $tz): string
+    {
+        return is_string($tz) && in_array($tz, \DateTimeZone::listIdentifiers(), true) ? $tz : self::DEFAULT_DAY_TZ;
+    }
+
     /**
-     * "Today" for the leaderboards is the New York calendar day (it resets at midnight ET).
+     * "Today" for the leaderboards is the viewer's local calendar day (it resets at their midnight);
+     * $tz is their IANA timezone, validated by dayTimezone() (default America/New_York).
      * Returns [start, end) of that day, converted to the timezone score.created_at is stored in:
      * the column is TIMESTAMP WITHOUT TIME ZONE and scores are stamped with new \DateTimeImmutable(),
      * i.e. PHP's default timezone (UTC on the server). Before 2026-11-18 the New York wall-clock
@@ -42,21 +52,21 @@ class ScoreRepository extends ServiceEntityRepository
      *
      * @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable}
      */
-    public static function nyDayBounds(?\DateTimeImmutable $now = null): array
+    public static function dayBoundsUtc(?string $tz = null, ?\DateTimeImmutable $now = null): array
     {
-        $ny = new \DateTimeZone('America/New_York');
+        $local = new \DateTimeZone(self::dayTimezone($tz));
         $stored = new \DateTimeZone(date_default_timezone_get());
-        $start = ($now ?? new \DateTimeImmutable('now'))->setTimezone($ny)->setTime(0, 0, 0);
-        $end = $start->modify('+1 day');   // next New York midnight (23/25h across DST changes)
+        $start = ($now ?? new \DateTimeImmutable('now'))->setTimezone($local)->setTime(0, 0, 0);
+        $end = $start->modify('+1 day');   // next local midnight (23/25h across DST changes)
         return [$start->setTimezone($stored), $end->setTimezone($stored)];
     }
 
     /**
      * Get daily leaderboard (today's scores only)
      */
-    public function getDailyLeaderboard(int $limit = 100, string $game = Score::DEFAULT_GAME): array
+    public function getDailyLeaderboard(int $limit = 100, string $game = Score::DEFAULT_GAME, ?string $tz = null): array
     {
-        [$today, $tomorrow] = self::nyDayBounds();
+        [$today, $tomorrow] = self::dayBoundsUtc($tz);
 
         $rows = $this->createQueryBuilder('s')
             ->select('s.score', 'u.username', 'u.email', 's.createdAt')
@@ -120,7 +130,7 @@ class ScoreRepository extends ServiceEntityRepository
      * Check if a score is #1 on daily or all-time leaderboard
      * Returns info about previous leaders if dethroned
      */
-    public function checkLeaderboardPosition(int $score, string $game = Score::DEFAULT_GAME): array
+    public function checkLeaderboardPosition(int $score, string $game = Score::DEFAULT_GAME, ?string $tz = null): array
     {
         $result = [
             'isDailyFirst' => false,
@@ -157,8 +167,8 @@ class ScoreRepository extends ServiceEntityRepository
             ];
         }
 
-        // Check daily #1 and get previous leader
-        [$today, $tomorrow] = self::nyDayBounds();
+        // Check daily #1 (in the player's local day) and get previous leader
+        [$today, $tomorrow] = self::dayBoundsUtc($tz);
 
         $dailyTop = $this->createQueryBuilder('s')
             ->select('s.score as topScore', 'u.id as userId', 'u.email', 'u.username')
