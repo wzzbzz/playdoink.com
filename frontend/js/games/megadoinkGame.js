@@ -3,7 +3,8 @@
 // Score: each green is worth rules.greenPoints (default 1); the Golden Circle scores by its scoring algorithm.
 //
 // The rules come from a config file (default js/games/megadoink.config.json), same shape as
-// ultradoink.config.json: rules.grid { cols, rows }, rules.cellTypes { trap, golden }, rules.timing { tapPauseMs }.
+// ultradoink.config.json: rules.grid { cols, rows }, rules.cellTypes { trap, golden },
+// rules.timing { tapPauseMs, newRoundLockMs (taps ignored while ROUND N plays on a new board) }.
 // Load another one with ?config=path/to/file.json, or loadGame('megadoink', { config: "..." }).
 // Replay a specific deal with ?seed=12345 (with rounds on, the same seed replays the same sequence of boards).
 //
@@ -268,6 +269,7 @@ const megadoinkGame = {
       cols, rows, cellTypes: types, rounds,
       greenPoints: Number(rules.greenPoints ?? 1),
       tapPauseMs: pick("lockMs", (rules.timing && rules.timing.tapPauseMs) ?? 250),
+      newRoundLockMs: Number((rules.timing && rules.timing.newRoundLockMs) ?? 2100),
     };
   },
 
@@ -762,6 +764,9 @@ const megadoinkGame = {
   // Board cleared with rounds on: a short beat, then a fresh deal that keeps the score and the streak.
   nextRound() {
     const s = this.state, carry = this.carry;
+    // Craig (Nov 20): the round is over, so the circles nobody tapped fade like after a red (without
+    // revealing which one was the red). After a first-tap gold that's all the other 11.
+    this.root().querySelectorAll(".md-cell:not(.is-green)").forEach((el) => el.classList.add("is-dim"));
     // No text under the grid any more: the "+N" pop-up and the "ROUND N" graphic carry the news.
     carry.carried += s.points;
     carry.prevFirstGold = s.firstTapGold;   // tiers: a round without a first-tap gold breaks the chain
@@ -769,7 +774,22 @@ const megadoinkGame = {
     setTimeout(() => {
       this.init(Object.assign({}, this.baseArgs, { keepStreak: true }));
       this.showRound(carry.round);
+      this.lockNewRound();
     }, 1200);
+  },
+
+  // Craig (Nov 17): a tap meant for the last circle of the old board mustn't land on the new one, so the
+  // new board ignores taps (and looks slightly faded) until ROUND N has played (rules.timing.newRoundLockMs).
+  lockNewRound() {
+    const s = this.state, root = this.root(), ms = this.config.newRoundLockMs;
+    if (!(ms > 0)) return;
+    s.locked = true;
+    root.classList.add("is-locked", "is-new-round");
+    setTimeout(() => {
+      if (this.state !== s || s.over) return;
+      s.locked = false;
+      root.classList.remove("is-locked", "is-new-round");
+    }, ms);
   },
 
   // Craig (Nov 10): as the new board appears, the fanfare plays and a big "ROUND N" grows

@@ -124,3 +124,9 @@
 - API: new nullable `app_user.timezone` (migration `Version20261118180000`), returned by login (`verify-token`) and `/api/auth/me`.
 - `templates/game-menu.php` was first synced with the live copy, which had a server-only "More games" item.
 - Files: `api/migrations/Version20261118180000.php`, `api/src/Entity/User.php`, `api/src/Controller/AuthController.php`, `api/src/Repository/ScoreRepository.php`, `frontend/index.php`, `frontend/templates/settings.php`, `frontend/templates/game-menu.php`, `frontend/js/utils.js`, `frontend/js/main.js`, `frontend/megadoink.html`, `frontend/css/megadoink.css`, `frontend/js/games/megadoinkGame.js`. Not deployed yet.
+
+## 2026-11-20 — Megado!nk: finished-round fade and a short pause on the new board (Craig, "Megado!nk: cleared-screen adjustment?")
+
+- When a round ends (board cleared, or a first-tap gold), every untapped circle immediately fades like the leftovers after a red, without revealing which one was the red. So the last circle no longer looks playable.
+- The new board ignores taps, and is slightly faded, while ROUND N plays (`rules.timing.newRoundLockMs`, 2100 ms), so a tap meant for the old board can't land on the new one.
+- Files: `frontend/js/games/megadoinkGame.js`, `frontend/js/games/megadoink.config.json`, `frontend/css/megadoink.css`.

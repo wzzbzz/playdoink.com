@@ -50,7 +50,8 @@
     },
     "greenPoints": 1,
     "timing": {
-      "tapPauseMs": 250
+      "tapPauseMs": 250,
+      "newRoundLockMs": 2100
     }
   }
 }

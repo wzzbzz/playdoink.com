@@ -318,3 +318,7 @@
 .md-menu-box .settings-msg { font-size: .85rem; margin-top: .4rem; }
 .md-menu-box .settings-msg.ok { color: #155724; }
 .md-menu-box .settings-msg.err { color: #721c24; }
+
+/* New round: the board is slightly faded and ignores taps while ROUND N plays (megadoinkGame lockNewRound). */
+#megadoink .md-grid { transition: opacity .3s ease; }
+#megadoink.is-new-round .md-grid { opacity: .7; }
