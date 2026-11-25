@@ -58,3 +58,4 @@
 - 2026-11-02: Quadruplex hidden from the home page games list for now (commented out).
 - 2026-11-02: Quadruplex also removed from the link-preview image and the welcome email's games list.
 - 2026-11-02: About page: DRAFT banner and title marker removed (Jim).
+- 2026-11-25: Craig's headshot (hub/craig.jpg, 600px web copy) on the About page under his Author / Editor heading.
