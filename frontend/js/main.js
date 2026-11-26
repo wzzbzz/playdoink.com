@@ -5,13 +5,21 @@ $(document).ready(function () {
 
   // Handle browser back button
   let isInGame = false;
+  let isInMenu = false;
 
   window.addEventListener('popstate', function(event) {
-    if (isInGame) {
-      // User pressed back while in game - return to intro
-      $("#game-console").fadeOut(300);
-      $("#intro-overlay").fadeIn(500);
-      isInGame = false;
+
+    // Check if menu is currently open
+    if(isInMenu) {
+      // User pressed back while in menu - close menu
+      $("#game-menu-overlay").fadeOut(300);
+      isInMenu = false;
+      enterGame();
+    } else if(event.state && event.state.inGame) {
+       // User pressed back while in game - return to intro
+       $("#game-console").fadeOut(300);
+       $("#intro-overlay").fadeIn(500);
+       isInGame = false;
     }
   });
 
@@ -106,10 +114,17 @@ $(document).ready(function () {
 
   // Menu button handlers
   $("#menu-btn").click(function () {
+    
+    // Push a NEW history entry for the menu
+    let state = {...history.state, inMenu: true}; // Preserve inGame state
+    history.pushState(state, '', window.location.href);
+    isInMenu = true;
     $("#game-menu-overlay").fadeIn(300);
   });
 
   $("#close-menu").click(function () {
+    
+    history.back(); // Go back to previous state
     $("#game-menu-overlay").fadeOut(300);
   });
 
@@ -139,6 +154,27 @@ $(document).ready(function () {
 
   $("#close-stats").click(function () {
     $("#stats-overlay").fadeOut(300);
+  });
+
+  // Settings: nickname + timezone for "today" (initSettingsForm in utils.js)
+  $("#view-settings").click(function () {
+    $("#game-menu-overlay").fadeOut(300);
+    initSettingsForm(document.querySelector("#settings-overlay .settings-form"), {
+      onNickname: function () { $(".login-status").remove(); loadCurrentUser(); }
+    });
+    $("#settings-overlay").fadeIn(300);
+  });
+
+  $("#close-settings").click(function () {
+    $("#settings-overlay").fadeOut(300);
+  });
+
+  // Logged out: "Log in" in Settings goes to the home screen's Login/Register
+  $("#settings-login").click(function (e) {
+    e.preventDefault();
+    $("#settings-overlay").fadeOut(300);
+    $("#back-to-home").click();
+    setTimeout(function () { $("#login-register").click(); }, 600);
   });
 
   $("#close-leaderboard").click(function () {
@@ -184,12 +220,19 @@ $(document).ready(function () {
       // Save nickname to backend
       const response = await fetch(`${CONFIG.API_URL}/api/auth/update-username`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (userData.apiToken || '') },
         body: JSON.stringify({
-          userId: userData.id,
           username: nickname
         })
       });
+
+      if (response.status === 401) {
+        // Logged in before login tokens existed (or token replaced): log in again
+        localStorage.removeItem('doink_user');
+        alert('Please log in again to save your nickname.');
+        location.reload();
+        return;
+      }
 
       const data = await response.json();
 
@@ -200,7 +243,8 @@ $(document).ready(function () {
 
         // Hide nickname overlay and show intro
         $("#nickname-overlay").fadeOut(300, function () {
-          // Update the logged-in display
+          // Update the logged-in display (redrawn so it shows the nickname and drops "Set nickname")
+          $(".login-status").remove();
           loadCurrentUser();
         });
       } else {
@@ -245,11 +289,18 @@ function loadCurrentUser() {
             <p style="font-family: Arial; font-size: 0.9rem; color: #fff; margin-top: 1rem;">
               ✓ Logged in as <strong>${displayName}</strong>
             </p>
+            ${user.username ? '' : `<a href="#" id="set-nickname-link" style="font-family: Arial; font-size: 0.85rem; color: rgba(255,255,255,0.85);">Set nickname</a><br>`}
             <button id="logout-btn" style="font-family: Arial; background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; margin-top: 0.5rem;">
               Logout
             </button>
           </div>
         `);
+
+        // No nickname yet (prompt skipped): the link reopens the nickname prompt, on every visit until one is set
+        $("#set-nickname-link").click(function (e) {
+          e.preventDefault();
+          $("#nickname-overlay").fadeIn(300);
+        });
 
         // Logout handler
         $("#logout-btn").click(function () {
@@ -273,7 +324,7 @@ async function loadLeaderboard(type) {
 
   try {
     const endpoint = type === 'daily'
-      ? `${CONFIG.API_URL}/api/leaderboard/daily`
+      ? `${CONFIG.API_URL}/api/leaderboard/daily?tz=${encodeURIComponent(getUserTimeZone())}`
       : `${CONFIG.API_URL}/api/leaderboard/all-time`;
 
     const response = await fetch(endpoint);

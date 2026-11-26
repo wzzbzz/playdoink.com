@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ULTRADO!NK playtest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/megadoink.css">
+  <style>
+    body { margin: 0; background: #f4f4f4; font-family: system-ui, sans-serif; }
+    .md-tune { max-width: 420px; margin: 8px auto 0; padding: 0 16px; font-size: .85rem; color: #555; }
+    .md-tune { display: flex; align-items: center; gap: 10px; }
+    .md-tune a { color: #16871a; }
+    .md-tune .ud-custom { color: #888; }
+    .md-tune .ud-config-btn[hidden] { display: none; }
+    .md-tune .ud-config-btn {
+      margin-left: auto; font: inherit; font-weight: 600; padding: 4px 12px; border-radius: 999px;
+      border: 2px solid #16871a; background: #fff; color: #16871a; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Playtest page: not linked from the live site. Game rules come from js/games/ultradoink.config.json; with no ?config it plays the config marked live in the database (else that file); ?config=saved:ID plays a saved game; edit with ultradoink-config.html (saved in this browser, played with ?config=custom), load another file with ?config=path.json, replay a deal with ?seed=N -->
+  <div class="md-tune">
+    <a href="/">&larr; Home</a>
+    <span class="ud-custom" id="ud-custom" hidden>Custom config</span>
+    <button class="ud-config-btn" id="ud-config-btn" hidden>Config</button>
+  </div>
+  <div id="game-console"></div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="js/config.js"></script>
+  <script src="js/sounds.js"></script>
+  <script src="js/gameEngine.js"></script>
+  <script src="js/games/ultradoinkGame.js"></script>
+  <script>
+    loadGame('ultradoink');
+    if (new URLSearchParams(location.search).get('config') === 'custom') document.getElementById('ud-custom').hidden = false;
+    // The Config button only shows for editors (the API checks too).
+    try {
+      const u = JSON.parse(localStorage.getItem('doink_user')) || {};
+      if (u.apiToken) fetch(CONFIG.API_URL + '/api/auth/me', { headers: { Authorization: 'Bearer ' + u.apiToken } })
+        .then((r) => r.ok ? r.json() : {}).then((me) => { if (me.isEditor) document.getElementById('ud-config-btn').hidden = false; })
+        .catch(() => {});
+    } catch (e) {}
+    // Config ends the current game and opens the config tool.
+    document.getElementById('ud-config-btn').addEventListener('click', () => {
+      ultradoinkGame.abort();
+      location.href = 'ultradoink-config.html';
+    });
+  </script>
+</body>
+</html>

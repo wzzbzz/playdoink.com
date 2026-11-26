@@ -9,8 +9,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'score')]
 #[ORM\Index(name: 'idx_score_date', columns: ['created_at'])]
 #[ORM\Index(name: 'idx_score_value', columns: ['score'])]
+#[ORM\Index(name: 'idx_score_game_score', columns: ['game', 'score'])]
 class Score
 {
+    /** Games that can post scores. Scores without a game are Classic. */
+    public const GAMES = ['classic', 'megadoink'];
+    public const DEFAULT_GAME = 'classic';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -25,6 +30,9 @@ class Score
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(length: 20, options: ['default' => 'classic'])]
+    private string $game = self::DEFAULT_GAME;
 
     public function getId(): ?int
     {
@@ -51,6 +59,18 @@ class Score
     public function setScore(int $score): static
     {
         $this->score = $score;
+
+        return $this;
+    }
+
+    public function getGame(): string
+    {
+        return $this->game;
+    }
+
+    public function setGame(string $game): static
+    {
+        $this->game = $game;
 
         return $this;
     }

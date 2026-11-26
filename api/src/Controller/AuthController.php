@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\ScoreRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,11 +11,25 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Service\ApiAuth;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api/auth')]
 class AuthController extends AbstractController
 {
+    /**
+     * A return path after login, or "/" if it isn't a plain same-site path.
+     * Must start with a single "/", only URL-safe path characters, an optional simple query,
+     * no "//", no backslashes, no scheme, at most 200 characters. verify.php checks it again.
+     */
+    public static function safeReturnPath(mixed $path): string
+    {
+        if (!is_string($path) || strlen($path) > 200 || str_contains($path, '//')) {
+            return '/';
+        }
+        return preg_match('#^/[A-Za-z0-9._~\-/]*(\?[A-Za-z0-9._~\-=&]*)?$#D', $path) ? $path : '/';
+    }
+
     #[Route('/request-login', methods: ['POST'])]
     public function requestLogin(
         Request $request,
@@ -51,6 +66,13 @@ class AuthController extends AbstractController
         // Send magic link email
         $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'http://localhost:8080';
         $magicLink = $frontendUrl . '/verify.php?token=' . $token;
+
+        // Optional page to come back to after logging in (e.g. "/megadoink.html").
+        // Only a strict same-site path is passed on; anything else is dropped (no open redirect).
+        $next = self::safeReturnPath($data['next'] ?? null);
+        if ($next !== '/') {
+            $magicLink .= '&next=' . rawurlencode($next);
+        }
         
         $emailMessage = (new Email())
             ->from('doink@playdoink.com')
@@ -96,6 +118,11 @@ class AuthController extends AbstractController
         // Clear the token after successful use
         $user->setLoginToken(null);
         $user->setLoginTokenExpiresAt(null);
+
+        // Issue an API token so later requests can prove who they are (see ApiAuth).
+        // One per user: logging in again replaces it.
+        $apiToken = bin2hex(random_bytes(32));
+        $user->setApiTokenHash(hash('sha256', $apiToken));
         $em->flush();
 
         return new JsonResponse([
@@ -104,28 +131,48 @@ class AuthController extends AbstractController
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),
                 'username' => $user->getUsername(),
+                'timezone' => $user->getTimezone(),
+                'apiToken' => $apiToken,
             ]
         ], 200);
+    }
+
+    /** Who the login token belongs to, and whether they can use the admin backend (config tool). */
+    #[Route('/me', methods: ['GET'])]
+    public function me(Request $request, ApiAuth $auth): JsonResponse
+    {
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
+            'timezone' => $user->getTimezone(),
+            'isEditor' => $auth->isEditor($user),
+        ]);
     }
 
     #[Route('/save-selection', methods: ['POST'])]
     public function saveSelection(
         Request $request,
-        UserRepository $userRepository,
+        ApiAuth $auth,
         EntityManagerInterface $em
     ): JsonResponse {
+        // The user comes from the login token, not from the request body.
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
         $data = json_decode($request->getContent(), true);
-        $userId = $data['userId'] ?? null;
         $selection = $data['selection'] ?? null; // "top" or "bottom"
         $success = $data['success'] ?? null; // true or false
 
-        if (!$userId || !$selection || !is_bool($success)) {
+        if (!$selection || !is_bool($success)) {
             return new JsonResponse(['message' => 'Invalid data'], 400);
-        }
-
-        $user = $userRepository->find($userId);
-        if (!$user) {
-            return new JsonResponse(['message' => 'User not found'], 404);
         }
 
         // Get existing history or create new
@@ -196,28 +243,65 @@ class AuthController extends AbstractController
         ], 200);
     }
 
+    /**
+     * The player's settings. Body: { "timezone": "Europe/London" } or { "timezone": null } for automatic
+     * (the device's timezone). Only real IANA names are accepted (same check as the leaderboards).
+     */
+    #[Route('/update-settings', methods: ['POST'])]
+    public function updateSettings(Request $request, ApiAuth $auth, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data) || !array_key_exists('timezone', $data)) {
+            return new JsonResponse(['message' => 'Nothing to update'], 400);
+        }
+        $tz = $data['timezone'];
+        if ($tz === '') {
+            $tz = null;
+        }
+        if ($tz !== null && !ScoreRepository::isTimezone($tz)) {
+            return new JsonResponse(['message' => 'Unknown timezone'], 400);
+        }
+
+        $user->setTimezone($tz);
+        $em->flush();
+
+        return new JsonResponse([
+            'message' => 'Settings saved',
+            'user' => [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'timezone' => $user->getTimezone(),
+            ]
+        ], 200);
+    }
+
     #[Route('/update-username', methods: ['POST'])]
     public function updateUsername(
         Request $request,
-        UserRepository $userRepository,
+        ApiAuth $auth,
         EntityManagerInterface $em
     ): JsonResponse {
+        // The user comes from the login token, not from the request body.
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+
         $data = json_decode($request->getContent(), true);
-        $userId = $data['userId'] ?? null;
         $username = $data['username'] ?? null;
 
-        if (!$userId || !$username) {
-            return new JsonResponse(['message' => 'User ID and username required'], 400);
+        if (!$username) {
+            return new JsonResponse(['message' => 'Username required'], 400);
         }
 
         // Validate username (alphanumeric, 3-20 chars)
         if (!preg_match('/^[a-zA-Z0-9_]{3,20}$/', $username)) {
             return new JsonResponse(['message' => 'Username must be 3-20 characters (letters, numbers, underscore only)'], 400);
-        }
-
-        $user = $userRepository->find($userId);
-        if (!$user) {
-            return new JsonResponse(['message' => 'User not found'], 404);
         }
 
         $user->setUsername($username);

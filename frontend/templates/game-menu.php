@@ -19,6 +19,11 @@
                     <span class="menu-icon">📊</span>
                     <span class="menu-text">My Stats</span>
                 </button>
+
+                <button id="view-settings" class="menu-option-btn">
+                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-text">Settings</span>
+                </button>
                 
                 
                 <a href="https://playdoink.com" class="menu-option-btn" style="text-decoration:none;">

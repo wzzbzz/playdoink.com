@@ -145,15 +145,16 @@ const classicGame = {
     const selection = buttonId === '1' ? 'bottom' : 'top';
 
     try {
-      await fetch(`${CONFIG.API_URL}/api/auth/save-selection`, {
+      const response = await fetch(`${CONFIG.API_URL}/api/auth/save-selection`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (user.apiToken || '') },
         body: JSON.stringify({
-          userId: user.id,
           selection: selection,
           success: success
         })
       });
+      // Logged in before login tokens existed (or token replaced): treat as logged out
+      if (response.status === 401) localStorage.removeItem('doink_user');
     } catch (error) {
       console.error('Failed to save selection:', error);
       // Don't block gameplay on save failures
@@ -191,11 +192,10 @@ const classicGame = {
   },
 
   // End the current game and show results
-  endGame() {
-    // Play special sound if new high score achieved
-    // Submit score to leaderboard
-    this.submitScore(this.state.streak);
-    this.showEndScreen(this.state.streak, this.state.bestScore);
+  async endGame() {
+    // Submit score to leaderboard and check position
+    const leaderboardData = await this.submitScore(this.state.streak);
+    this.showEndScreen(this.state.streak, this.state.bestScore, leaderboardData);
   },
 
   // Submit score to backend
@@ -210,18 +210,32 @@ const classicGame = {
     if (!user.id) return; // No user ID
 
     try {
-      await fetch(`${CONFIG.API_URL}/api/leaderboard/submit-score`, {
+      const response = await fetch(`${CONFIG.API_URL}/api/leaderboard/submit-score`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (user.apiToken || '') },
         body: JSON.stringify({
-          userId: user.id,
-          score: scoreValue
+          score: scoreValue,
+          tz: getUserTimeZone()   // "#1 today" is in the player's own day
         })
       });
+
+      if (response.status === 401) {
+        // Logged in before login tokens existed (or token replaced): treat as logged out
+        localStorage.removeItem('doink_user');
+        return { isDailyFirst: false, isAllTimeFirst: false };
+      }
+
+      const data = await response.json();
       console.log('Score submitted:', scoreValue);
+      
+      // Return leaderboard position data
+      return {
+        isDailyFirst: data.isDailyFirst || false,
+        isAllTimeFirst: data.isAllTimeFirst || false
+      };
     } catch (error) {
       console.error('Failed to submit score:', error);
-      // Don't block gameplay on submission failures
+      return { isDailyFirst: false, isAllTimeFirst: false };
     }
   },
 
@@ -319,21 +333,41 @@ const classicGame = {
   },
 
   // Display end game screen with scores and sharing options
-  showEndScreen(streak, bestScore) {
+  showEndScreen(streak, bestScore, leaderboardData = {}) {
 
     $("#yourscore").text(streak);
     $("#bestrun").text(bestScore);
     $("#endgame_modal").show();
 
+    // Show leaderboard achievements
+    if (leaderboardData.isAllTimeFirst) {
+      const notification = $('<div class="high-score-notification">👑 #1 ALL-TIME! 👑</div>');
+      $('#results').append(notification);
+      sounds.highscore.play();
+      
+      setTimeout(() => notification.addClass('show'), 10);
+      setTimeout(() => {
+        notification.removeClass('show');
+        setTimeout(() => notification.remove(), 500);
+      }, 3000);
+    } else if (leaderboardData.isDailyFirst) {
+      const notification = $('<div class="high-score-notification">🏆 #1 TODAY! 🏆</div>');
+      $('#results').append(notification);
+      sounds.highscore.play();
+      
+      setTimeout(() => notification.addClass('show'), 10);
+      setTimeout(() => {
+        notification.removeClass('show');
+        setTimeout(() => notification.remove(), 500);
+      }, 3000);
+    } 
     // Show "NEW HIGH SCORE!" notification if this is a new personal best
-    if (streak > 0 && streak === bestScore) {
+    else if (streak > 0 && streak === bestScore) {
       const notification = $('<div class="high-score-notification">🎉 NEW HIGH SCORE! 🎉</div>');
       $('#results').append(notification);
       sounds.highscore.play();
-      // Animate in
+      
       setTimeout(() => notification.addClass('show'), 10);
-
-      // Remove after 3 seconds
       setTimeout(() => {
         notification.removeClass('show');
         setTimeout(() => notification.remove(), 500);
@@ -347,7 +381,7 @@ const classicGame = {
 
     $.post("save_score_image.php", { image: imgData, score: bestScore })
       .done(function (response) {
-        const sharePage = `https://doink.playdoink.com/share.php?score=${bestScore}`;
+        const sharePage = `${window.location.origin}/share.php?score=${bestScore}`;
         renderShareButtons(sharePage);
       })
       .fail(function (err) {

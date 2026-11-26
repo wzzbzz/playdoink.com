@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Score;
 use App\Repository\ScoreRepository;
 use App\Repository\UserRepository;
+use App\Service\ApiAuth;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,40 +19,113 @@ class LeaderboardController extends AbstractController
     #[Route('/submit-score', methods: ['POST'])]
     public function submitScore(
         Request $request,
-        UserRepository $userRepository,
+        ApiAuth $auth,
+        ScoreRepository $scoreRepository,
+        EmailService $emailService,
         EntityManagerInterface $em
     ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
-        $userId = $data['userId'] ?? null;
-        $scoreValue = $data['score'] ?? null;
+        // The user comes from the login token, not from the request body.
+        $user = $auth->user($request);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Please log in'], 401);
+        }
+        $userId = $user->getId();
 
-        if (!$userId || !is_numeric($scoreValue)) {
+        $data = json_decode($request->getContent(), true);
+        $scoreValue = $data['score'] ?? null;
+        $game = $data['game'] ?? Score::DEFAULT_GAME;
+
+        if (!is_numeric($scoreValue) || !in_array($game, Score::GAMES, true)) {
             return new JsonResponse(['message' => 'Invalid data'], 400);
         }
 
-        $user = $userRepository->find($userId);
-        if (!$user) {
-            return new JsonResponse(['message' => 'User not found'], 404);
-        }
+        // Check leaderboard position BEFORE saving the score (each game has its own leaderboard)
+        // "#1 today" is in the player's own day; tz = their IANA timezone (invalid/missing -> New York)
+        $tz = isset($data['tz']) && is_string($data['tz']) ? $data['tz'] : null;
+        $leaderboardCheck = $scoreRepository->checkLeaderboardPosition((int) $scoreValue, $game, $tz);
 
         $score = new Score();
         $score->setUser($user);
         $score->setScore((int) $scoreValue);
+        $score->setGame($game);
         $score->setCreatedAt(new \DateTimeImmutable());
 
         $em->persist($score);
         $em->flush();
 
+        // Dethroned emails are Classic-only for now.
+        if ($game !== 'classic') {
+            return new JsonResponse([
+                'message' => 'Score submitted',
+                'score' => $scoreValue,
+                'game' => $game,
+                'isDailyFirst' => $leaderboardCheck['isDailyFirst'],
+                'isAllTimeFirst' => $leaderboardCheck['isAllTimeFirst']
+            ], 200);
+        }
+
+        // Send dethroned emails if applicable
+        if ($leaderboardCheck['isAllTimeFirst'] && $leaderboardCheck['dethronedAllTimeLeader']) {
+            $dethroned = $leaderboardCheck['dethronedAllTimeLeader'];
+            
+            // Don't email if they beat their own record
+            if ($dethroned['userId'] !== $userId && $dethroned['email']) {
+                try {
+                    $emailService->sendDethronedEmail(
+                        $dethroned['email'],
+                        $dethroned['username'] ?? 'Champion',
+                        $dethroned['score'],
+                        (int) $scoreValue,
+                        $user->getUsername() ?? 'Anonymous',
+                        'all-time'
+                    );
+                } catch (\Exception $e) {
+                    // Log error but don't fail the request
+                    error_log('Failed to send dethroned email: ' . $e->getMessage());
+                }
+            }
+        }
+
+        if ($leaderboardCheck['isDailyFirst'] && $leaderboardCheck['dethronedDailyLeader']) {
+            $dethroned = $leaderboardCheck['dethronedDailyLeader'];
+            
+            // Don't email if they beat their own record or if same person as all-time
+            $isDifferentPerson = $dethroned['userId'] !== $userId;
+            $notAlreadyEmailed = !$leaderboardCheck['isAllTimeFirst'] || 
+                                $dethroned['userId'] !== $leaderboardCheck['dethronedAllTimeLeader']['userId'];
+            
+            if ($isDifferentPerson && $notAlreadyEmailed && $dethroned['email']) {
+                try {
+                    $emailService->sendDethronedEmail(
+                        $dethroned['email'],
+                        $dethroned['username'] ?? 'Champion',
+                        $dethroned['score'],
+                        (int) $scoreValue,
+                        $user->getUsername() ?? 'Anonymous',
+                        'daily'
+                    );
+                } catch (\Exception $e) {
+                    error_log('Failed to send dethroned email: ' . $e->getMessage());
+                }
+            }
+        }
+
         return new JsonResponse([
             'message' => 'Score submitted',
-            'score' => $scoreValue
+            'score' => $scoreValue,
+            'isDailyFirst' => $leaderboardCheck['isDailyFirst'],
+            'isAllTimeFirst' => $leaderboardCheck['isAllTimeFirst']
         ], 200);
     }
 
     #[Route('/all-time', methods: ['GET'])]
-    public function getAllTime(ScoreRepository $scoreRepository): JsonResponse
+    public function getAllTime(Request $request, ScoreRepository $scoreRepository): JsonResponse
     {
-        $leaderboard = $scoreRepository->getAllTimeLeaderboard(100);
+        $game = $request->query->get('game', Score::DEFAULT_GAME);
+        if (!in_array($game, Score::GAMES, true)) {
+            return new JsonResponse(['message' => 'Unknown game'], 400);
+        }
+        $leaderboard = $scoreRepository->getAllTimeLeaderboard(100, $game);
         
         return new JsonResponse([
             'type' => 'all-time',
@@ -59,9 +134,15 @@ class LeaderboardController extends AbstractController
     }
 
     #[Route('/daily', methods: ['GET'])]
-    public function getDaily(ScoreRepository $scoreRepository): JsonResponse
+    public function getDaily(Request $request, ScoreRepository $scoreRepository): JsonResponse
     {
-        $leaderboard = $scoreRepository->getDailyLeaderboard(100);
+        $game = $request->query->get('game', Score::DEFAULT_GAME);
+        if (!in_array($game, Score::GAMES, true)) {
+            return new JsonResponse(['message' => 'Unknown game'], 400);
+        }
+        // ?tz= is the viewer's IANA timezone, so "today" is their own day (invalid/missing -> New York)
+        $tz = $request->query->get('tz');
+        $leaderboard = $scoreRepository->getDailyLeaderboard(100, $game, is_string($tz) ? $tz : null);
         
         return new JsonResponse([
             'type' => 'daily',
@@ -72,16 +153,23 @@ class LeaderboardController extends AbstractController
     #[Route('/my-stats/{userId}', methods: ['GET'])]
     public function getMyStats(
         int $userId,
+        Request $request,
         ScoreRepository $scoreRepository,
         UserRepository $userRepository
     ): JsonResponse {
+        // ?game= picks whose best score and rank to report (default Classic, as before).
+        $game = $request->query->get('game', Score::DEFAULT_GAME);
+        if (!in_array($game, Score::GAMES, true)) {
+            return new JsonResponse(['message' => 'Unknown game'], 400);
+        }
+
         $user = $userRepository->find($userId);
         if (!$user) {
             return new JsonResponse(['message' => 'User not found'], 404);
         }
 
-        $bestScore = $scoreRepository->getUserBestScore($userId);
-        $rank = $scoreRepository->getUserAllTimeRank($userId);
+        $bestScore = $scoreRepository->getUserBestScore($userId, $game);
+        $rank = $scoreRepository->getUserAllTimeRank($userId, $game);
         $totalSelections = $user->getSelectionCount() ?? 0;
 
         // Calculate success percentage from selection history

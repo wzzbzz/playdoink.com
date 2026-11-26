@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ULTRADO!NK config</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <style>
+    :root { --green: #16871a; --green-1: #7efb7f; --red: #af1620; --ink: #222; --muted: #666; --line: #ddd; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f4f4f4; font-family: system-ui, sans-serif; color: var(--ink); }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 12px 16px 120px; }
+    .top { display: flex; align-items: center; gap: 10px; font-size: .85rem; }
+    .top a { color: var(--green); }
+    h1 { font-family: 'Luckiest Guy', system-ui, sans-serif; font-weight: 400; letter-spacing: .04em; font-size: 1.6rem; margin: 10px 0 4px; }
+    h1 span { color: var(--green); }
+    .sub { color: var(--muted); font-size: .85rem; margin: 0 0 14px; }
+
+    section { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+    section h2 { font-size: 1rem; margin: 0 0 8px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; }
+    .row + .row { border-top: 1px solid #f0f0f0; }
+    .row[hidden] { display: none; }
+    .row label { flex: 1; }
+    .row small { display: block; color: var(--muted); font-size: .75rem; }
+    input[type=number] { width: 84px; font: inherit; padding: 6px 8px; border: 1px solid #ccc; border-radius: 8px; text-align: right; }
+    select { font: inherit; padding: 6px 8px; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
+    input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--green); }
+    .is-off { opacity: .4; pointer-events: none; }
+
+    .mask { display: grid; gap: 6px; margin: 8px auto 4px; max-width: 280px; }
+    .mask button { aspect-ratio: 1; border-radius: 50%; border: 3px solid #bbb; background: linear-gradient(180deg, #fff 20%, #bbb); padding: 0; cursor: pointer; touch-action: manipulation; }
+    .mask button.off { background: transparent; border: 2px dashed #ccc; }
+    .mask-tools { display: flex; gap: 8px; justify-content: center; font-size: .8rem; }
+    .linkbtn { font: inherit; background: none; border: 0; color: var(--green); text-decoration: underline; cursor: pointer; padding: 0; }
+
+    textarea { width: 100%; min-height: 220px; font: .78rem/1.4 ui-monospace, Menlo, monospace; padding: 10px; border: 1px solid #ccc; border-radius: 8px; resize: vertical; }
+    .err { color: var(--red); font-size: .8rem; min-height: 1em; margin-top: 4px; }
+    details summary { cursor: pointer; font-weight: 600; }
+
+    .bar[hidden], .wrap[hidden] { display: none; }
+    .bar { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); }
+    .bar .in { max-width: 520px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 10px; align-items: center; }
+    .bar .msg { flex: 1; font-size: .8rem; color: var(--muted); }
+    .bar .msg.bad { color: var(--red); }
+    .btn { font: inherit; font-weight: 700; border-radius: 999px; padding: 10px 18px; cursor: pointer; border: 2px solid var(--green); background: #fff; color: var(--green); }
+    .btn.play { background: var(--green); color: #fff; font-size: 1.05rem; padding: 12px 28px; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn.small { padding: 6px 14px; font-size: .85rem; }
+    .save-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 8px; }
+    input[type=text] { font: inherit; padding: 6px 8px; border: 1px solid #ccc; border-radius: 8px; width: 60%; max-width: 260px; }
+    #save-msg.ok { color: var(--green); }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="gate" style="text-align:center;padding-top:60px">
+    <h1><span>ULTRA</span>DO!NK config</h1>
+    <p class="sub" id="gate-msg">Checking your login…</p>
+    <p><a href="ultradoink.html" style="color:var(--green)">&larr; Back to the game</a></p>
+  </div>
+  <div class="wrap" id="app" hidden>
+    <div class="top"><a href="ultradoink.html">&larr; Back to game</a></div>
+    <h1><span>ULTRA</span>DO!NK config</h1>
+    <p class="sub">Change the rules, then press Play. Your config is saved in this browser.</p>
+
+    <section>
+      <h2>Saved games</h2>
+      <div class="sub" id="who" style="margin:0 0 6px"></div>
+      <div class="row"><label for="saved-list">Load a saved game</label>
+        <select id="saved-list" class="nosync"><option value="">Loading…</option></select></div>
+      <div class="row"><label for="save-name">Name</label><input type="text" id="save-name" class="nosync" maxlength="100" placeholder="e.g. Diamond, 60s, lock in"></div>
+      <div class="save-tools">
+        <button class="btn small" id="save">Save</button>
+        <button class="btn small" id="save-new">Save as new</button>
+        <button class="btn small" id="make-live" disabled>Make live</button>
+        <button class="linkbtn" id="share" hidden>Copy link to this game</button>
+      </div>
+      <div class="err" id="save-msg"></div>
+      <p class="sub" style="margin:6px 0 0">The live game is the one everyone gets on the Ultrado!nk page. Make live uses the last saved version.</p>
+    </section>
+
+    <section>
+      <h2>Board</h2>
+      <div class="row"><label for="cols">Columns</label><input type="number" id="cols" min="1" max="12"></div>
+      <div class="row"><label for="rows">Rows</label><input type="number" id="rows" min="1" max="12"></div>
+      <div class="row"><label>Shape <small>Tap a circle to remove it from the board, tap again to bring it back.</small></label></div>
+      <div class="mask" id="mask"></div>
+      <div class="mask-tools"><button class="linkbtn" id="mask-all">Fill all</button> <button class="linkbtn" id="mask-invert">Invert</button></div>
+    </section>
+
+    <section>
+      <h2>Traps</h2>
+      <div class="row"><label for="trap-count">How many</label><input type="number" id="trap-count" min="0"></div>
+      <div class="row"><label for="trap-placement">Placement</label>
+        <select id="trap-placement"><option value="random">Random</option></select></div>
+      <div class="row"><label for="trap-visible">Hit traps stay visible</label><input type="checkbox" id="trap-visible"></div>
+      <div class="row"><label for="trap-greens">Greens after a trap
+        <small>Reset: tapped greens clear. Lock in: they stay, in a darker shade.</small></label>
+        <select id="trap-greens"><option value="reset">Reset</option><option value="lockIn">Lock in</option></select></div>
+    </section>
+
+    <section>
+      <h2>Golden Circle</h2>
+      <div class="row"><label for="golden-on">On <small>Wins outright if it's your first tap. Otherwise it's a normal green.</small></label><input type="checkbox" id="golden-on"></div>
+    </section>
+
+    <section>
+      <h2>Clock</h2>
+      <div class="row"><label for="seconds">Seconds</label><input type="number" id="seconds" min="1"></div>
+      <div class="row"><label for="starts">Starts</label>
+        <select id="starts"><option value="firstTap">On first tap</option><option value="load">Right away</option></select></div>
+      <div class="row"><label for="penalty">Trap penalty</label>
+        <select id="penalty"><option value="zone">Drop a zone</option><option value="seconds">Lose seconds</option><option value="none">None</option></select></div>
+      <div class="row" id="row-zones"><label for="zones">Zones on the time bar</label><input type="number" id="zones" min="1" max="10"></div>
+      <div class="row" id="row-amount"><label for="amount">Seconds lost per trap</label><input type="number" id="amount" min="0"></div>
+    </section>
+
+    <section>
+      <h2>Timing</h2>
+      <div class="row"><label for="tap-pause">Pause after each tap <small>milliseconds; 0 = none</small></label><input type="number" id="tap-pause" min="0" step="50"></div>
+      <div class="row"><label for="trap-pause">Pause after a trap <small>milliseconds</small></label><input type="number" id="trap-pause" min="0" step="50"></div>
+    </section>
+
+    <section>
+      <details>
+        <summary>Raw config (JSON)</summary>
+        <p class="sub" style="margin:8px 0">Everything above, as the game reads it. You can edit it here too; copy it to send to someone.</p>
+        <textarea id="json" spellcheck="false"></textarea>
+        <div class="err" id="json-err"></div>
+        <div class="mask-tools" style="justify-content:flex-start;gap:14px">
+          <button class="linkbtn" id="copy">Copy JSON</button>
+          <button class="linkbtn" id="reset">Start over from the default</button>
+        </div>
+      </details>
+    </section>
+  </div>
+
+  <div class="bar" id="bar" hidden><div class="in">
+    <div class="msg" id="msg"></div>
+    <button class="btn play" id="play">Play</button>
+  </div></div>
+
+  <script src="js/config.js"></script>
+  <script>
+  (() => {
+    const KEY = "ultradoink_custom_config";          // same key the game reads with ?config=custom
+    const DEFAULT_URL = "js/games/ultradoink.config.json";
+    const META_KEY = "ultradoink_custom_meta";       // { id, name } of the saved game being edited
+    const API = (typeof CONFIG !== "undefined" ? CONFIG.API_URL : "https://app.playdoink.com") + "/api/game-configs";
+    const $ = (id) => document.getElementById(id);
+    let cfg = null;
+
+    // ---- load ----
+    function loadDefault() {
+      return fetch(DEFAULT_URL, { cache: "no-store" }).then((r) => r.json());
+    }
+    function start() {
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+      (saved ? Promise.resolve(saved) : loadDefault())
+        .then((c) => { cfg = c.rules ? c : { rules: c }; normalize(); render(); })
+        .catch((e) => setMsg("Couldn't load the config: " + e.message, true));
+    }
+
+    // Make sure the parts the form edits exist.
+    function normalize() {
+      const r = cfg.rules;
+      r.grid = r.grid || { cols: 5, rows: 6 };
+      r.cellTypes = r.cellTypes || {};
+      r.cellTypes.trap = r.cellTypes.trap || { count: 3, placement: { algorithm: "random" }, onTap: [{ do: "penalty" }, { do: "greens", mode: "reset" }] };
+      r.cellTypes.golden = r.cellTypes.golden || { enabled: false, count: 1, placement: { algorithm: "random" }, onTap: [{ do: "win", if: "firstTap" }], otherwise: "green" };
+      r.clock = r.clock || { seconds: 45, startsOn: "firstTap", penalty: { type: "zone", zones: 3 } };
+      r.clock.penalty = r.clock.penalty || { type: "none" };
+      r.timing = r.timing || { tapPauseMs: 400, trapPauseMs: 700 };
+      r.win = r.win || { condition: "allGreens" };
+    }
+
+    // ---- helpers ----
+    const trap = () => cfg.rules.cellTypes.trap;
+    const golden = () => cfg.rules.cellTypes.golden;
+    function greensEffect() {
+      const t = trap(); t.onTap = t.onTap || [];
+      let e = t.onTap.find((x) => x.do === "greens");
+      if (!e) { e = { do: "greens", mode: "reset" }; t.onTap.push(e); }
+      return e;
+    }
+    function maskRows() {
+      const g = cfg.rules.grid, out = [];
+      for (let y = 0; y < g.rows; y++) {
+        let row = "";
+        for (let x = 0; x < g.cols; x++) row += g.mask ? (((g.mask[y] || "")[x] || ".").toUpperCase() === "O" ? "O" : ".") : "O";
+        out.push(row);
+      }
+      return out;
+    }
+    function setMask(rows) {
+      // no mask needed when every cell is on
+      if (rows.every((r) => !r.includes("."))) delete cfg.rules.grid.mask;
+      else cfg.rules.grid.mask = rows;
+    }
+    const cellCount = () => maskRows().join("").split("").filter((c) => c === "O").length;
+    const int = (el, fallback) => { const v = parseInt(el.value, 10); return isNaN(v) ? fallback : v; };
+
+    // ---- render form from cfg ----
+    function render() {
+      const r = cfg.rules, t = trap(), g = golden(), p = r.clock.penalty;
+      $("cols").value = r.grid.cols;
+      $("rows").value = r.grid.rows;
+      $("trap-count").value = t.count;
+      $("trap-placement").value = (t.placement && t.placement.algorithm) || "random";
+      $("trap-visible").checked = !!t.stayVisible;
+      $("trap-greens").value = greensEffect().mode || "reset";
+      $("golden-on").checked = g.enabled !== false;
+      $("seconds").value = r.clock.seconds;
+      $("starts").value = r.clock.startsOn || "firstTap";
+      $("penalty").value = p.type;
+      $("zones").value = p.zones || 3;
+      $("amount").value = p.amount ?? 5;
+      $("row-zones").hidden = p.type !== "zone";
+      $("row-amount").hidden = p.type !== "seconds";
+      $("tap-pause").value = r.timing.tapPauseMs;
+      $("trap-pause").value = r.timing.trapPauseMs;
+      renderMask();
+      renderJson();
+      check();
+    }
+
+    function renderMask() {
+      const g = cfg.rules.grid, rows = maskRows(), el = $("mask");
+      el.style.gridTemplateColumns = `repeat(${g.cols}, minmax(0, 1fr))`;
+      el.innerHTML = "";
+      rows.forEach((row, y) => row.split("").forEach((c, x) => {
+        const b = document.createElement("button");
+        b.className = c === "O" ? "" : "off";
+        b.setAttribute("aria-label", `row ${y + 1} column ${x + 1} ${c === "O" ? "on" : "off"}`);
+        b.addEventListener("click", () => {
+          const rs = maskRows();
+          rs[y] = rs[y].substring(0, x) + (rs[y][x] === "O" ? "." : "O") + rs[y].substring(x + 1);
+          setMask(rs); changed();
+        });
+        el.appendChild(b);
+      }));
+    }
+
+    function renderJson() {
+      if (document.activeElement !== $("json")) $("json").value = JSON.stringify(cfg, null, 2);
+      $("json-err").textContent = "";
+    }
+
+    // ---- read form into cfg ----
+    function readForm() {
+      const r = cfg.rules, t = trap(), g = golden();
+      const cols = Math.max(1, Math.min(12, int($("cols"), r.grid.cols)));
+      const rows = Math.max(1, Math.min(12, int($("rows"), r.grid.rows)));
+      if (cols !== r.grid.cols || rows !== r.grid.rows) {
+        const old = maskRows();
+        r.grid.cols = cols; r.grid.rows = rows;
+        const next = [];
+        for (let y = 0; y < rows; y++) { let s = ""; for (let x = 0; x < cols; x++) s += (old[y] && old[y][x]) || "O"; next.push(s); }
+        setMask(next);
+      }
+      t.count = Math.max(0, int($("trap-count"), t.count));
+      t.placement = Object.assign({}, t.placement, { algorithm: $("trap-placement").value });
+      t.stayVisible = $("trap-visible").checked;
+      greensEffect().mode = $("trap-greens").value;
+      g.enabled = $("golden-on").checked;
+      r.clock.seconds = Math.max(1, int($("seconds"), r.clock.seconds));
+      r.clock.startsOn = $("starts").value;
+      const type = $("penalty").value;
+      if (type === "zone") r.clock.penalty = { type, zones: Math.max(1, int($("zones"), 3)) };
+      else if (type === "seconds") r.clock.penalty = { type, amount: Math.max(0, int($("amount"), 5)) };
+      else r.clock.penalty = { type: "none" };
+      r.timing.tapPauseMs = Math.max(0, int($("tap-pause"), r.timing.tapPauseMs));
+      r.timing.trapPauseMs = Math.max(0, int($("trap-pause"), r.timing.trapPauseMs));
+    }
+
+    function changed() { save(); render(); }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} }
+
+    // ---- validate ----
+    function check() {
+      const cells = cellCount(), t = trap(), g = golden();
+      const specials = (t.count || 0) + (g.enabled !== false && g.otherwise !== "green" ? (g.count || 0) : 0);
+      let problem = "";
+      if (cells < 1) problem = "The board has no circles.";
+      else if ((t.count || 0) + (g.enabled !== false ? (g.count || 0) : 0) >= cells) problem = `Too many traps for ${cells} circles.`;
+      const greens = cells - specials;
+      setMsg(problem || `${cells} circles · ${t.count} trap${t.count === 1 ? "" : "s"} · ${greens} greens to find · ${cfg.rules.clock.seconds}s`, !!problem);
+      $("play").disabled = !!problem;
+      return !problem;
+    }
+    function setMsg(text, bad) { $("msg").textContent = text; $("msg").classList.toggle("bad", !!bad); }
+
+    // ---- wire up ----
+    document.querySelectorAll("input:not(.nosync), select:not(.nosync)").forEach((el) =>
+      el.addEventListener("change", () => { readForm(); changed(); }));
+    $("mask-all").addEventListener("click", () => { setMask(maskRows().map((r) => "O".repeat(r.length))); changed(); });
+    $("mask-invert").addEventListener("click", () => { setMask(maskRows().map((r) => r.split("").map((c) => (c === "O" ? "." : "O")).join(""))); changed(); });
+
+    $("json").addEventListener("input", () => {
+      try {
+        const c = JSON.parse($("json").value);
+        cfg = c.rules ? c : { rules: c };
+        normalize(); save();
+        $("json-err").textContent = "";
+        const a = document.activeElement; render(); a && a.focus();
+      } catch (e) { $("json-err").textContent = "Not valid JSON yet: " + e.message; $("play").disabled = true; }
+    });
+    $("copy").addEventListener("click", () => {
+      const text = JSON.stringify(cfg, null, 2);
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+        .then(() => setMsg("Copied the config."))
+        .catch(() => { $("json").select(); setMsg("Select-all done; copy it with your keyboard."); });
+    });
+    $("reset").addEventListener("click", () => {
+      if (!confirm("Throw away your changes and start from the default config?")) return;
+      loadDefault().then((c) => { cfg = c; normalize(); meta = {}; saveMeta(); showMeta(); $("saved-list").value = ""; changed(); });
+    });
+    $("play").addEventListener("click", () => {
+      readForm();
+      if (!check()) return;
+      save();
+      location.href = "ultradoink.html?config=custom";
+    });
+
+    // ---- saved games (Do!nk database) ----
+    let meta = {};
+    try { meta = JSON.parse(localStorage.getItem(META_KEY)) || {}; } catch (e) {}
+    const saveMeta = () => { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {} };
+    function saveMsg(text, ok) { $("save-msg").textContent = text; $("save-msg").classList.toggle("ok", !!ok); }
+    function showMeta() {
+      const u = me(), canEdit = !!u.apiToken;
+      $("who").innerHTML = canEdit
+        ? `Logged in as <b>${(u.username || u.email || "you").replace(/</g, "&lt;")}</b>.`
+        : `To save games, <a href="/">log in on the Do!nk home page</a> first${u.id ? " (log in again if you last logged in before today)" : ""}, then come back here.`;
+      $("save-name").value = meta.name || "";
+      $("save-new").disabled = !canEdit;
+      $("save").disabled = !meta.id || !canEdit;
+      $("make-live").disabled = !meta.id || !canEdit;
+      $("share").hidden = !meta.id;
+    }
+    function me() { try { return JSON.parse(localStorage.getItem("doink_user")) || {}; } catch (e) { return {}; } }
+    function api(path, opts) {
+      const headers = { "Content-Type": "application/json" };
+      if (me().apiToken) headers.Authorization = "Bearer " + me().apiToken;
+      return fetch(API + path, Object.assign({ headers }, opts))
+        .then((r) => r.json().catch(() => ({})).then((j) => { if (!r.ok) throw new Error(j.message || ("error " + r.status)); return j; }));
+    }
+    function refreshList() {
+      return api("?game=ultradoink").then((list) => {
+        $("saved-list").innerHTML = '<option value="">' + (list.length ? "Choose…" : "No saved games yet") + "</option>" +
+          list.map((c) => `<option value="${c.id}">${c.live ? "★ LIVE · " : ""}${c.name.replace(/</g, "&lt;")}${c.createdBy ? " (" + c.createdBy.replace(/</g, "&lt;") + ")" : ""}</option>`).join("");
+        if (meta.id) $("saved-list").value = String(meta.id);
+      }).catch((e) => { $("saved-list").innerHTML = '<option value="">Couldn\'t reach the database</option>'; saveMsg(e.message); });
+    }
+    function doSave(asNew) {
+      readForm();
+      if (!check()) return;
+      const name = $("save-name").value.trim();
+      if (!name) { saveMsg("Give it a name first."); $("save-name").focus(); return; }
+      const req = asNew || !meta.id
+        ? api("", { method: "POST", body: JSON.stringify({ game: "ultradoink", name, rules: cfg.rules }) })
+        : api("/" + meta.id, { method: "PUT", body: JSON.stringify({ name, rules: cfg.rules }) });
+      $("save").disabled = $("save-new").disabled = true;
+      req.then((c) => { meta = { id: c.id, name: c.name }; saveMeta(); showMeta(); saveMsg(`Saved "${c.name}".`, true); return refreshList(); })
+        .catch((e) => saveMsg("Couldn't save: " + e.message))
+        .finally(() => { $("save-new").disabled = false; showMeta(); });
+    }
+    $("save").addEventListener("click", () => doSave(false));
+    $("save-new").addEventListener("click", () => doSave(true));
+    $("saved-list").addEventListener("change", () => {
+      const id = $("saved-list").value;
+      if (!id) return;
+      api("/" + id).then((c) => {
+        cfg = { rules: c.rules }; normalize(); save();
+        meta = { id: c.id, name: c.name }; saveMeta(); showMeta(); render();
+        saveMsg(`Loaded "${c.name}".`, true);
+      }).catch((e) => saveMsg("Couldn't load: " + e.message));
+    });
+    $("make-live").addEventListener("click", () => {
+      if (!meta.id) return;
+      if (!confirm(`Make "${meta.name}" the live game for everyone? (Unsaved changes aren't included.)`)) return;
+      api("/" + meta.id + "/make-live", { method: "POST" })
+        .then((c) => { saveMsg(`"${c.name}" is now live.`, true); return refreshList(); })
+        .catch((e) => saveMsg("Couldn't make it live: " + e.message));
+    });
+    $("share").addEventListener("click", () => {
+      const url = new URL("ultradoink.html?config=saved:" + meta.id, location.href).href;
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
+        .then(() => saveMsg("Link copied: " + url, true))
+        .catch(() => saveMsg(url, true));
+    });
+
+    // The config tool is for editors only (Jim and Craig). The API enforces this too.
+    const u = me();
+    const gate = (msg) => { $("gate-msg").innerHTML = msg; };
+    if (!u.apiToken) {
+      gate('The config tool is for Do!nk editors. <a href="/" style="color:var(--green)">Log in on the Do!nk home page</a>, then come back here.');
+    } else {
+      fetch(CONFIG.API_URL + "/api/auth/me", { headers: { Authorization: "Bearer " + u.apiToken } })
+        .then((r) => (r.ok ? r.json() : {}))
+        .then((who) => {
+          if (!who.isEditor) return gate("The config tool is for Do!nk editors only.");
+          $("gate").hidden = true; $("app").hidden = false; $("bar").hidden = false;
+          showMeta();
+          refreshList();
+          start();
+        })
+        .catch(() => gate("Couldn't check your login. Try again in a moment."));
+    }
+  })();
+  </script>
+</body>
+</html>

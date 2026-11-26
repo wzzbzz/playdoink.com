@@ -22,11 +22,19 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $email = null;
 
+    /** IANA timezone for "today" on the leaderboards (e.g. "Europe/London"); null = the device's own. */
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $timezone = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $loginToken = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $loginTokenExpiresAt = null;
+
+    /** sha256 of the API token issued at login; sent back as "Authorization: Bearer <token>". */
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $apiTokenHash = null;
 
     #[ORM\Column(type: 'blob', nullable: true)]
     private $selectionHistory = null;
@@ -64,6 +72,18 @@ class User
     public function setUsername(?string $username): static
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    public function getTimezone(): ?string
+    {
+        return $this->timezone;
+    }
+
+    public function setTimezone(?string $timezone): static
+    {
+        $this->timezone = $timezone;
 
         return $this;
     }
@@ -178,6 +198,18 @@ class User
     public function setSelectionCount(?int $selectionCount): static
     {
         $this->selectionCount = $selectionCount;
+
+        return $this;
+    }
+
+    public function getApiTokenHash(): ?string
+    {
+        return $this->apiTokenHash;
+    }
+
+    public function setApiTokenHash(?string $apiTokenHash): static
+    {
+        $this->apiTokenHash = $apiTokenHash;
 
         return $this;
     }

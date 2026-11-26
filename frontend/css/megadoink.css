@@ -1,0 +1,324 @@
+/* megadoink.css: grid modes (MEGADOINK and ULTRADOINK) */
+#megadoink, #ultradoink {
+  --md-grey-1: #ffffff; --md-grey-2: #bbbbbb;
+  --md-green-1: #7efb7f; --md-green-2: #16871a;
+  --md-red-1: #fb9fa1; --md-red-2: #af1620;
+  --md-ink: #222;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px;
+  font-family: inherit;
+  color: var(--md-ink);
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.md-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.md-title { font-family: 'Luckiest Guy', system-ui, sans-serif; font-weight: 400; letter-spacing: .04em; font-size: 1.6rem; color: #222; }
+.md-prefix { color: var(--md-green-2); }
+.md-score { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.md-best { font-size: .8rem; opacity: .6; margin-left: 8px; }
+.md-round { font-size: .9rem; font-weight: 700; margin-right: 8px; color: var(--md-green-2); }
+.md-points { font-size: .9rem; margin-left: 8px; font-weight: 700; color: #8a6400; }
+
+.md-grid { display: grid; gap: 10px; }
+.md-cell {
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: 50%;
+  border: 4px solid var(--md-grey-2);
+  background: linear-gradient(180deg, var(--md-grey-1) 20%, var(--md-grey-2));
+  cursor: pointer;
+  padding: 0;
+  transition: transform .08s ease, background .12s ease;
+  touch-action: manipulation;
+}
+.md-cell:active { transform: scale(.94); }
+.md-cell.is-green { border-color: var(--md-green-2); background: linear-gradient(180deg, var(--md-green-1) 20%, var(--md-green-2)); cursor: default; }
+.md-cell.is-red   { border-color: var(--md-red-2);   background: linear-gradient(180deg, var(--md-red-1) 20%, var(--md-red-2)); cursor: default; }
+.md-cell.is-dim { opacity: .35; cursor: default; }
+/* Cell types for both grid modes (class is "is-" + the cellType name in the config) */
+.md-cell.is-trap  { border-color: var(--md-red-2); background: linear-gradient(180deg, var(--md-red-1) 20%, var(--md-red-2)); cursor: default; }
+.md-cell.is-golden,
+.md-cell.is-green.is-golden { border-color: #b8860b; background: linear-gradient(180deg, #ffe680 20%, #f5c518); cursor: default; }
+.md-cell.is-green.is-set { filter: brightness(.75); }
+.md-cell.is-void { display: block; visibility: hidden; pointer-events: none; }
+#megadoink { position: relative; }
+.md-pop {
+  position: absolute; transform: translate(-50%, 0); pointer-events: none; white-space: nowrap;
+  font-weight: 700; font-size: 1.1rem; color: #8a6400; text-shadow: 0 1px 0 #fff;
+  animation: md-pop 1.2s ease-out forwards;
+}
+/* Gold hit: big "+N" in Luckiest Guy, ~0.6s, centred on the cell (Craig, Nov 10). */
+.md-pop.md-pop-gold {
+  font-family: 'Luckiest Guy', Arial, sans-serif; font-weight: 400; font-size: 3rem; line-height: 1;
+  color: #f29f05; -webkit-text-stroke: 1px #b36b00; text-shadow: 0 2px 0 rgba(0,0,0,.15);
+  margin-top: 10px; z-index: 5; animation: md-pop-gold .7s ease-out forwards;
+}
+@keyframes md-pop-gold {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(.7); }
+  15%  { opacity: 1; transform: translate(-50%, -6px) scale(1.1); }
+  65%  { opacity: 1; transform: translate(-50%, -30px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50px) scale(1); }
+}
+@keyframes md-pop { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -40px); } }
+#megadoink.is-locked .md-cell, #ultradoink.is-locked .md-cell { cursor: wait; }
+
+.md-result { margin-top: 18px; font-size: 1.2rem; font-weight: 700; }   /* error messages only */
+.md-lb { margin-top: 10px; font-size: .95rem; }
+.md-lb-tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.md-lb-tabs button { font: inherit; padding: 4px 12px; border-radius: 999px; border: 1px solid #bbb; background: #fff; cursor: pointer; }
+.md-lb-tabs button.is-on { border-color: var(--md-green-2); color: var(--md-green-2); font-weight: 700; }
+.md-lb-table { margin: 0 auto; border-collapse: collapse; }
+.md-lb-table td { padding: 3px 10px; text-align: left; }
+.md-lb-table td:first-child, .md-lb-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---- MEGADO!NK fits the screen (Craig, Nov 12): no scrolling in portrait on a phone. ----
+   The page is a column the height of the visible viewport (megadoink.html); the board takes whatever
+   height is left under the header, and the grid is as big as fits in it, keeping round cells. */
+#megadoink {
+  --md-gap: 10px;
+  flex: 1; min-height: 0; width: 100%; box-sizing: border-box;
+  display: flex; flex-direction: column;
+  padding: 8px 16px max(12px, env(safe-area-inset-bottom));
+}
+#megadoink .md-head { flex: none; }
+#megadoink .md-board {
+  flex: 1; min-height: 0; position: relative;
+  display: flex; justify-content: center; align-items: flex-start;
+}
+#megadoink .md-grid { width: 100%; gap: var(--md-gap); }
+@supports (width: 1cqw) {
+  #megadoink .md-board { container-type: size; }
+  /* widest grid whose height (rows of round cells + gaps) still fits the board */
+  #megadoink .md-grid {
+    width: min(100cqw, calc((100cqh - (var(--rows) - 1) * var(--md-gap)) * var(--cols) / var(--rows)
+                            + (var(--cols) - 1) * var(--md-gap)));
+  }
+}
+
+/* End-of-game popup over the grid: same look as Do!nk's (#results in game.css, copied rather than
+   shared because game.css also styles Do!nk's own #game-console). */
+.md-end {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+.md-end[hidden] { display: none; }
+.md-end-box {
+  box-sizing: border-box; width: min(92%, 300px); max-height: 100%; overflow-y: auto;
+  border: 8px solid #2b8bf6; border-radius: 20px; background: #fff; padding: .6em .7em;
+  font-family: 'Luckiest Guy', system-ui, sans-serif; font-size: 2rem; line-height: 1.15; color: #000;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
+}
+.md-playagain {
+  margin: .3em auto 0; display: block;
+  border: 3px solid #62bf5e; border-radius: 10px; background: #fff; color: #62bf5e;
+  font-family: 'Luckiest Guy', sans-serif; font-size: 2rem; padding: 10px 12px 2px; cursor: pointer;
+}
+.md-end .md-share { font-family: system-ui, sans-serif; line-height: normal; }
+.md-end .md-share #share-buttons { margin: 12px 0 0; }
+.md-end .md-share #native-share { margin-top: 12px; width: 100%; }
+.md-save, .md-lb-link {
+  display: block; margin-top: 8px; font-family: system-ui, sans-serif; font-size: .8rem; line-height: 1.3;
+  color: #777;
+}
+.md-save a, .md-lb-link { color: #777; }
+
+/* ULTRADOINK: board + life bar alongside */
+#ultradoink { max-width: 480px; }
+.ud-board { display: flex; gap: 12px; align-items: stretch; }
+.ud-board .md-grid { flex: 1; gap: 8px; }
+.ud-life {
+  position: relative; width: 22px; flex: none;
+  border-radius: 11px; background: #ddd; overflow: hidden;
+}
+.ud-life-zones { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.ud-life-zones i { flex: 1; border-bottom: 2px solid rgba(255,255,255,.7); }
+.ud-life-zones i:last-child { border-bottom: 0; }
+.ud-life-fill {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: var(--md-green-2); transition: background .2s ease;
+}
+.ud-life-fill[data-zone="yellow"] { background: #e0a800; }
+.ud-life-fill[data-zone="red"] { background: var(--md-red-2); }
+.ud-life-text {
+  position: absolute; left: 0; right: 0; top: 4px;
+  font-size: .7rem; font-weight: 700; color: #fff; text-shadow: 0 0 3px rgba(0,0,0,.5);
+  font-variant-numeric: tabular-nums;
+}
+.ud-hint { margin-top: 10px; font-size: .85rem; opacity: .6; }
+#ultradoink.is-hit .md-grid { animation: ud-shake .3s ease; }
+@keyframes ud-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* "ROUND N" on a new round: small "ROUND" over a big numeral, Do!nk popup blue, grows from the
+   centre of the board and fades out with the fanfare (~2.1s). Craig, Nov 10. */
+.md-round-banner {
+  position: absolute; z-index: 6; pointer-events: none; text-align: center; line-height: .85;
+  font-family: 'Luckiest Guy', Arial, sans-serif; color: #2b8bf6;
+  transform: translate(-50%, -50%) scale(.15); opacity: 0;
+  animation: md-round-in 2.1s ease-out forwards;
+}
+.md-round-word { display: block; font-size: 3.6rem; }
+.md-round-num { display: block; font-size: 14rem; }
+@keyframes md-round-in {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(.15); }
+  30%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* ---- MEGADO!NK header (Craig, Nov 12) ---- */
+/* Top bar: everything in the same quiet grey as Do!nk's sound/menu icons. */
+.md-topbar {
+  flex: none; width: 100%; max-width: 420px; box-sizing: border-box; margin: 0 auto;
+  padding: 6px 16px 0;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  font-family: system-ui, sans-serif; font-size: .85rem; color: rgba(128, 128, 128, .8);
+}
+.md-topbar a { color: inherit; }
+.md-home { justify-self: start; text-decoration: none; }
+.md-user { justify-self: center; max-width: 9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.md-tools { justify-self: end; display: flex; gap: 6px; }
+.md-icon-btn {
+  /* iOS Safari: no native button padding/appearance, or the icon can collapse to blank (iPad fix) */
+  -webkit-appearance: none; appearance: none; padding: 0; margin: 0;
+  width: 36px; height: 36px; border-radius: 8px; border: 0; background: transparent;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: rgba(128, 128, 128, .6); font: 1.4rem/1 Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.md-icon-btn:hover { color: rgba(128, 128, 128, .9); }
+.md-icon-btn .mute-icon { width: 22px; height: 22px; min-width: 22px; flex-shrink: 0; }
+.md-mute.muted { color: rgba(128, 128, 128, .45); }
+
+/* Logo row: MEGADO!NK big and left (about 2/3 of the width), one score box on the right. */
+#megadoink .md-head {
+  justify-content: space-between; align-items: center; gap: 10px; margin: 2px auto 10px;
+  box-sizing: border-box; max-width: 100%;
+}
+#megadoink .md-title {
+  font-size: min(10.5vw, 2.9rem); line-height: 1; letter-spacing: .02em; padding-top: .08em;
+  white-space: nowrap; color: #000;
+}
+#megadoink .md-prefix { color: #2b8bf6; }
+.md-scorebox {
+  flex: none; min-width: 2.4em; box-sizing: border-box; padding: .14em .35em 0;
+  border: 3px solid #f5c518; border-radius: 10px; background: #000; color: #fff;
+  font-family: 'Luckiest Guy', system-ui, sans-serif; font-size: min(8vw, 2.1rem); line-height: 1.15;
+  text-align: center; font-variant-numeric: tabular-nums;
+}
+
+/* Menu overlay, same look as Do!nk's game menu. */
+.md-overlay {
+  position: fixed; inset: 0; z-index: 50; box-sizing: border-box;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, .5); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+}
+.md-overlay[hidden] { display: none; }
+.md-menu-box {
+  position: relative; box-sizing: border-box; width: 100%; max-width: 400px; max-height: 100%; overflow-y: auto;
+  background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, .3);
+  font-family: system-ui, sans-serif; text-align: left;
+}
+.md-menu-box h2 {
+  font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 2.2rem; color: #2b8bf6;
+  text-align: center; margin: 0 0 1.2rem;
+}
+.md-close {
+  position: absolute; top: .6rem; right: .6rem; width: 40px; height: 40px; border: 0; background: none;
+  font: 2rem/1 Arial, sans-serif; color: #999; cursor: pointer; padding: 0; -webkit-appearance: none; appearance: none;
+}
+.md-close:hover { color: #333; }
+.md-menu-options { display: flex; flex-direction: column; gap: .8rem; }
+.md-menu-opt {
+  display: flex; align-items: center; gap: 1rem; box-sizing: border-box; width: 100%;
+  padding: .8rem 1.4rem; border: 0; border-radius: 12px; cursor: pointer; text-decoration: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
+  font-family: 'Luckiest Guy', cursive; font-size: 1.4rem; text-align: left;
+  transition: transform .2s, box-shadow .2s;
+}
+.md-menu-opt:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, .2); }
+.md-menu-icon { font-size: 1.7rem; }
+.md-legal { margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; text-align: center; font-size: .75rem; }
+.md-legal a { color: #999; text-decoration: none; }
+.md-legal span { color: #ccc; margin: 0 .5rem; }
+.md-rules { margin: 0; padding-left: 1.2em; font-size: 1rem; line-height: 1.45; color: #222; }
+.md-rules li { margin-bottom: .5em; }
+.md-rules .r { color: #af1620; } .md-rules .g { color: #16871a; } .md-rules .y { color: #b8860b; }
+.md-back {
+  margin-top: 1rem; border: 0; background: none; color: #667eea; font: 600 1rem system-ui, sans-serif;
+  cursor: pointer; padding: 0;
+}
+.md-menu-box .md-lb { margin-top: 0; text-align: center; }
+
+/* Login panel: Do!nk's Login/Register form (css/intro-screen.css), same look. */
+.md-auth-sub { text-align: center; margin: -.6rem 0 1rem; font: 1rem Arial, sans-serif; color: #555; }
+.md-auth-form { display: flex; flex-direction: column; gap: .8rem; }
+#md-email {
+  font: 1rem Arial, sans-serif; padding: .9rem; border: 3px solid #2b8bf6; border-radius: 8px; outline: none;
+  box-sizing: border-box; width: 100%;
+}
+#md-email:focus { border-color: #62bf5e; }
+#md-auth-submit {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.4rem; padding: .8rem; border: 0; border-radius: 8px;
+  background: #62bf5e; color: #fff; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+#md-auth-submit:hover { background: #4fa047; }
+#md-auth-submit:disabled { background: #ccc; cursor: not-allowed; }
+.md-auth-msg { margin-top: .8rem; padding: .8rem; border-radius: 8px; font: .95rem Arial, sans-serif; }
+.md-auth-msg.success { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+.md-auth-msg.error { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+.md-auth-foot { text-align: center; font: .85rem Arial, sans-serif; color: #777; margin: 1rem 0 0; }
+
+/* Achievement banner over the end popup: Do!nk's .high-score-notification (game.css), same look and motion. */
+.md-banner {
+  position: fixed; top: 50%; left: 50%; z-index: 10000; box-sizing: border-box;
+  width: min(92vw, 380px); padding: 1.5rem 1rem; text-align: center; pointer-events: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
+  font-family: 'Luckiest Guy', cursive; font-size: 1.8rem; line-height: 1.15;
+  border: 4px solid #fff; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+  opacity: 0; transform: translate(-50%, -50%) scale(.8);
+  transition: all .5s cubic-bezier(.68, -.55, .265, 1.55);
+}
+.md-banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* Nickname panel: Do!nk's nickname prompt look (templates/nickname-overlay.php). */
+#md-nick {
+  font: 1rem Arial, sans-serif; padding: .9rem; border: 3px solid #2b8bf6; border-radius: 8px; outline: none;
+  text-align: center; box-sizing: border-box; width: 100%;
+}
+#md-nick:focus { border-color: #62bf5e; }
+#md-nick-submit {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.4rem; padding: .8rem; border: 0; border-radius: 8px;
+  background: #62bf5e; color: #fff; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+#md-nick-submit:hover { background: #4fa047; }
+#md-nick-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+/* ULTRADO!NK title: ULTRA red, DO!NK black (STYLEGUIDE.md). */
+#ultradoink .md-title { color: #000; }
+#ultradoink .md-prefix { color: #e00000; }
+
+/* Settings panel (shared form, js/utils.js initSettingsForm). */
+.md-menu-box .settings-form { font-family: Arial, sans-serif; text-align: left; }
+.md-menu-box .settings-label { display: block; font-weight: 700; color: #444; margin: .9rem 0 .4rem; }
+.md-menu-box .settings-row { display: flex; gap: .5rem; }
+.md-menu-box .settings-row[hidden] { display: none; }
+.md-menu-box .settings-form input, .md-menu-box .settings-form select {
+  flex: 1; min-width: 0; width: 100%; box-sizing: border-box; font: 1rem Arial, sans-serif;
+  padding: .7rem; border: 3px solid #2b8bf6; border-radius: 8px; outline: none; background: #fff;
+}
+.md-menu-box .settings-form input:focus, .md-menu-box .settings-form select:focus { border-color: #62bf5e; }
+.md-menu-box .settings-save {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.2rem; padding: .6rem 1rem; border: 0; border-radius: 8px;
+  background: #62bf5e; color: #fff; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+.md-menu-box .settings-note { font-size: .85rem; color: #777; margin: .4rem 0 0; }
+.md-menu-box .settings-note a { color: #2b8bf6; }
+.md-menu-box .settings-msg { font-size: .85rem; margin-top: .4rem; }
+.md-menu-box .settings-msg.ok { color: #155724; }
+.md-menu-box .settings-msg.err { color: #721c24; }
+
+/* New round: the board is slightly faded and ignores taps while ROUND N plays (megadoinkGame lockNewRound). */
+#megadoink .md-grid { transition: opacity .3s ease; }
+#megadoink.is-new-round .md-grid { opacity: .7; }

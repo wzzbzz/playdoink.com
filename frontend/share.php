@@ -1,24 +1,50 @@
 <?php
 $score = isset($_GET['score']) ? intval($_GET['score']) : 0;
 
+// Links and images must point at the game's own site (doink.playdoink.com),
+// not the playdoink.com hub, or link previews come up blank.
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$base = preg_match('/^[a-z0-9.:-]+$/i', $host) ? "https://" . $host : "https://doink.playdoink.com";
+
+// Which game the share is for (Doink by default). Only these names are accepted.
+$games = [
+    "doink"     => ["title" => "DO!NK",     "file" => "score-",           "page" => "/",
+                    "name" => [["DO!NK", "#2b8bf6"]]],
+    "megadoink" => ["title" => "MEGADO!NK", "file" => "megadoink-score-", "page" => "/megadoink.html",
+                    "name" => [["MEGA", "#2b8bf6"], ["DO!NK", "#000000"]]],
+];
+$gameKey = isset($_GET['game']) && isset($games[$_GET['game']]) ? $_GET['game'] : "doink";
+$game = $games[$gameKey];
+$gameParam = $gameKey === "doink" ? "" : "&game=" . $gameKey;
+
+// If the image isn't there yet (e.g. an old link), draw it now so the preview isn't blank.
+$score = max(0, min($score, 99999));
+$imgPath = __DIR__ . "/scores/" . $game["file"] . $score . ".png";
+if (!file_exists($imgPath) && is_writable(__DIR__ . "/scores")) {
+    require_once __DIR__ . '/src/ScoreImage.php';
+    if (ScoreImage::available()) file_put_contents($imgPath, ScoreImage::png($score, $game["name"]));
+}
+
 // build image + page URLs
-$imgUrl  = "https://playdoink.com/scores/score-" . $score . ".png";
-$pageUrl = "https://doink.playdoink.com/share.php?img=" . urlencode($img) . "&score=" . $score;
-$gameUrl = "https://doink.playdoink.com/"; // <-- your actual game link
+$imgUrl  = $base . "/scores/" . $game["file"] . $score . ".png";
+$pageUrl = $base . "/share.php?score=" . $score . $gameParam;
+$gameUrl = $base . $game["page"];
 
 ?>
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>I scored <?= $score ?> in DO!NK!</title>
+  <title>I scored <?= $score ?> in <?= $game["title"] ?>!</title>
 
   <!-- Open Graph -->
-  <meta property="og:title" content="DO!NK" />
-  <meta property="og:description" content="" />
+  <meta property="og:title" content="<?= $game["title"] ?>" />
+  <meta property="og:description" content="Can you beat my <?= $score ?>?" />
   <meta property="og:image" content="<?= $imgUrl ?>" />
   <meta property="og:url" content="<?= $pageUrl ?>" />
   <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="<?= $imgUrl ?>" />
 
   <script>
     // Redirect to the game URL immediately
